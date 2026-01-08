@@ -11,10 +11,13 @@ const ConversationGuide = ({ allToolsCompleted = false }) => {
         };
     });
 
-    // Save conversation data to localStorage
+    // Save conversation data and score to localStorage
     React.useEffect(() => {
-        localStorage.setItem('imi-conversation-data', JSON.stringify(formData));
-    }, [formData]);
+        localStorage.setItem('imi-conversation-data', JSON.stringify({
+            ...formData,
+            matchScore: matchScore
+        }));
+    }, [formData, matchScore]);
     const [showMessage, setShowMessage] = useState(false);
     const [message, setMessage] = useState('');
     const [matchScore, setMatchScore] = useState(0);

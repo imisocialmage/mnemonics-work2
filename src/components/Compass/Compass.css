@@ -363,3 +363,195 @@
         }
     }
 }
+
+/* Node Advice Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.node-advice-modal {
+    background: var(--digital-white);
+    width: 90%;
+    max-width: 600px;
+    border-radius: 20px;
+    position: relative;
+    padding: 40px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--midnight-black);
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.modal-close:hover {
+    opacity: 1;
+}
+
+.plan-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.plan-item {
+    font-size: 0.95rem;
+    color: var(--midnight-black);
+    padding: 8px;
+    background: rgba(41, 121, 255, 0.05);
+    border-radius: 6px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+@media (min-width: 640px) {
+    .calendar-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.calendar-week {
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+}
+
+.calendar-items {
+    margin-top: 5px;
+    padding-left: 18px;
+}
+
+.calendar-items li {
+    font-size: 0.9rem;
+    margin-bottom: 3px;
+    color: var(--slate-gray);
+}
+
+.modal-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--midnight-black);
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.node-tags {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.node-tag {
+    background: #FF5C57;
+    /* Matches red from image */
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.highlight-box {
+    background: rgba(41, 121, 255, 0.08);
+    border-left: 4px solid var(--electric-blue);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.highlight-box p {
+    font-size: 1.1rem;
+    color: #333;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.advice-section {
+    margin-bottom: 25px;
+}
+
+.section-subtitle {
+    font-size: 1rem;
+    text-transform: uppercase;
+    color: var(--slate-gray);
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.focus-area-item {
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.area-name {
+    font-weight: 700;
+    color: var(--midnight-black);
+    margin-right: 5px;
+}
+
+.area-desc {
+    color: #444;
+}
+
+.section-text {
+    font-size: 1rem;
+    color: #444;
+    line-height: 1.6;
+}
+
+.remember-section {
+    margin-top: 30px;
+}
+
+.remember-divider {
+    height: 1px;
+    background: var(--electric-blue);
+    opacity: 0.2;
+    margin-bottom: 20px;
+}
+
+.italic {
+    font-style: italic;
+}
+
+@media (max-width: 480px) {
+    .node-advice-modal {
+        padding: 25px;
+        width: 95%;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+    }
+}

@@ -73,7 +73,7 @@ export const generateMasterReport = () => {
     if (compassData.objective) {
         const advice = STRATEGIC_ADVICE[compassData.objective];
         addSubtitle("Core Objective: " + compassData.objective.toUpperCase());
-        addText("Strategic Path: " + compassData.focus.toUpperCase() + " focus");
+        addText("Strategic Path: " + (compassData.focus || "Core").toUpperCase() + " focus");
         y += 5;
         addSubtitle("Strategic Mission");
         addText(advice.mission);
@@ -164,6 +164,5 @@ export const generateMasterReport = () => {
 };
 
 const matchScorePlaceholder = (data) => {
-    // Basic recreation of score logic if needed, but we should probably save the actual score
-    return "Consolidated";
+    return data.matchScore || "Analyzed";
 };

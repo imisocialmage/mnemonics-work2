@@ -8,6 +8,8 @@ import ProductProfiler from './components/ProductProfiler/ProductProfiler';
 import ProspectProfiler from './components/ProspectProfiler/ProspectProfiler';
 import ConversationGuide from './components/ConversationGuide/ConversationGuide';
 import StrategicAdvisor from './components/StrategicAdvisor/StrategicAdvisor';
+import { STRATEGIC_ADVICE, COMPASS_NODES, getHighlightedPositions } from './data/compassData';
+import NodeAdviceModal from './components/Compass/NodeAdviceModal';
 import { Compass, Award, Package, Users, MessageCircle, Sparkles, Lock } from 'lucide-react';
 import { generateMasterReport } from './components/Report/MasterReportGenerator';
 import './index.css';
@@ -29,11 +31,14 @@ function App() {
 
   // Save compass data to localStorage
   useEffect(() => {
-    localStorage.setItem('imi-compass-data', JSON.stringify(formData));
+    localStorage.setItem('imi-compass-data', JSON.stringify({
+      objective: formData.objective,
+      brandName: formData.brandName,
+      audience: formData.audience,
+      challenge: formData.challenge,
+      focus: formData.focus
+    }));
   }, [formData]);
-
-  // Independent state for the visual compass rotation
-  const [compassApex, setCompassApex] = useState(null);
 
   // State to control report visibility
   const [showReport, setShowReport] = useState(false);
@@ -54,6 +59,11 @@ function App() {
   useEffect(() => {
     localStorage.setItem('imi-tool-completions', JSON.stringify(toolCompletions));
   }, [toolCompletions]);
+
+  // Modal State for Strategic Advice
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAdvice, setSelectedAdvice] = useState(null);
+  const [selectedNodeNames, setSelectedNodeNames] = useState([]);
 
   // Check if all tools are completed
   const allToolsCompleted = Object.values(toolCompletions).every(Boolean);
@@ -132,24 +142,41 @@ function App() {
     // 1. Always rotate the visual compass
     setCompassApex(node.position);
 
-    // 2. Map position to objective (Original logic: 8->Acq, 1->Conv, 3->Ret)
-    // Note: 'Retention' is node 2, but triggers on node 3 in original?
-    // User source: "if (objectiveToPosition['retention'] === clickedPosition) ..." 
-    // where 'retention': 3. So clicking node 3 triggers retention.
-    // Clicking node 2 (Retention label) just rotates to 2.
-
+    // 2. Map position to objective (Original logic: 8->Acq, 1->Conv, 2->Ret)
     const POSITION_TO_ID = {
+      8: 'acquisition',
+      1: 'conversion',
+      2: 'retention',
+      3: 'how',
+      4: 'calltoact',
+      5: 'intentions',
+      6: 'interest',
+      7: 'what'
+    };
+
+    const nodeId = POSITION_TO_ID[node.position];
+
+    // 3. Open the Strategic Advice Modal
+    if (STRATEGIC_ADVICE[nodeId]) {
+      const advice = STRATEGIC_ADVICE[nodeId];
+      const highlightedPos = getHighlightedPositions(node.position);
+      const names = highlightedPos.map(pos => COMPASS_NODES[pos].label);
+
+      setSelectedAdvice(advice);
+      setSelectedNodeNames(names);
+      setIsModalOpen(true);
+    }
+
+    // 4. Also update global objective if it's a primary objective node
+    const OBJECTIVE_NODES = {
       8: 'acquisition',
       1: 'conversion',
       2: 'retention'
     };
-
-    const objectiveId = POSITION_TO_ID[node.position];
-
+    const objectiveId = OBJECTIVE_NODES[node.position];
     if (objectiveId) {
       setFormData(prev => ({ ...prev, objective: objectiveId }));
     }
-    // If not an objective position, we DO NOT change the form objective (matches original 'return' behavior)
   };
 
   return (
@@ -265,6 +292,14 @@ function App() {
           <StrategicAdvisor />
         ) : null}
       </main>
+
+      {/* Strategic Advice Modal */}
+      <NodeAdviceModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        advice={selectedAdvice}
+        nodeNames={selectedNodeNames}
+      />
     </div>
   );
 }
