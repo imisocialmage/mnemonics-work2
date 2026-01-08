@@ -39,6 +39,8 @@ function App() {
       focus: formData.focus
     }));
   }, [formData]);
+  // Independent state for the visual compass rotation
+  const [compassApex, setCompassApex] = useState(null);
 
   // State to control report visibility
   const [showReport, setShowReport] = useState(false);
