@@ -13,9 +13,19 @@
 }
 
 .compass-container {
+    --compass-size: 600px;
+    --ring-size: 480px;
+    --node-size: 90px;
+    --radius: 240px;
+    --dot-size: 20px;
+    --center-size: 160px;
+    --cross-size: 280px;
+    --arrow-width: 25px;
+    --arrow-height: 50px;
+
     position: relative;
-    width: 600px;
-    height: 600px;
+    width: var(--compass-size);
+    height: var(--compass-size);
     margin: 40px auto;
 }
 
@@ -30,8 +40,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 480px;
-    height: 480px;
+    width: var(--ring-size);
+    height: var(--ring-size);
     border: 10px solid var(--coral-red);
     border-radius: 50%;
     z-index: 1;
@@ -52,8 +62,8 @@
 }
 
 .compass-node {
-    width: 90px;
-    height: 90px;
+    width: var(--node-size);
+    height: var(--node-size);
     border-radius: 50%;
     background: var(--midnight-black);
     border: 3px solid var(--midnight-black);
@@ -95,8 +105,8 @@
 
 .triangle-dot {
     position: absolute;
-    width: 20px;
-    height: 20px;
+    width: var(--dot-size);
+    height: var(--dot-size);
     background: var(--coral-red);
     border-radius: 50%;
     border: 2px solid #CC5500;
@@ -137,8 +147,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 160px;
-    height: 160px;
+    width: var(--center-size);
+    height: var(--center-size);
     background: var(--coral-red);
     border: 4px solid #CC5500;
     z-index: 12;
@@ -166,8 +176,8 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 160px;
-    height: 160px;
+    width: var(--center-size);
+    height: var(--center-size);
     transform: translate(-50%, -50%);
     background: var(--navy-blue);
     border-radius: 50%;
@@ -214,8 +224,8 @@
 }
 
 .triangle-rotator {
-    width: 400px;
-    height: 400px;
+    width: calc(var(--radius) * 1.67);
+    height: calc(var(--radius) * 1.67);
 }
 
 @keyframes triangleGlowInitial {
@@ -252,8 +262,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 280px;
-    height: 280px;
+    width: var(--cross-size);
+    height: var(--cross-size);
     z-index: 11;
 }
 
@@ -264,9 +274,9 @@
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border-left: 25px solid transparent;
-    border-right: 25px solid transparent;
-    border-bottom: 50px solid var(--coral-red);
+    border-left: var(--arrow-width) solid transparent;
+    border-right: var(--arrow-width) solid transparent;
+    border-bottom: var(--arrow-height) solid var(--coral-red);
 }
 
 .arrow-down {
@@ -276,9 +286,9 @@
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border-left: 25px solid transparent;
-    border-right: 25px solid transparent;
-    border-top: 50px solid var(--coral-red);
+    border-left: var(--arrow-width) solid transparent;
+    border-right: var(--arrow-width) solid transparent;
+    border-top: var(--arrow-height) solid var(--coral-red);
 }
 
 .arrow-left {
@@ -288,9 +298,9 @@
     transform: translateY(-50%);
     width: 0;
     height: 0;
-    border-top: 25px solid transparent;
-    border-bottom: 25px solid transparent;
-    border-right: 50px solid var(--coral-red);
+    border-top: var(--arrow-width) solid transparent;
+    border-bottom: var(--arrow-width) solid transparent;
+    border-right: var(--arrow-height) solid var(--coral-red);
 }
 
 .arrow-right {
@@ -300,31 +310,56 @@
     transform: translateY(-50%);
     width: 0;
     height: 0;
-    border-top: 25px solid transparent;
-    border-bottom: 25px solid transparent;
-    border-left: 50px solid var(--coral-red);
+    border-top: var(--arrow-width) solid transparent;
+    border-bottom: var(--arrow-width) solid transparent;
+    border-left: var(--arrow-height) solid var(--coral-red);
 }
 
 /* Responsive Styles */
 @media (max-width: 768px) {
     .compass-container {
-        width: 350px;
-        height: 350px;
+        --compass-size: 350px;
+        --ring-size: 280px;
+        --node-size: 65px;
+        --radius: 140px;
+        --dot-size: 14px;
+        --center-size: 100px;
+        --cross-size: 180px;
+        --arrow-width: 15px;
+        --arrow-height: 30px;
+        margin: 20px auto;
     }
 
     .outer-ring {
-        width: 280px;
-        height: 280px;
+        width: var(--ring-size);
+        height: var(--ring-size);
     }
 
     .compass-node {
-        width: 60px;
-        height: 60px;
+        width: var(--node-size);
+        height: var(--node-size);
         font-size: 0.7em;
+        padding: 5px;
     }
 
     .triangle-rotator {
-        width: 240px;
-        height: 240px;
+        width: calc(var(--radius) * 1.67);
+        height: calc(var(--radius) * 1.67);
+    }
+
+    @media (max-width: 480px) {
+        .compass-container {
+            --compass-size: 280px;
+            --ring-size: 220px;
+            --node-size: 50px;
+            --radius: 110px;
+            --dot-size: 10px;
+            --center-size: 80px;
+            --cross-size: 140px;
+        }
+
+        .compass-node {
+            font-size: 0.6em;
+        }
     }
 }

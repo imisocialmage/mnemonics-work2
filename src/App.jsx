@@ -205,12 +205,11 @@ function App() {
               <span>Guide</span>
             </button>
             <button
-              className={`nav-btn ${currentView === 'pitch-master' ? 'active' : ''} ${!allToolsCompleted ? 'locked' : ''}`}
+              className={`nav-btn pitch-master-btn ${currentView === 'pitch-master' ? 'active' : ''} ${!allToolsCompleted ? 'locked' : ''}`}
               onClick={() => allToolsCompleted && setCurrentView('pitch-master')}
               title={allToolsCompleted ? "Strategic Pitch Master" : "Complete all steps to unlock"}
-              style={{ flexDirection: 'column', alignItems: 'center', minWidth: '160px' }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className="btn-inner">
                 {!allToolsCompleted ? <Lock size={16} /> : <Sparkles size={18} color="var(--electric-blue)" />}
                 <span>Pitch Master</span>
               </div>
@@ -225,7 +224,7 @@ function App() {
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
               {/* Left Column: Compass */}
-              <div className="sticky top-10">
+              <div className="lg:sticky lg:top-10">
                 <CompassWheel
                   selectedObjective={selectedObjective}
                   apexPosition={compassApex}

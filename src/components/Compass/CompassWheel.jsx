@@ -72,7 +72,7 @@ const CompassWheel = ({ selectedObjective, onNodeClick, centerFocus, apexPositio
                             key={`dot-${node.id}`}
                             className="dot-positioner"
                             style={{
-                                transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-240px) rotate(-${angle}deg)`
+                                transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(calc(-1 * var(--radius))) rotate(-${angle}deg)`
                             }}
                         >
                             {/* Original used #dot1, #dot2 etc. We map them dynamically. */}
@@ -94,7 +94,7 @@ const CompassWheel = ({ selectedObjective, onNodeClick, centerFocus, apexPositio
                             key={node.id}
                             className="compass-node-wrapper"
                             style={{
-                                transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-240px) rotate(-${angle}deg)`
+                                transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(calc(-1 * var(--radius))) rotate(-${angle}deg)`
                             }}
                             onClick={() => onNodeClick(node)}
                         >
