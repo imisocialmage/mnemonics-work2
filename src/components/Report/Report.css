@@ -8,6 +8,14 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+@media (max-width: 768px) {
+    .report-container {
+        padding: 20px;
+        margin-top: 20px;
+        border-radius: 16px;
+    }
+}
+
 /* Header */
 .report-header {
     border-bottom: 2px solid var(--electric-blue);
@@ -20,6 +28,12 @@
     font-family: 'Space Grotesk', sans-serif;
     font-size: 2.5rem;
     margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    .report-header h2 {
+        font-size: 1.8rem;
+    }
 }
 
 .report-subtitle {
@@ -145,8 +159,14 @@
 .check-list {
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 15px;
+}
+
+@media (max-width: 480px) {
+    .check-list {
+        grid-template-columns: 1fr;
+    }
 }
 
 .check-list li {
@@ -367,6 +387,12 @@
     z-index: 2;
 }
 
+@media (max-width: 768px) {
+    .quote-section p {
+        font-size: 1.3rem;
+    }
+}
+
 .quote-section cite {
     font-style: normal;
     font-weight: 600;
@@ -574,9 +600,18 @@
         text-align: center;
     }
 
+    .next-step-cta .cta-info {
+        min-width: unset;
+        width: 100%;
+    }
+
     .next-step-cta .cta-button {
         width: 100%;
         justify-content: center;
+    }
+
+    .next-step-cta .cta-benefits li {
+        text-align: left;
     }
 }
 

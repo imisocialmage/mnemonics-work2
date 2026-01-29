@@ -1,18 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { analyzeToolData } from '../../utils/analysisService';
 import '../shared-tool-styles.css';
 
-const ProductProfiler = () => {
+const ProductProfiler = ({ profileIndex }) => {
+    const { t } = useTranslation();
+    const getProfileKey = useCallback((key) => `imi-p${profileIndex}-${key}`, [profileIndex]);
+
     const [currentStep, setCurrentStep] = useState(1);
     const [productData, setProductData] = useState(() => {
-        const saved = localStorage.getItem('imi-product-data');
-        return saved ? JSON.parse(saved) : {};
+        const saved = localStorage.getItem(getProfileKey('imi-product-data'));
+        if (saved) return JSON.parse(saved);
+
+        // Fallback to compass or brand data
+        const compass = JSON.parse(localStorage.getItem(getProfileKey('imi-compass-data')) || '{}');
+        const brand = JSON.parse(localStorage.getItem(getProfileKey('imi-brand-data')) || '{}');
+        return {
+            productName: compass.brandName || brand.brandName || '',
+            typicalUsers: compass.audience || brand.targetAudience || '',
+            problemSolved: compass.challenge || '',
+            aiResults: null
+        };
     });
 
+    const [isLoading, setIsLoading] = useState(false);
+
     // Save product data to localStorage
-    React.useEffect(() => {
-        localStorage.setItem('imi-product-data', JSON.stringify(productData));
-    }, [productData]);
+    useEffect(() => {
+        localStorage.setItem(getProfileKey('imi-product-data'), JSON.stringify(productData));
+    }, [productData, getProfileKey]);
     const [showMessage, setShowMessage] = useState(false);
     const [message, setMessage] = useState('');
     const totalSteps = 5;
@@ -38,7 +55,7 @@ const ProductProfiler = () => {
             setCurrentStep(currentStep + 1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-            displayMessage('Please fill in all required fields');
+            displayMessage(t('common.required_fields'));
         }
     };
 
@@ -47,12 +64,25 @@ const ProductProfiler = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const generateAnalysis = () => {
+    const generateAnalysis = async () => {
         if (validateStep()) {
-            setCurrentStep(5);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            // Mark tool as completed
-            window.dispatchEvent(new CustomEvent('tool-completed', { detail: 'productProfiler' }));
+            setIsLoading(true);
+            try {
+                const results = await analyzeToolData('productProfiler', productData, t('common.lang_code'));
+                console.log("ProductProfiler AI Results:", results);
+                setProductData(prev => ({ ...prev, aiResults: results }));
+                setCurrentStep(5);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                // Mark tool as completed
+                window.dispatchEvent(new CustomEvent('tool-completed', { detail: 'productProfiler' }));
+            } catch (error) {
+                console.error("AI Analysis failed:", error);
+                displayMessage(t('common.error_occurred'));
+                // Just move to step 5, fallback helper functions are already there
+                setCurrentStep(5);
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -64,44 +94,33 @@ const ProductProfiler = () => {
 
     // Helper functions from original
     const extractAudience = (users) => {
-        if (!users) return 'busy professionals';
-        const lower = users.toLowerCase();
-        if (lower.includes('entrepreneur')) return 'entrepreneurs and business owners';
-        if (lower.includes('coach')) return 'coaches and consultants';
-        if (lower.includes('freelancer')) return 'freelancers and solopreneurs';
-        return 'professionals looking to grow';
+        if (!users) return 'your target audience';
+        // Just return the first few words of the actual input instead of a rigid categorizer
+        return users.split(' ').slice(0, 5).join(' ') + (users.split(' ').length > 5 ? '...' : '');
     };
 
     const extractCoreResult = (benefits) => {
-        if (!benefits) return 'better results in less time';
-        const lower = benefits.toLowerCase();
-        if (lower.includes('save time')) return 'more time and efficiency';
-        if (lower.includes('revenue')) return 'increased revenue and profitability';
-        if (lower.includes('productivity')) return 'maximum productivity';
-        return 'meaningful improvements in their work';
+        if (!benefits) return 'meaningful results';
+        return benefits.split(' ').slice(0, 5).join(' ') + (benefits.split(' ').length > 5 ? '...' : '');
     };
 
     const extractDifferentiator = (unique) => {
-        if (!unique) return 'a proven systematic approach';
-        const lower = unique.toLowerCase();
-        if (lower.includes('ai')) return 'leveraging AI-powered automation';
-        if (lower.includes('simple')) return 'making complex processes simple and intuitive';
-        if (lower.includes('custom')) return 'providing fully customized solutions';
-        return 'using a unique methodology that eliminates common bottlenecks';
+        if (!unique) return 'a unique professional approach';
+        return unique.split(' ').slice(0, 5).join(' ') + (unique.split(' ').length > 5 ? '...' : '');
     };
 
     const identifyNiches = () => {
         const niches = [];
         const users = productData.typicalUsers?.toLowerCase() || '';
 
-        if (users.includes('entrepreneur')) niches.push('Startup founders and early-stage entrepreneurs');
-        if (users.includes('coach')) niches.push('Coaches, consultants, and service providers');
-        if (users.includes('freelancer')) niches.push('Freelancers and solopreneurs building their practice');
-        if (users.includes('small business')) niches.push('Small to medium-sized businesses (SMBs)');
+        // Only add specific niches if they're explicitly mentioned
+        if (users.includes('coach')) niches.push(t('product_profiler.analysis.niches.coaches'));
+        if (users.includes('freelancer')) niches.push(t('product_profiler.analysis.niches.freelance'));
+        if (users.includes('small business')) niches.push(t('product_profiler.analysis.niches.smb'));
 
+        // Generic fallback that doesn't assume entrepreneurship
         if (niches.length === 0) {
-            niches.push('Professionals seeking efficiency and better results');
-            niches.push('Business owners looking to streamline operations');
+            niches.push(t('product_profiler.analysis.niches.pro'));
         }
 
         return niches.slice(0, 4);
@@ -112,16 +131,16 @@ const ProductProfiler = () => {
         const demographics = [];
 
         if (price === 'luxury' || price === 'premium') {
-            demographics.push('Income: $80K-$200K+ annually');
+            demographics.push(t('product_profiler.analysis.demographics.income_luxury'));
         } else if (price === 'budget') {
-            demographics.push('Income: $35K-$80K annually');
+            demographics.push(t('product_profiler.analysis.demographics.income_budget'));
         } else {
-            demographics.push('Income: $50K-$120K annually');
+            demographics.push(t('product_profiler.analysis.demographics.income_mid'));
         }
 
-        demographics.push('Age: 28-50 years');
-        demographics.push('Location: Global (remote-first professionals)');
-        demographics.push('Work Style: Independent or small team environments');
+        demographics.push(t('product_profiler.analysis.demographics.age'));
+        demographics.push(t('product_profiler.analysis.demographics.location'));
+        demographics.push(t('product_profiler.analysis.demographics.work_style'));
 
         return demographics;
     };
@@ -130,79 +149,53 @@ const ProductProfiler = () => {
         const psychographics = [];
         const emotional = productData.emotionalBenefit?.toLowerCase() || '';
 
-        if (emotional.includes('confidence')) psychographics.push('Desires: Confidence and mastery in their field');
-        if (emotional.includes('freedom')) psychographics.push('Desires: Autonomy and control over their work');
-        if (emotional.includes('peace')) psychographics.push('Desires: Peace of mind and reduced overwhelm');
+        if (emotional.includes('confidence')) psychographics.push(t('product_profiler.analysis.psychographics.confidence'));
+        if (emotional.includes('freedom')) psychographics.push(t('product_profiler.analysis.psychographics.freedom'));
+        if (emotional.includes('peace')) psychographics.push(t('product_profiler.analysis.psychographics.peace'));
 
-        psychographics.push('Motivated by: Growth, efficiency, and results');
-        psychographics.push('Values: Innovation and continuous improvement');
+        psychographics.push(t('product_profiler.analysis.psychographics.motivation'));
+        psychographics.push(t('product_profiler.analysis.psychographics.values'));
 
         return psychographics;
     };
 
     const generateBuyingTriggers = () => {
-        return [
-            'Already struggling with time management',
-            'Looking for ways to increase income or revenue',
-            'Seeking to optimize workflows and processes',
-            'Ready to invest in quality solutions',
-            'Values proven results over experimenting'
-        ];
+        return t('product_profiler.analysis.triggers', { returnObjects: true });
     };
 
     const generateInterestHooks = () => {
-        const problem = productData.problemSolved || 'common challenges';
-        const name = productData.productName || 'this solution';
+        const problem = productData.problemSolved || t('common.common_challenges');
+        const name = productData.productName || t('common.this_solution');
 
-        return [
-            `Tired of ${problem.split(' ').slice(0, 3).join(' ')}? There's a better way.`,
-            `${name} - the approach you've been missing.`,
-            `Stop struggling. Start achieving with ${name}.`,
-            `What if you could solve ${problem.split(' ').slice(0, 4).join(' ')} in half the time?`
-        ];
+        const hooks = t('product_profiler.analysis.hooks', { returnObjects: true });
+        return hooks.map(hook => {
+            let h = hook.replace('{{problem}}', problem.split(' ').slice(0, 3).join(' '));
+            h = h.replace('{{name}}', name);
+            return h;
+        });
     };
 
     const generateIntentSignals = () => {
-        return [
-            'Mentions working long hours or feeling overwhelmed',
-            'Talks about wanting to scale or increase revenue',
-            'Complains about inefficient systems or processes',
-            'Actively researching solutions in your category',
-            'Has budget allocated for problem-solving tools'
-        ];
+        return t('product_profiler.analysis.signals', { returnObjects: true });
     };
 
     const generateCTAs = () => {
-        const format = productData.deliveryFormat || '';
-        const name = productData.productName || 'this solution';
+        const format = productData.deliveryFormat || 'default';
+        const name = productData.productName || t('common.this_solution');
 
-        if (format === 'saas' || format === 'digital') {
-            return [
-                `Try ${name} free for 14 days - no credit card required.`,
-                `See ${name} in action - book a quick 10-minute demo.`,
-                `Get started with ${name} today - see results within 30 days.`
-            ];
-        } else if (format === 'service') {
-            return [
-                `Book a free 20-minute consultation to see if ${name} is right for you.`,
-                `Schedule a strategy call to explore how ${name} can help.`,
-                `Ready to transform your results? Let's talk about ${name}.`
-            ];
+        let ctas = t(`product_profiler.analysis.ctas.${format}`, { returnObjects: true });
+        if (!Array.isArray(ctas)) {
+            ctas = t('product_profiler.analysis.ctas.default', { returnObjects: true });
         }
-
-        return [
-            `Get started with ${name} today.`,
-            `Join hundreds of satisfied customers.`,
-            `Ready to transform your results? Let's connect.`
-        ];
+        return ctas.map(cta => cta.replace('{{name}}', name));
     };
 
     const startNewAnalysis = () => {
-        if (window.confirm('Start a new analysis? All current data will be cleared.')) {
+        if (window.confirm(t('tracker.ui.delete_confirm_all'))) {
             setProductData({});
             setCurrentStep(1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            displayMessage('New analysis started!');
+            displayMessage(t('common.success'));
         }
     };
 
@@ -219,10 +212,10 @@ const ProductProfiler = () => {
 
     const renderStepIndicator = () => (
         <div className="step-indicator">
-            {['Product Core', 'Features', 'Benefits', 'Market Position', 'AI Analysis'].map((label, idx) => (
+            {['foundation', 'features', 'benefits', 'delivery', 'analysis'].map((key, idx) => (
                 <div key={idx} className={`step ${currentStep === idx + 1 ? 'active' : ''} ${currentStep > idx + 1 ? 'completed' : ''}`}>
                     <div className="step-number">{idx + 1}</div>
-                    <span className="step-label">{label}</span>
+                    <span className="step-label">{t(`product_profiler.steps.${key}`)}</span>
                 </div>
             ))}
         </div>
@@ -244,7 +237,7 @@ const ProductProfiler = () => {
                                 <div className="brand-tagline">I Make Image</div>
                             </div>
                         </div>
-                        <h1>IMI Product Profiler</h1>
+                        <h1>{t('product_profiler.title')}</h1>
                     </div>
                 </div>
             </header>
@@ -256,27 +249,22 @@ const ProductProfiler = () => {
                 {/* Step 1 */}
                 {currentStep === 1 && (
                     <div className="form-section">
-                        <h2 className="section-title">Define Your Product Core</h2>
-                        <p className="section-subtitle">Let's start by understanding what your product is and what problem it solves</p>
+                        <h2 className="section-title">{t('product_profiler.steps.foundation')}</h2>
+                        <p className="section-subtitle">{t('product_profiler.subtitle')}</p>
 
                         <div className="form-group">
-                            <label>Product/Service Name *</label>
-                            <input type="text" value={productData.productName || ''} onChange={(e) => updateField('productName', e.target.value)} placeholder="e.g., FocusFlow Planner" />
+                            <label>{t('form.brand_name_label')}</label>
+                            <input type="text" value={productData.productName || ''} onChange={(e) => updateField('productName', e.target.value)} placeholder={t('form.brand_name_placeholder')} />
                         </div>
 
                         <div className="form-group">
-                            <label>Short Description</label>
-                            <textarea value={productData.productDescription || ''} onChange={(e) => updateField('productDescription', e.target.value)} placeholder="Describe what your product is in simple terms..." />
-                        </div>
-
-                        <div className="form-group">
-                            <label>What specific problem does it solve? *</label>
-                            <textarea value={productData.problemSolved || ''} onChange={(e) => updateField('problemSolved', e.target.value)} placeholder="What pain point or challenge does your product address?" />
+                            <label>{t('form.challenge_label')} *</label>
+                            <textarea value={productData.problemSolved || ''} onChange={(e) => updateField('problemSolved', e.target.value)} placeholder={t('form.challenge_placeholder')} />
                         </div>
 
                         <div className="navigation-buttons">
                             <div></div>
-                            <button className="btn" onClick={nextStep}>Next: Features & Differentiators</button>
+                            <button className="btn" onClick={nextStep}>{t('common.next')}: {t('product_profiler.steps.features')}</button>
                         </div>
                     </div>
                 )}
@@ -284,22 +272,22 @@ const ProductProfiler = () => {
                 {/* Step 2 */}
                 {currentStep === 2 && (
                     <div className="form-section">
-                        <h2 className="section-title">Features & What Makes You Unique</h2>
-                        <p className="section-subtitle">Identify your key features and competitive advantages</p>
+                        <h2 className="section-title">{t('product_profiler.steps.features')}</h2>
+                        <p className="section-subtitle">{t('product_profiler.steps.features')}</p>
 
                         <div className="form-group">
-                            <label>Top 3 Features (one per line) *</label>
-                            <textarea value={productData.topFeatures || ''} onChange={(e) => updateField('topFeatures', e.target.value)} placeholder="Feature 1:&#10;Feature 2:&#10;Feature 3:" />
+                            <label>{t('product_profiler.questions.features_label')} *</label>
+                            <textarea value={productData.topFeatures || ''} onChange={(e) => updateField('topFeatures', e.target.value)} placeholder={t('product_profiler.questions.features_placeholder')} />
                         </div>
 
                         <div className="form-group">
-                            <label>What makes your product different or unique? *</label>
-                            <textarea value={productData.differentiator || ''} onChange={(e) => updateField('differentiator', e.target.value)} placeholder="What sets you apart from competitors in the market?" />
+                            <label>{t('product_profiler.questions.differentiator_label')} *</label>
+                            <textarea value={productData.differentiator || ''} onChange={(e) => updateField('differentiator', e.target.value)} placeholder={t('product_profiler.questions.differentiator_placeholder')} />
                         </div>
 
                         <div className="navigation-buttons">
-                            <button className="btn btn-secondary" onClick={previousStep}>Previous</button>
-                            <button className="btn" onClick={nextStep}>Next: Benefits & Value</button>
+                            <button className="btn btn-secondary" onClick={previousStep}>{t('common.back')}</button>
+                            <button className="btn" onClick={nextStep}>{t('common.next')}: {t('product_profiler.steps.benefits')}</button>
                         </div>
                     </div>
                 )}
@@ -307,22 +295,22 @@ const ProductProfiler = () => {
                 {/* Step 3 */}
                 {currentStep === 3 && (
                     <div className="form-section">
-                        <h2 className="section-title">Benefits & Value Proposition</h2>
-                        <p className="section-subtitle">Define the tangible and emotional value your product delivers</p>
+                        <h2 className="section-title">{t('product_profiler.steps.benefits')}</h2>
+                        <p className="section-subtitle">{t('product_profiler.steps.benefits')}</p>
 
                         <div className="form-group">
-                            <label>Tangible Benefits *</label>
-                            <textarea value={productData.tangibleBenefit || ''} onChange={(e) => updateField('tangibleBenefit', e.target.value)} placeholder="What measurable outcomes do users get? (saves time, saves money, increases revenue, etc.)" />
+                            <label>{t('product_profiler.questions.tangible_label')} *</label>
+                            <textarea value={productData.tangibleBenefit || ''} onChange={(e) => updateField('tangibleBenefit', e.target.value)} placeholder={t('product_profiler.questions.tangible_placeholder')} />
                         </div>
 
                         <div className="form-group">
-                            <label>Emotional Benefits</label>
-                            <textarea value={productData.emotionalBenefit || ''} onChange={(e) => updateField('emotionalBenefit', e.target.value)} placeholder="How does your product make people feel? (confidence, peace of mind, freedom, status, etc.)" />
+                            <label>{t('product_profiler.questions.emotional_label')}</label>
+                            <textarea value={productData.emotionalBenefit || ''} onChange={(e) => updateField('emotionalBenefit', e.target.value)} placeholder={t('product_profiler.questions.emotional_placeholder')} />
                         </div>
 
                         <div className="navigation-buttons">
-                            <button className="btn btn-secondary" onClick={previousStep}>Previous</button>
-                            <button className="btn" onClick={nextStep}>Next: Market Position</button>
+                            <button className="btn btn-secondary" onClick={previousStep}>{t('common.back')}</button>
+                            <button className="btn" onClick={nextStep}>{t('common.next')}: {t('product_profiler.steps.delivery')}</button>
                         </div>
                     </div>
                 )}
@@ -330,14 +318,14 @@ const ProductProfiler = () => {
                 {/* Step 4 */}
                 {currentStep === 4 && (
                     <div className="form-section">
-                        <h2 className="section-title">Market Position & Use Cases</h2>
-                        <p className="section-subtitle">Define your pricing strategy and target usage scenarios</p>
+                        <h2 className="section-title">{t('product_profiler.steps.delivery')}</h2>
+                        <p className="section-subtitle">{t('product_profiler.steps.delivery')}</p>
 
                         <div className="grid-2">
                             <div className="form-group">
-                                <label>Price Range/Market Position *</label>
+                                <label>{t('product_profiler.questions.price_label')} *</label>
                                 <select value={productData.priceRange || ''} onChange={(e) => updateField('priceRange', e.target.value)}>
-                                    <option value="">Select Position</option>
+                                    <option value="">{t('common.select')}</option>
                                     <option value="budget">Budget (Low-cost/Affordable)</option>
                                     <option value="mid-range">Mid-Range (Fair value)</option>
                                     <option value="premium">Premium (High-value)</option>
@@ -346,9 +334,9 @@ const ProductProfiler = () => {
                             </div>
 
                             <div className="form-group">
-                                <label>Delivery Format *</label>
+                                <label>{t('product_profiler.questions.delivery_label')} *</label>
                                 <select value={productData.deliveryFormat || ''} onChange={(e) => updateField('deliveryFormat', e.target.value)}>
-                                    <option value="">Select Format</option>
+                                    <option value="">{t('common.select')}</option>
                                     <option value="digital">Digital Product</option>
                                     <option value="saas">SaaS/Subscription</option>
                                     <option value="service">Service/Consulting</option>
@@ -359,19 +347,28 @@ const ProductProfiler = () => {
                         </div>
 
                         <div className="form-group">
-                            <label>Who typically uses your product? *</label>
-                            <textarea value={productData.typicalUsers || ''} onChange={(e) => updateField('typicalUsers', e.target.value)} placeholder="Describe the types of people or businesses that benefit most from your product..." />
+                            <label>{t('product_profiler.questions.users_label')} *</label>
+                            <textarea value={productData.typicalUsers || ''} onChange={(e) => updateField('typicalUsers', e.target.value)} placeholder={t('product_profiler.questions.users_placeholder')} />
                         </div>
 
                         <div className="form-group">
-                            <label>When or where is your product most often used?</label>
-                            <textarea value={productData.usageContext || ''} onChange={(e) => updateField('usageContext', e.target.value)} placeholder="Describe the situations, contexts, or scenarios where your product is used..." />
+                            <label>{t('product_profiler.questions.context_label')}</label>
+                            <textarea value={productData.usageContext || ''} onChange={(e) => updateField('usageContext', e.target.value)} placeholder={t('product_profiler.questions.context_placeholder')} />
                         </div>
 
                         <div className="navigation-buttons">
-                            <button className="btn btn-secondary" onClick={previousStep}>Previous</button>
-                            <button className="btn" onClick={generateAnalysis}>Generate AI Analysis</button>
+                            <button className="btn btn-secondary" onClick={previousStep}>{t('common.back')}</button>
+                            <button className="btn" onClick={generateAnalysis} disabled={isLoading}>
+                                {isLoading ? t('common.generating') : t('common.generate')}
+                            </button>
                         </div>
+
+                        {isLoading && (
+                            <div className="loading-overlay">
+                                <div className="loader"></div>
+                                <p>{t('common.analyzing_product')}</p>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -385,7 +382,11 @@ const ProductProfiler = () => {
                         <div className="results-section">
                             <h3>Unique Value Proposition (UVP)</h3>
                             <div style={{ background: 'linear-gradient(135deg, #f8f9fa, #e3f2fd)', border: '3px solid var(--electric-blue)', padding: '30px', borderRadius: '15px', textAlign: 'center', fontSize: '1.2rem', fontWeight: '500', lineHeight: '1.8' }}>
-                                "{productData.productName || 'This product'} helps {extractAudience(productData.typicalUsers)} achieve {extractCoreResult(productData.tangibleBenefit)} by {extractDifferentiator(productData.differentiator)}."
+                                {productData.aiResults?.uvp ? (
+                                    `"${productData.aiResults.uvp}"`
+                                ) : (
+                                    `"${productData.productName || 'This product'} helps ${extractAudience(productData.typicalUsers)} achieve ${extractCoreResult(productData.tangibleBenefit)} by ${extractDifferentiator(productData.differentiator)}."`
+                                )}
                             </div>
                         </div>
 
@@ -394,7 +395,7 @@ const ProductProfiler = () => {
                             <div className="analysis-card">
                                 <h4>Recommended Target Niches</h4>
                                 <ul>
-                                    {identifyNiches().map((niche, idx) => (
+                                    {(productData.aiResults?.targetNiches || identifyNiches()).map((niche, idx) => (
                                         <li key={idx}>✓ {niche}</li>
                                     ))}
                                 </ul>
@@ -407,7 +408,7 @@ const ProductProfiler = () => {
                                 <div className="analysis-card">
                                     <h4>Demographics</h4>
                                     <ul>
-                                        {generateDemographics().map((item, idx) => (
+                                        {(productData.aiResults?.avatars?.[0]?.demographics || generateDemographics()).map((item, idx) => (
                                             <li key={idx}>{item}</li>
                                         ))}
                                     </ul>
@@ -415,15 +416,25 @@ const ProductProfiler = () => {
                                 <div className="analysis-card">
                                     <h4>Psychographics</h4>
                                     <ul>
-                                        {generatePsychographics().map((item, idx) => (
-                                            <li key={idx}>{item}</li>
-                                        ))}
+                                        {productData.aiResults?.avatars?.[0]?.description ? (
+                                            <>
+                                                <li style={{ fontWeight: '500', marginBottom: '10px' }}>{productData.aiResults.avatars[0].role}</li>
+                                                <li>{productData.aiResults.avatars[0].description}</li>
+                                                {productData.aiResults.avatars[0].pains?.slice(0, 2).map((pain, pidx) => (
+                                                    <li key={`pain-${pidx}`} style={{ color: 'var(--coral-red)', fontSize: '0.9rem' }}>• {pain}</li>
+                                                ))}
+                                            </>
+                                        ) : (
+                                            generatePsychographics().map((item, idx) => (
+                                                <li key={idx}>{item}</li>
+                                            ))
+                                        )}
                                     </ul>
                                 </div>
                                 <div className="analysis-card">
                                     <h4>Buying Triggers</h4>
                                     <ul>
-                                        {generateBuyingTriggers().map((item, idx) => (
+                                        {(productData.aiResults?.avatars?.[0]?.buyingTriggers || generateBuyingTriggers()).map((item, idx) => (
                                             <li key={idx}>{item}</li>
                                         ))}
                                     </ul>
@@ -434,17 +445,17 @@ const ProductProfiler = () => {
                         <div className="results-section">
                             <h3>Messaging & Marketing Suggestions</h3>
                             <div className="analysis-card">
-                                <h4>Interest Hooks (Attention Grabbers)</h4>
+                                <h4>Interest Hooks</h4>
                                 <ul>
-                                    {generateInterestHooks().map((hook, idx) => (
+                                    {(productData.aiResults?.marketing?.interestHooks || generateInterestHooks()).map((hook, idx) => (
                                         <li key={idx}>• "{hook}"</li>
                                     ))}
                                 </ul>
                             </div>
                             <div className="analysis-card">
-                                <h4>Intent Signals (What to look for)</h4>
+                                <h4>Intent Signals</h4>
                                 <ul>
-                                    {generateIntentSignals().map((signal, idx) => (
+                                    {(productData.aiResults?.marketing?.intentSignals || generateIntentSignals()).map((signal, idx) => (
                                         <li key={idx}>• {signal}</li>
                                     ))}
                                 </ul>
@@ -452,7 +463,7 @@ const ProductProfiler = () => {
                             <div className="analysis-card">
                                 <h4>Call-to-Action Ideas</h4>
                                 <ul>
-                                    {generateCTAs().map((cta, idx) => (
+                                    {(productData.aiResults?.marketing?.ctas || generateCTAs()).map((cta, idx) => (
                                         <li key={idx}>• "{cta}"</li>
                                     ))}
                                 </ul>

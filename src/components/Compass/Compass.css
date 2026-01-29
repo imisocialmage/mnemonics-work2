@@ -195,6 +195,15 @@
     animation: pulsateCircle 2.5s ease-in-out infinite;
 }
 
+.center-text {
+    font-size: 0.6em;
+    /* Reduced from parent inheritance */
+    line-height: 1.2;
+    padding: 0 5px;
+    word-break: break-word;
+    max-width: 100%;
+}
+
 @keyframes pulsateCircle {
 
     0%,
@@ -349,18 +358,56 @@
 
     @media (max-width: 480px) {
         .compass-container {
-            --compass-size: 280px;
-            --ring-size: 220px;
-            --node-size: 50px;
-            --radius: 110px;
+            --compass-size: 300px;
+            /* Slightly larger to use screen width better */
+            --ring-size: 240px;
+            --node-size: 55px;
+            --radius: 120px;
             --dot-size: 10px;
-            --center-size: 80px;
-            --cross-size: 140px;
+            --center-size: 85px;
+            --cross-size: 150px;
         }
 
         .compass-node {
-            font-size: 0.6em;
+            font-size: 0.65em;
+            padding: 4px;
         }
+    }
+
+    @media (max-width: 350px) {
+        .compass-container {
+            --compass-size: 260px;
+            --ring-size: 200px;
+            --node-size: 45px;
+            --radius: 100px;
+            --center-size: 70px;
+            --cross-size: 130px;
+        }
+
+        .compass-node {
+            font-size: 0.55em;
+        }
+    }
+}
+
+.center-advice-modal {
+    background: rgba(10, 10, 20, 0.98);
+    border: 1px solid var(--electric-blue);
+    border-radius: 16px;
+    padding: 2.5rem;
+    max-width: 600px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 0 40px rgba(0, 126, 255, 0.3);
+    color: white;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+@media (max-width: 600px) {
+    .center-advice-modal {
+        padding: 1.5rem;
+        width: 95%;
     }
 }
 
@@ -389,6 +436,20 @@
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     max-height: 90vh;
     overflow-y: auto;
+}
+
+.node-advice-modal.backup-info-modal {
+    background: linear-gradient(135deg, var(--midnight-black) 0%, #2a2a2a 100%);
+    color: var(--digital-white);
+    border: 1px solid rgba(41, 121, 255, 0.3);
+}
+
+.node-advice-modal.backup-info-modal .modal-close {
+    color: var(--digital-white);
+}
+
+.node-advice-modal.backup-info-modal .modal-title {
+    color: var(--digital-white);
 }
 
 .modal-close {

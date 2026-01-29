@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { COMPASS_NODES, getHighlightedPositions } from '../../data/compassData';
 import './Compass.css';
 
-const CompassWheel = ({ selectedObjective, onNodeClick, centerFocus, apexPosition }) => {
+const CompassWheel = ({ selectedObjective, onNodeClick, centerFocus, apexPosition, onCenterClick }) => {
+    const { t } = useTranslation();
     // Local state to manage the 1.8s animation sequence
     const [isRotating, setIsRotating] = useState(false);
     const [visibleHighlights, setVisibleHighlights] = useState([]);
@@ -47,10 +49,10 @@ const CompassWheel = ({ selectedObjective, onNodeClick, centerFocus, apexPositio
     const rotation = apexPos ? positionToAngle[apexPos] : 0;
 
     // Helper to get Center Text
-    // Helper to get Center Text
     const getCenterText = () => {
         // Center text is controlled by the dropdown "Center Focus"
-        return centerFocus ? centerFocus.charAt(0).toUpperCase() + centerFocus.slice(1) + '?' : 'Who?';
+        if (!centerFocus) return t('form.focus_who');
+        return t(`form.focus_${centerFocus}`);
     };
 
     return (
@@ -100,7 +102,7 @@ const CompassWheel = ({ selectedObjective, onNodeClick, centerFocus, apexPositio
                         >
                             {/* Highlight class triggers the colorPulse animation */}
                             <div className={`compass-node ${isHighlighted ? 'highlighted' : ''}`}>
-                                {node.label}
+                                {t(`nodes.${node.id}`)}
                             </div>
                         </div>
                     );
@@ -116,8 +118,29 @@ const CompassWheel = ({ selectedObjective, onNodeClick, centerFocus, apexPositio
 
                 {/* Center Visuals */}
                 <div className="center-square"></div>
-                <div className="center-circle">
-                    <span className="center-text">{getCenterText()}</span>
+                <div
+                    className="center-circle"
+                    onClick={onCenterClick}
+                    style={{ cursor: 'pointer', flexDirection: 'column' }} // Added flex-col for stacking
+                >
+                    {(() => {
+                        const text = getCenterText();
+                        // Split text to make "(The Audience)" smaller if present
+                        const parts = text.split('(');
+                        const mainText = parts[0].trim();
+                        const subText = parts.length > 1 ? `(${parts[1]}` : '';
+
+                        return (
+                            <div className="center-text-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: '1.1' }}>
+                                <span className="center-text-main" style={{ fontSize: '1em', fontWeight: 'bold' }}>{mainText}</span>
+                                {subText && (
+                                    <span className="center-text-sub" style={{ fontSize: '0.5em', marginTop: '2px', opacity: 0.9 }}>
+                                        {subText}
+                                    </span>
+                                )}
+                            </div>
+                        );
+                    })()}
                 </div>
 
                 {/* Rotating Triangle */}

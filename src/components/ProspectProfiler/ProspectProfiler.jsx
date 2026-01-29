@@ -1,18 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { analyzeToolData } from '../../utils/analysisService';
 import '../shared-tool-styles.css';
 
-const ProspectProfiler = () => {
+const ProspectProfiler = ({ profileIndex }) => {
+    const { t } = useTranslation();
+    const getProfileKey = useCallback((key) => `imi-p${profileIndex}-${key}`, [profileIndex]);
+
     const [currentStep, setCurrentStep] = useState(1);
     const [prospectData, setProspectData] = useState(() => {
-        const saved = localStorage.getItem('imi-prospect-data');
-        return saved ? JSON.parse(saved) : {};
+        const saved = localStorage.getItem(getProfileKey('imi-prospect-data'));
+        if (saved) return JSON.parse(saved);
+
+        // Fallback to compass data
+        const compass = JSON.parse(localStorage.getItem(getProfileKey('imi-compass-data')) || '{}');
+        return {
+            prospectType: 'b2b', // Default to B2B
+            industry: '',
+            targetDescription: compass.audience || '',
+            painPoints: compass.challenge || '',
+            aiResults: null
+        };
     });
 
+    const [isLoading, setIsLoading] = useState(false);
+
     // Save prospect data to localStorage
-    React.useEffect(() => {
-        localStorage.setItem('imi-prospect-data', JSON.stringify(prospectData));
-    }, [prospectData]);
+    useEffect(() => {
+        localStorage.setItem(getProfileKey('imi-prospect-data'), JSON.stringify(prospectData));
+    }, [prospectData, getProfileKey]);
     const [showMessage, setShowMessage] = useState(false);
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
@@ -35,7 +52,7 @@ const ProspectProfiler = () => {
     const validateStep = () => {
         const requiredFields = {
             1: ['industry', 'targetDescription'],
-            2: ['jobTitle', 'painPoints'],
+            2: prospectData.prospectType === 'b2b' ? ['jobTitle', 'painPoints'] : ['painPoints'], // B2C doesn't require lifestyle
             3: ['values'],
             4: ['contentConsumption']
         };
@@ -49,7 +66,7 @@ const ProspectProfiler = () => {
             setCurrentStep(currentStep + 1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-            displayMessage('Please fill in all required fields');
+            displayMessage(t('common.required_fields'));
         }
     };
 
@@ -58,13 +75,38 @@ const ProspectProfiler = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const generateAnalysis = () => {
+    const generateAnalysis = async () => {
         if (validateStep()) {
-            generateMessages();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            // Mark tool as completed
-            window.dispatchEvent(new CustomEvent('tool-completed', { detail: 'prospectProfiler' }));
-            setCurrentStep(5);
+            setIsLoading(true);
+            try {
+                // Get product and brand context for better personalization
+                const product = JSON.parse(localStorage.getItem(getProfileKey('imi-product-data')) || '{}');
+                const brand = JSON.parse(localStorage.getItem(getProfileKey('imi-brand-data')) || '{}');
+
+                const context = {
+                    ...prospectData,
+                    productName: product.productName,
+                    productUVP: product.aiResults?.uvp || product.tangibleBenefit,
+                    brandTone: brand.brandVoice
+                };
+
+                const results = await analyzeToolData('prospectProfiler', context, t('common.lang_code'));
+                setProspectData(prev => ({ ...prev, aiResults: results }));
+                setMessages(results.messages);
+
+                setCurrentStep(5);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                // Mark tool as completed
+                window.dispatchEvent(new CustomEvent('tool-completed', { detail: 'prospectProfiler' }));
+            } catch (error) {
+                console.error("AI Analysis failed:", error);
+                displayMessage(t('common.error_occurred'));
+                // Fallback to local logic
+                generateMessages();
+                setCurrentStep(5);
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -85,33 +127,22 @@ const ProspectProfiler = () => {
     };
 
     const getMessageTitle = (type) => {
-        const titles = {
-            authority: 'Authority & Expertise Approach',
-            curiosity: 'Curiosity Gap Strategy',
-            data_driven: 'Data-Driven Evidence Method',
-            connection: 'Personal Connection Focus',
-            pain_point: 'Pain Point Solution Strategy'
-        };
-        return titles[type];
+        return t(`prospect_profiler.titles.${type}`);
     };
 
     const generateDynamicMessage = (type) => {
-        const industry = prospectData.industry || 'your industry';
-        const role = prospectData.jobTitle || 'leadership role';
-        const painPoint = prospectData.painPoints?.split('.')[0] || 'operational challenges';
+        const industry = prospectData.industry || t('common.your_industry');
+        const role = prospectData.jobTitle || t('common.leadership_role');
+        const painPoint = prospectData.painPoints?.split('.')[0] || t('common.operational_challenges');
 
-        const openings = {
-            authority: `After working with 200+ ${role} professionals, I've uncovered a critical pattern in ${industry}.`,
-            curiosity: `I discovered something counterintuitive about ${industry} companies that most overlook.`,
-            data_driven: `Recent data from 300+ ${industry} companies shows a surprising trend affecting ${role} leaders.`,
-            connection: `I noticed your innovative approach at [Company] in ${industry}.`,
-            pain_point: `While researching ${industry} challenges, one issue keeps surfacing: ${painPoint}.`
-        };
+        const content = t(`prospect_profiler.analysis.messages.${type}`, { industry, role, painPoint });
+        const credibility = t('prospect_profiler.analysis.messages.credibility');
+        const cta = t('prospect_profiler.analysis.messages.cta');
+        const regards = t('prospect_profiler.analysis.messages.regards');
+        const yourName = t('prospect_profiler.analysis.messages.name_placeholder');
+        const firstName = t('prospect_profiler.analysis.messages.first_name_placeholder');
 
-        const credibility = `This approach has helped clients achieve 35% efficiency improvement in 8 weeks.`;
-        const cta = `Would you be open to a 15-minute conversation about applying this to your situation?`;
-
-        return `Hi [First Name],<br><br>${openings[type]}<br><br>${credibility}<br><br>${cta}<br><br>Best regards,<br>[Your Name]`;
+        return `Hi ${firstName},<br><br>${content}<br><br>${credibility}<br><br>${cta}<br><br>${regards}<br>${yourName}`;
     };
 
     const calculateDynamicRatings = (type) => {
@@ -134,20 +165,20 @@ const ProspectProfiler = () => {
     const getPersonalityType = () => {
         const triggers = prospectData.triggers || [];
         if (triggers.includes('roi') && triggers.includes('efficiency')) {
-            return "Analytical Driver - Focused on data-driven results and measurable outcomes";
+            return t('prospect_profiler.analysis.personality_types.analytical');
         } else if (triggers.includes('growth') && triggers.includes('innovation')) {
-            return "Visionary Innovator - Forward-thinking leader focused on scaling";
+            return t('prospect_profiler.analysis.personality_types.visionary');
         }
-        return "Balanced Professional - Motivated by multiple strategic factors";
+        return t('prospect_profiler.analysis.personality_types.balanced');
     };
 
     const startNewAnalysis = () => {
-        if (window.confirm('Start a new analysis? All current data will be cleared.')) {
+        if (window.confirm(t('tracker.ui.delete_confirm_all'))) {
             setProspectData({});
             setMessages([]);
             setCurrentStep(1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            displayMessage('New analysis started!');
+            displayMessage(t('common.success'));
         }
     };
 
@@ -159,10 +190,10 @@ const ProspectProfiler = () => {
 
     const renderStepIndicator = () => (
         <div className="step-indicator">
-            {['Target Audience', 'Prospect Profile', 'Psychology', 'Digital Footprint', 'AI Analysis'].map((label, idx) => (
+            {['market', 'pains', 'values', 'behavior', 'analysis'].map((key, idx) => (
                 <div key={idx} className={`step ${currentStep === idx + 1 ? 'active' : ''} ${currentStep > idx + 1 ? 'completed' : ''}`}>
                     <div className="step-number">{idx + 1}</div>
-                    <span className="step-label">{label}</span>
+                    <span className="step-label">{t(`prospect_profiler.steps.${key}`)}</span>
                 </div>
             ))}
         </div>
@@ -184,7 +215,7 @@ const ProspectProfiler = () => {
                                 <div className="brand-tagline">I Make Image</div>
                             </div>
                         </div>
-                        <h1>IMI AI Profiler Analyzer</h1>
+                        <h1>{t('prospect_profiler.title')}</h1>
                     </div>
                 </div>
             </header>
@@ -196,44 +227,97 @@ const ProspectProfiler = () => {
                 {/* Step 1 */}
                 {currentStep === 1 && (
                     <div className="form-section">
-                        <h2 className="section-title">Target Audience & Niche Analysis</h2>
-                        <p className="section-subtitle">Define your ideal prospect's market segment and audience characteristics</p>
+                        <h2 className="section-title">{t('prospect_profiler.steps.market')}</h2>
+                        <p className="section-subtitle">{t('prospect_profiler.subtitle')}</p>
+
+                        {/* Prospect Type Selector */}
+                        <div className="form-group">
+                            <label>Prospect Type *</label>
+                            <select value={prospectData.prospectType || 'b2b'} onChange={(e) => updateField('prospectType', e.target.value)}>
+                                <option value="b2b">B2B (Business/Professional)</option>
+                                <option value="b2c">B2C (Consumer/Individual)</option>
+                            </select>
+                            <small style={{ display: 'block', marginTop: '0.5rem', color: '#666' }}>
+                                {prospectData.prospectType === 'b2b'
+                                    ? 'Profile a business decision-maker or professional'
+                                    : 'Profile an individual consumer or end-user'}
+                            </small>
+                        </div>
 
                         <div className="grid-2">
                             <div className="form-group">
-                                <label>Industry/Niche *</label>
+                                <label>{prospectData.prospectType === 'b2b' ? 'Industry' : 'Category'} *</label>
                                 <select value={prospectData.industry || ''} onChange={(e) => updateField('industry', e.target.value)}>
-                                    <option value="">Select Industry</option>
-                                    <option value="technology">Technology</option>
-                                    <option value="healthcare">Healthcare</option>
-                                    <option value="finance">Finance</option>
-                                    <option value="education">Education</option>
-                                    <option value="retail">Retail/E-commerce</option>
-                                    <option value="consulting">Consulting</option>
-                                    <option value="other">Other</option>
+                                    <option value="">{t('common.select')}</option>
+                                    {prospectData.prospectType === 'b2b' ? (
+                                        <>
+                                            <option value="technology">Technology</option>
+                                            <option value="healthcare">Healthcare</option>
+                                            <option value="finance">Finance</option>
+                                            <option value="education">Education</option>
+                                            <option value="retail">Retail/E-commerce</option>
+                                            <option value="consulting">Consulting</option>
+                                            <option value="manufacturing">Manufacturing</option>
+                                            <option value="other">Other</option>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <option value="fashion">Fashion & Apparel</option>
+                                            <option value="health">Health & Wellness</option>
+                                            <option value="home">Home & Garden</option>
+                                            <option value="beauty">Beauty & Personal Care</option>
+                                            <option value="food">Food & Beverage</option>
+                                            <option value="electronics">Electronics & Tech</option>
+                                            <option value="entertainment">Entertainment & Media</option>
+                                            <option value="travel">Travel & Leisure</option>
+                                            <option value="other">Other</option>
+                                        </>
+                                    )}
                                 </select>
                             </div>
 
-                            <div className="form-group">
-                                <label>Company Size</label>
-                                <select value={prospectData.companySize || ''} onChange={(e) => updateField('companySize', e.target.value)}>
-                                    <option value="">Select Size</option>
-                                    <option value="startup">Startup (1-10 employees)</option>
-                                    <option value="small">Small (11-50 employees)</option>
-                                    <option value="medium">Medium (51-200 employees)</option>
-                                    <option value="large">Large (201-1000 employees)</option>
-                                </select>
-                            </div>
+                            {prospectData.prospectType === 'b2b' ? (
+                                <div className="form-group">
+                                    <label>Company Size</label>
+                                    <select value={prospectData.companySize || ''} onChange={(e) => updateField('companySize', e.target.value)}>
+                                        <option value="">{t('common.select')}</option>
+                                        <option value="startup">Startup (1-10 employees)</option>
+                                        <option value="small">Small (11-50 employees)</option>
+                                        <option value="medium">Medium (51-200 employees)</option>
+                                        <option value="large">Large (201-1000 employees)</option>
+                                        <option value="enterprise">Enterprise (1000+ employees)</option>
+                                    </select>
+                                </div>
+                            ) : (
+                                <div className="form-group">
+                                    <label>Age Range</label>
+                                    <select value={prospectData.ageRange || ''} onChange={(e) => updateField('ageRange', e.target.value)}>
+                                        <option value="">{t('common.select')}</option>
+                                        <option value="18-24">18-24</option>
+                                        <option value="25-34">25-34</option>
+                                        <option value="35-44">35-44</option>
+                                        <option value="45-54">45-54</option>
+                                        <option value="55-64">55-64</option>
+                                        <option value="65+">65+</option>
+                                    </select>
+                                </div>
+                            )}
                         </div>
 
                         <div className="form-group">
-                            <label>Target Audience Description *</label>
-                            <textarea value={prospectData.targetDescription || ''} onChange={(e) => updateField('targetDescription', e.target.value)} placeholder="Describe your ideal prospect's characteristics, challenges, and goals..." />
+                            <label>{prospectData.prospectType === 'b2b' ? 'Target Audience Description' : 'Consumer Profile'} *</label>
+                            <textarea
+                                value={prospectData.targetDescription || ''}
+                                onChange={(e) => updateField('targetDescription', e.target.value)}
+                                placeholder={prospectData.prospectType === 'b2b'
+                                    ? 'Describe the business professionals you want to reach (e.g., Marketing Directors at mid-size tech companies)'
+                                    : 'Describe your ideal consumer (e.g., Young professionals who value sustainable fashion and quality craftsmanship)'}
+                            />
                         </div>
 
                         <div className="navigation-buttons">
                             <div></div>
-                            <button className="btn" onClick={nextStep}>Next: Prospect Profile</button>
+                            <button className="btn" onClick={nextStep}>{t('common.next')}: {t('prospect_profiler.steps.pains')}</button>
                         </div>
                     </div>
                 )}
@@ -241,34 +325,68 @@ const ProspectProfiler = () => {
                 {/* Step 2 */}
                 {currentStep === 2 && (
                     <div className="form-section">
-                        <h2 className="section-title">Prospect Profile Details</h2>
-                        <p className="section-subtitle">Build a detailed profile of your ideal prospect</p>
+                        <h2 className="section-title">{t('prospect_profiler.steps.pains')}</h2>
+                        <p className="section-subtitle">{t('prospect_profiler.subtitle')}</p>
 
                         <div className="grid-2">
-                            <div className="form-group">
-                                <label>Job Title/Role *</label>
-                                <input type="text" value={prospectData.jobTitle || ''} onChange={(e) => updateField('jobTitle', e.target.value)} placeholder="e.g., Marketing Director, CEO" />
-                            </div>
+                            {prospectData.prospectType === 'b2b' ? (
+                                <div className="form-group">
+                                    <label>Job Title / Role *</label>
+                                    <input
+                                        type="text"
+                                        value={prospectData.jobTitle || ''}
+                                        onChange={(e) => updateField('jobTitle', e.target.value)}
+                                        placeholder="e.g., Marketing Director, CEO, Operations Manager"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="form-group">
+                                    <label>Lifestyle / Interests</label>
+                                    <input
+                                        type="text"
+                                        value={prospectData.lifestyle || ''}
+                                        onChange={(e) => updateField('lifestyle', e.target.value)}
+                                        placeholder="e.g., Fitness enthusiast, Urban professional, Eco-conscious parent"
+                                    />
+                                </div>
+                            )}
 
                             <div className="form-group">
-                                <label>Location</label>
-                                <input type="text" value={prospectData.location || ''} onChange={(e) => updateField('location', e.target.value)} placeholder="e.g., North America, Global" />
+                                <label>Location / Region</label>
+                                <input
+                                    type="text"
+                                    value={prospectData.location || ''}
+                                    onChange={(e) => updateField('location', e.target.value)}
+                                    placeholder={prospectData.prospectType === 'b2b' ? 'e.g., North America, Global' : 'e.g., Urban areas, Coastal cities'}
+                                />
                             </div>
                         </div>
 
                         <div className="form-group">
-                            <label>Primary Pain Points *</label>
-                            <textarea value={prospectData.painPoints || ''} onChange={(e) => updateField('painPoints', e.target.value)} placeholder="What are their biggest challenges and frustrations?" />
+                            <label>{prospectData.prospectType === 'b2b' ? 'Professional Pain Points' : 'Personal Frustrations'} *</label>
+                            <textarea
+                                value={prospectData.painPoints || ''}
+                                onChange={(e) => updateField('painPoints', e.target.value)}
+                                placeholder={prospectData.prospectType === 'b2b'
+                                    ? 'What are their biggest business challenges and frustrations? (e.g., Struggling with lead generation, overwhelmed by manual processes)'
+                                    : 'What frustrates them in their daily life? (e.g., Hard to find sustainable fashion that fits their style, tired of fast fashion quality)'}
+                            />
                         </div>
 
                         <div className="form-group">
-                            <label>Goals & Aspirations</label>
-                            <textarea value={prospectData.goals || ''} onChange={(e) => updateField('goals', e.target.value)} placeholder="What do they want to achieve?" />
+                            <label>{prospectData.prospectType === 'b2b' ? 'Business Goals' : 'Personal Desires'}</label>
+                            <textarea
+                                value={prospectData.goals || ''}
+                                onChange={(e) => updateField('goals', e.target.value)}
+                                placeholder={prospectData.prospectType === 'b2b'
+                                    ? 'What do they want to achieve professionally? (e.g., Increase revenue by 30%, streamline operations)'
+                                    : 'What do they aspire to? (e.g., Express their unique style, live more sustainably, feel confident)'}
+                            />
                         </div>
 
                         <div className="navigation-buttons">
-                            <button className="btn btn-secondary" onClick={previousStep}>Previous</button>
-                            <button className="btn" onClick={nextStep}>Next: Psychology Analysis</button>
+                            <button className="btn btn-secondary" onClick={previousStep}>{t('common.back')}</button>
+                            <button className="btn" onClick={nextStep}>{t('common.next')}: {t('prospect_profiler.steps.values')}</button>
                         </div>
                     </div>
                 )}
@@ -276,29 +394,44 @@ const ProspectProfiler = () => {
                 {/* Step 3 */}
                 {currentStep === 3 && (
                     <div className="form-section">
-                        <h2 className="section-title">Psychology & Personality Analysis</h2>
-                        <p className="section-subtitle">Understand the psychological drivers and personality traits</p>
+                        <h2 className="section-title">{t('prospect_profiler.steps.values')}</h2>
+                        <p className="section-subtitle">{t('prospect_profiler.subtitle')}</p>
 
                         <div className="form-group">
-                            <label>Communication Style Preferences</label>
+                            <label>{prospectData.prospectType === 'b2b' ? 'Communication Style' : 'Shopping Preferences'}</label>
                             <div className="checkbox-group">
-                                {['direct', 'analytical', 'relationship', 'innovative'].map(style => (
-                                    <div key={style} className="checkbox-item">
-                                        <input type="checkbox" checked={(prospectData.commStyles || []).includes(style)} onChange={() => toggleCheckbox('commStyles', style)} />
-                                        <label>{style.charAt(0).toUpperCase() + style.slice(1)}</label>
-                                    </div>
-                                ))}
+                                {prospectData.prospectType === 'b2b' ? (
+                                    ['direct', 'analytical', 'relationship', 'innovative'].map(style => (
+                                        <div key={style} className="checkbox-item">
+                                            <input type="checkbox" checked={(prospectData.commStyles || []).includes(style)} onChange={() => toggleCheckbox('commStyles', style)} />
+                                            <label>{style.charAt(0).toUpperCase() + style.slice(1)}</label>
+                                        </div>
+                                    ))
+                                ) : (
+                                    ['online', 'in-store', 'mobile', 'social-media'].map(pref => (
+                                        <div key={pref} className="checkbox-item">
+                                            <input type="checkbox" checked={(prospectData.shoppingPrefs || []).includes(pref)} onChange={() => toggleCheckbox('shoppingPrefs', pref)} />
+                                            <label>{pref.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</label>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
 
                         <div className="form-group">
-                            <label>Core Values & Beliefs *</label>
-                            <textarea value={prospectData.values || ''} onChange={(e) => updateField('values', e.target.value)} placeholder="What values drive their decisions?" />
+                            <label>{prospectData.prospectType === 'b2b' ? 'Professional Values' : 'Personal Values'} *</label>
+                            <textarea
+                                value={prospectData.values || ''}
+                                onChange={(e) => updateField('values', e.target.value)}
+                                placeholder={prospectData.prospectType === 'b2b'
+                                    ? 'What professional values drive their decisions? (e.g., ROI, efficiency, innovation, risk mitigation, growth)'
+                                    : 'What personal values are important to them? (e.g., Sustainability, quality, self-expression, family, health, convenience)'}
+                            />
                         </div>
 
                         <div className="navigation-buttons">
-                            <button className="btn btn-secondary" onClick={previousStep}>Previous</button>
-                            <button className="btn" onClick={nextStep}>Next: Digital Footprint</button>
+                            <button className="btn btn-secondary" onClick={previousStep}>{t('common.back')}</button>
+                            <button className="btn" onClick={nextStep}>{t('common.next')}: {t('prospect_profiler.steps.behavior')}</button>
                         </div>
                     </div>
                 )}
@@ -306,30 +439,54 @@ const ProspectProfiler = () => {
                 {/* Step 4 */}
                 {currentStep === 4 && (
                     <div className="form-section">
-                        <h2 className="section-title">Digital Footprint & Social Presence</h2>
-                        <p className="section-subtitle">Map their online behavior and social media presence</p>
+                        <h2 className="section-title">{t('prospect_profiler.steps.behavior')}</h2>
+                        <p className="section-subtitle">{t('prospect_profiler.subtitle')}</p>
 
                         <div className="form-group">
-                            <label>Primary Social Media Platforms</label>
+                            <label>{prospectData.prospectType === 'b2b' ? 'Professional Channels' : 'Social Media & Platforms'}</label>
                             <div className="checkbox-group">
-                                {['linkedin', 'twitter', 'facebook', 'instagram'].map(platform => (
-                                    <div key={platform} className="checkbox-item">
-                                        <input type="checkbox" checked={(prospectData.platforms || []).includes(platform)} onChange={() => toggleCheckbox('platforms', platform)} />
-                                        <label>{platform.charAt(0).toUpperCase() + platform.slice(1)}</label>
-                                    </div>
-                                ))}
+                                {prospectData.prospectType === 'b2b' ? (
+                                    ['linkedin', 'twitter', 'industry-blogs', 'webinars'].map(platform => (
+                                        <div key={platform} className="checkbox-item">
+                                            <input type="checkbox" checked={(prospectData.platforms || []).includes(platform)} onChange={() => toggleCheckbox('platforms', platform)} />
+                                            <label>{platform.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</label>
+                                        </div>
+                                    ))
+                                ) : (
+                                    ['instagram', 'tiktok', 'facebook', 'youtube', 'pinterest'].map(platform => (
+                                        <div key={platform} className="checkbox-item">
+                                            <input type="checkbox" checked={(prospectData.platforms || []).includes(platform)} onChange={() => toggleCheckbox('platforms', platform)} />
+                                            <label>{platform.charAt(0).toUpperCase() + platform.slice(1)}</label>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
 
                         <div className="form-group">
-                            <label>Content Consumption Preferences *</label>
-                            <textarea value={prospectData.contentConsumption || ''} onChange={(e) => updateField('contentConsumption', e.target.value)} placeholder="What type of content do they engage with?" />
+                            <label>{prospectData.prospectType === 'b2b' ? 'Content Consumption' : 'Content Preferences'} *</label>
+                            <textarea
+                                value={prospectData.contentConsumption || ''}
+                                onChange={(e) => updateField('contentConsumption', e.target.value)}
+                                placeholder={prospectData.prospectType === 'b2b'
+                                    ? 'What type of professional content do they engage with? (e.g., Case studies, whitepapers, industry reports, LinkedIn thought leadership)'
+                                    : 'What type of content do they consume? (e.g., Influencer reviews, styling videos, user-generated content, brand stories)'}
+                            />
                         </div>
 
                         <div className="navigation-buttons">
-                            <button className="btn btn-secondary" onClick={previousStep}>Previous</button>
-                            <button className="btn" onClick={generateAnalysis}>Generate AI Analysis</button>
+                            <button className="btn btn-secondary" onClick={previousStep}>{t('common.back')}</button>
+                            <button className="btn" onClick={generateAnalysis} disabled={isLoading}>
+                                {isLoading ? t('common.generating') : t('common.generate')}
+                            </button>
                         </div>
+
+                        {isLoading && (
+                            <div className="loading-overlay">
+                                <div className="loader"></div>
+                                <p>{t('common.analyzing_prospect')}</p>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -337,14 +494,19 @@ const ProspectProfiler = () => {
                 {currentStep === 5 && (
                     <div className="form-section">
                         <div className="ai-badge">AI-Powered Analysis</div>
-                        <h2 className="section-title">AI Analysis & Connection Messages</h2>
-                        <p className="section-subtitle">Dynamically generated prospect analysis and personalized connection messages</p>
+                        <h2 className="section-title">{t('prospect_profiler.steps.analysis')}</h2>
+                        <p className="section-subtitle">{t('prospect_profiler.subtitle')}</p>
 
                         <div className="results-section">
-                            <h3>AI Prospect Analysis</h3>
+                            <h3>Prospect Intelligence</h3>
                             <div className="analysis-card">
-                                <h4>Personality Type</h4>
-                                <p>{getPersonalityType()}</p>
+                                <h4>Personality Type & Angle</h4>
+                                <p><strong>{prospectData.aiResults?.personalityType || getPersonalityType()}</strong></p>
+                                {prospectData.aiResults?.strategicAngle && (
+                                    <p style={{ marginTop: '10px', fontStyle: 'italic', opacity: 0.8 }}>
+                                        Strategy: {prospectData.aiResults.strategicAngle}
+                                    </p>
+                                )}
                             </div>
                         </div>
 
@@ -397,10 +559,10 @@ const ProspectProfiler = () => {
                         </div>
 
                         <div className="navigation-buttons">
-                            <button className="btn btn-secondary" onClick={previousStep}>Previous</button>
+                            <button className="btn btn-secondary" onClick={previousStep}>{t('common.back')}</button>
                             <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-                                <button className="btn" onClick={generateMessages}>Regenerate Messages</button>
-                                <button className="btn btn-secondary" onClick={startNewAnalysis}>New Analysis</button>
+                                <button className="btn" onClick={generateMessages}>{t('common.generate')}</button>
+                                <button className="btn btn-secondary" onClick={startNewAnalysis}>{t('tracker.ui.reset_data')}</button>
                             </div>
                         </div>
                     </div>

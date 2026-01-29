@@ -1,28 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { analyzeToolData } from '../../utils/analysisService';
 import './BrandEvaluator.css';
 
-const BrandEvaluator = () => {
+const BrandEvaluator = ({ profileIndex }) => {
+    const { t } = useTranslation();
+    const getProfileKey = useCallback((key) => `imi-p${profileIndex}-${key}`, [profileIndex]);
+
     const [currentStep, setCurrentStep] = useState(1);
     const [brandData, setBrandData] = useState(() => {
-        const saved = localStorage.getItem('imi-brand-data');
-        return saved ? JSON.parse(saved) : {
+        const saved = localStorage.getItem(getProfileKey('imi-brand-data'));
+        if (saved) return JSON.parse(saved);
+
+        // Fallback to compass data for pre-filling
+        const compass = JSON.parse(localStorage.getItem(getProfileKey('imi-compass-data')) || '{}');
+        return {
             industry: '',
-            targetAudience: '',
-            brandName: '',
+            targetAudience: compass.audience || '',
+            brandName: compass.brandName || '',
             tagline: '',
             brandPersonality: [],
             brandVoice: [],
             competitors: '',
-            scores: {},
-            overallScore: 0
+            scores: null,
+            overallScore: 0,
+            analysis: '',
+            recommendations: [],
+            whoTarget: compass.audience || '', // Added for consistency with validation
+            whatOffer: compass.brandName || '' // Added for consistency
         };
     });
 
+    const [isLoading, setIsLoading] = useState(false);
+
     // Save brand data to localStorage
-    React.useEffect(() => {
-        localStorage.setItem('imi-brand-data', JSON.stringify(brandData));
-    }, [brandData]);
+    useEffect(() => {
+        localStorage.setItem(getProfileKey('imi-brand-data'), JSON.stringify(brandData));
+    }, [brandData, getProfileKey]);
     const [showMessage, setShowMessage] = useState(false);
     const [message, setMessage] = useState('');
 
@@ -36,7 +51,7 @@ const BrandEvaluator = () => {
         else if (currentStep === 3) value = brandData.howAccessible;
 
         if (!value.trim() || value.trim().length < 20) {
-            displayMessage('Please provide a detailed response (at least 20 characters)');
+            displayMessage(t('common.min_chars', { min: 20 }));
             return false;
         }
         return true;
@@ -55,15 +70,46 @@ const BrandEvaluator = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const generateEvaluation = () => {
+    const generateEvaluation = async () => {
         if (validateCurrentStep()) {
-            const scores = calculateScores();
-            const overallScore = calculateOverallScore(scores);
-            setBrandData(prev => ({ ...prev, scores, overallScore }));
-            setCurrentStep(4);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            // Mark tool as completed
-            window.dispatchEvent(new CustomEvent('tool-completed', { detail: 'brandEvaluator' }));
+            setIsLoading(true);
+            try {
+                const results = await analyzeToolData('brandEvaluator', {
+                    whatOffer: brandData.whatOffer,
+                    whoTarget: brandData.whoTarget,
+                    howAccessible: brandData.howAccessible
+                }, t('common.lang_code')); // Assuming there's a lang_code in i18n or just use 'en'
+
+                setBrandData(prev => ({
+                    ...prev,
+                    scores: results.scores,
+                    overallScore: results.overallScore,
+                    analysis: results.analysis,
+                    recommendations: results.recommendations
+                }));
+
+                setCurrentStep(4);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                // Mark tool as completed
+                window.dispatchEvent(new CustomEvent('tool-completed', { detail: 'brandEvaluator' }));
+            } catch (error) {
+                console.error("AI Analysis failed:", error);
+                displayMessage(t('common.error_occurred'));
+
+                // Fallback to local logic if AI fails
+                const scores = calculateScores();
+                const overallScore = calculateOverallScore(scores);
+                setBrandData(prev => ({
+                    ...prev,
+                    scores,
+                    overallScore,
+                    analysis: "AI Analysis currently unavailable. Using local evaluation engine.",
+                    recommendations: []
+                }));
+                setCurrentStep(4);
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -243,52 +289,24 @@ const BrandEvaluator = () => {
     };
 
     const getRatingLevel = (score) => {
-        if (score >= 4.5) return { label: 'Excellent Brand Strength', class: 'rating-excellent' };
-        if (score >= 4.0) return { label: 'Strong Brand Foundation', class: 'rating-good' };
-        if (score >= 3.5) return { label: 'Good Brand Potential', class: 'rating-good' };
-        if (score >= 3.0) return { label: 'Fair - Room for Growth', class: 'rating-fair' };
-        return { label: 'Needs Strategic Development', class: 'rating-needs-work' };
+        if (score >= 4.5) return { label: t('brand_evaluator.results.rating_excellent'), class: 'rating-excellent' };
+        if (score >= 4.0) return { label: t('brand_evaluator.results.rating_strong'), class: 'rating-good' };
+        if (score >= 3.5) return { label: t('brand_evaluator.results.rating_good'), class: 'rating-good' };
+        if (score >= 3.0) return { label: t('brand_evaluator.results.rating_fair'), class: 'rating-fair' };
+        return { label: t('brand_evaluator.results.rating_needs_work'), class: 'rating-needs-work' };
     };
 
     const getRecommendationForMetric = (metric) => {
-        const recommendations = {
-            clarity: {
-                title: 'Improve Clarity',
-                description: 'Make your offer more specific and concrete. Avoid jargon and clearly explain what you do, how it works, and the tangible benefits customers receive.'
-            },
-            relevance: {
-                title: 'Strengthen Relevance',
-                description: 'Connect more directly to your audience\'s pain points and desires. Research your target market deeper and address their specific challenges explicitly.'
-            },
-            emotionalResonance: {
-                title: 'Enhance Emotional Connection',
-                description: 'Incorporate more emotional triggers and benefits. Go beyond functional features to explain how your offering makes people feel and transforms their lives.'
-            },
-            originality: {
-                title: 'Increase Differentiation',
-                description: 'Clarify what makes you unique. Identify your distinctive angle, avoid generic claims, and emphasize specific features or approaches that set you apart.'
-            },
-            storytelling: {
-                title: 'Develop Your Narrative',
-                description: 'Create a more compelling story arc. Connect the problem, solution, and transformation more fluidly. Show the journey your customers take with your brand.'
-            },
-            scalability: {
-                title: 'Expand Market Potential',
-                description: 'Broaden your target audience or clarify how your solution can serve multiple segments. Consider how your offering can grow and adapt to different markets.'
-            },
-            commercialAppeal: {
-                title: 'Strengthen Business Model',
-                description: 'Clarify your monetization strategy and value proposition. Make the business case stronger by emphasizing ROI, efficiency gains, or cost savings for customers.'
-            },
-            consistency: {
-                title: 'Improve Coherence',
-                description: 'Ensure your What, Who, and How align seamlessly. Use consistent terminology and themes across all three elements to create a unified brand message.'
-            }
-        };
+        const title = t(`brand_evaluator.recommendations.${metric}.title`);
+        const description = t(`brand_evaluator.recommendations.${metric}.desc`);
 
-        return recommendations[metric] || {
-            title: 'General Improvement',
-            description: 'Continue refining this aspect of your brand strategy.'
+        if (title && description && title !== `brand_evaluator.recommendations.${metric}.title`) {
+            return { title, description };
+        }
+
+        return {
+            title: t('brand_evaluator.recommendations.general.title'),
+            description: t('brand_evaluator.recommendations.general.desc')
         };
     };
 
@@ -306,15 +324,15 @@ const BrandEvaluator = () => {
 
         if (brandData.overallScore < 3.5) {
             recommendations.push({
-                title: 'Strategic Brand Refinement Needed',
-                description: 'Consider working with a brand strategist to refine your core messaging and positioning. Your foundation needs strengthening before scaling.'
+                title: t('brand_evaluator.recommendations.refinement_needed.title'),
+                description: t('brand_evaluator.recommendations.refinement_needed.desc')
             });
         }
 
         if (brandData.overallScore >= 4.0) {
             recommendations.push({
-                title: 'Strong Foundation - Ready to Scale',
-                description: 'Your brand has a solid foundation. Focus on execution, testing your messaging in the market, and gathering customer feedback to optimize further.'
+                title: t('brand_evaluator.recommendations.ready_to_scale.title'),
+                description: t('brand_evaluator.recommendations.ready_to_scale.desc')
             });
         }
 
@@ -328,7 +346,7 @@ const BrandEvaluator = () => {
     };
 
     const startNewEvaluation = () => {
-        if (window.confirm('Start a new evaluation? All current data will be cleared.')) {
+        if (window.confirm(t('tracker.ui.delete_confirm_all'))) {
             setBrandData({
                 whatOffer: '',
                 whoTarget: '',
@@ -338,7 +356,7 @@ const BrandEvaluator = () => {
             });
             setCurrentStep(1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            displayMessage('New evaluation started - all data cleared!');
+            displayMessage(t('common.success'));
         }
     };
 
@@ -592,10 +610,10 @@ This evaluation uses AI-powered analysis to assess your brand across 8 critical 
     const renderStepIndicator = () => (
         <div className="step-indicator">
             {[
-                { num: 1, label: 'The What' },
-                { num: 2, label: 'The Who' },
-                { num: 3, label: 'The How' },
-                { num: 4, label: '✓', labelText: 'Results' }
+                { num: 1, label: t('brand_evaluator.steps.what') },
+                { num: 2, label: t('brand_evaluator.steps.who') },
+                { num: 3, label: t('brand_evaluator.steps.how') },
+                { num: 4, label: '✓', labelText: t('brand_evaluator.steps.score') }
             ].map(step => (
                 <div key={step.num} className={`step ${currentStep === step.num ? 'active' : ''} ${currentStep > step.num ? 'completed' : ''}`}>
                     <div className="step-number">{step.num === 4 ? '✓' : step.num}</div>
@@ -607,83 +625,92 @@ This evaluation uses AI-powered analysis to assess your brand across 8 critical 
 
     const renderStep1 = () => (
         <div className="form-section">
-            <div className="ai-badge">AI-Powered Brand Analysis</div>
-            <h2 className="section-title">Brand Foundation Assessment</h2>
-            <p className="section-subtitle">Answer three strategic questions to receive your comprehensive brand evaluation</p>
+            <div className="ai-badge">{t('brand_evaluator.ai_badge')}</div>
+            <h2 className="section-title">{t('brand_evaluator.steps.what')}</h2>
+            <p className="section-subtitle">{t('brand_evaluator.subtitle')}</p>
 
             <div className="question-card">
                 <div className="question-number">1</div>
-                <h3 className="question-title">What do you offer?</h3>
-                <p className="question-description">Describe your product, service, or solution. What value do you provide? What problem do you solve?</p>
+                <h3 className="question-title">{t('brand_evaluator.questions.what_label')}</h3>
+                <p className="question-description">{t('brand_evaluator.questions.what_label')}</p>
                 <div className="form-group">
-                    <label htmlFor="whatOffer">Your Answer</label>
+                    <label htmlFor="whatOffer">{t('brand_evaluator.your_answer')}</label>
                     <textarea
                         id="whatOffer"
                         value={brandData.whatOffer}
                         onChange={(e) => setBrandData({ ...brandData, whatOffer: e.target.value })}
-                        placeholder="Example: We provide a mobile app that captures and organizes family moments in real-time, allowing loved ones to share memories instantly regardless of distance..."
+                        placeholder={t('brand_evaluator.questions.what_placeholder')}
                     />
                 </div>
             </div>
 
             <div className="navigation-buttons">
                 <div></div>
-                <button className="btn" onClick={nextStep}>Next: The Who</button>
+                <button className="btn" onClick={nextStep}>{t('common.next')}: {t('brand_evaluator.steps.who')}</button>
             </div>
         </div>
     );
 
     const renderStep2 = () => (
         <div className="form-section">
-            <h2 className="section-title">Target Audience Definition</h2>
-            <p className="section-subtitle">Identify who benefits most from your offering</p>
+            <h2 className="section-title">{t('brand_evaluator.steps.who')}</h2>
+            <p className="section-subtitle">{t('brand_evaluator.steps.who')}</p>
 
             <div className="question-card">
                 <div className="question-number">2</div>
-                <h3 className="question-title">Who is this offer targeting?</h3>
-                <p className="question-description">Define your ideal customer. Who needs this? What are their characteristics, challenges, and aspirations?</p>
+                <h3 className="question-title">{t('brand_evaluator.questions.who_label')}</h3>
+                <p className="question-description">{t('brand_evaluator.questions.who_label')}</p>
                 <div className="form-group">
-                    <label htmlFor="whoTarget">Your Answer</label>
+                    <label htmlFor="whoTarget">{t('brand_evaluator.your_answer')}</label>
                     <textarea
                         id="whoTarget"
                         value={brandData.whoTarget}
                         onChange={(e) => setBrandData({ ...brandData, whoTarget: e.target.value })}
-                        placeholder="Example: Our primary audience includes families with loved ones living far apart, parents wanting to document their children's growth, students studying abroad, and professionals working remotely who want to stay connected..."
+                        placeholder={t('brand_evaluator.questions.who_placeholder')}
                     />
                 </div>
             </div>
 
             <div className="navigation-buttons">
-                <button className="btn btn-secondary" onClick={previousStep}>Previous</button>
-                <button className="btn" onClick={nextStep}>Next: The How</button>
+                <button className="btn btn-secondary" onClick={previousStep}>{t('common.back')}</button>
+                <button className="btn" onClick={nextStep}>{t('common.next')}: {t('brand_evaluator.steps.how')}</button>
             </div>
         </div>
     );
 
     const renderStep3 = () => (
         <div className="form-section">
-            <h2 className="section-title">Accessibility & Delivery</h2>
-            <p className="section-subtitle">Explain how customers experience and access your offering</p>
+            <h2 className="section-title">{t('brand_evaluator.steps.how')}</h2>
+            <p className="section-subtitle">{t('brand_evaluator.steps.how')}</p>
 
             <div className="question-card">
                 <div className="question-number">3</div>
-                <h3 className="question-title">How is this offer made accessible?</h3>
-                <p className="question-description">Describe the delivery method, platform, channels, pricing model, or any factors that make your offering available and easy to use.</p>
+                <h3 className="question-title">{t('brand_evaluator.questions.how_label')}</h3>
+                <p className="question-description">{t('brand_evaluator.questions.how_label')}</p>
                 <div className="form-group">
-                    <label htmlFor="howAccessible">Your Answer</label>
+                    <label htmlFor="howAccessible">{t('brand_evaluator.your_answer')}</label>
                     <textarea
                         id="howAccessible"
                         value={brandData.howAccessible}
                         onChange={(e) => setBrandData({ ...brandData, howAccessible: e.target.value })}
-                        placeholder="Example: Available as a mobile app on iOS and Android with cloud storage integration. Users can create private family albums, invite members, and share moments instantly. Offers freemium model with premium features for enhanced storage..."
+                        placeholder={t('brand_evaluator.questions.how_placeholder')}
                     />
                 </div>
             </div>
 
             <div className="navigation-buttons">
-                <button className="btn btn-secondary" onClick={previousStep}>Previous</button>
-                <button className="btn" onClick={generateEvaluation}>Generate Evaluation</button>
+                <button className="btn btn-secondary" onClick={previousStep}>{t('common.back')}</button>
+                <button className="btn" onClick={generateEvaluation} disabled={isLoading}>
+                    {isLoading ? t('common.generating') : t('common.generate')}
+                </button>
             </div>
+
+            {isLoading && (
+                <div className="loading-overlay">
+                    <div className="loader"></div>
+                    <p>{t('common.analyzing_brand')}</p>
+                </div>
+            )}
         </div>
     );
 
@@ -691,29 +718,33 @@ This evaluation uses AI-powered analysis to assess your brand across 8 critical 
         if (!brandData.scores) return null;
 
         const scoreMetrics = [
-            { key: 'clarity', label: 'Clarity', description: 'How clearly your offer is communicated' },
-            { key: 'relevance', label: 'Relevance', description: 'How well you address audience needs' },
-            { key: 'emotionalResonance', label: 'Emotional Resonance', description: 'Emotional connection with audience' },
-            { key: 'originality', label: 'Originality', description: 'Uniqueness and differentiation' },
-            { key: 'storytelling', label: 'Storytelling Strength', description: 'Narrative quality and flow' },
-            { key: 'scalability', label: 'Market Scalability', description: 'Growth and expansion potential' },
-            { key: 'commercialAppeal', label: 'Commercial Appeal', description: 'Business viability and monetization' },
-            { key: 'consistency', label: 'Consistency & Flow', description: 'Coherence across all elements' }
+            { key: 'clarity', label: t('brand_evaluator.metrics.clarity') },
+            { key: 'relevance', label: t('brand_evaluator.metrics.relevance') },
+            { key: 'emotionalResonance', label: t('brand_evaluator.metrics.emotionalResonance') },
+            { key: 'originality', label: t('brand_evaluator.metrics.originality') },
+            { key: 'storytelling', label: t('brand_evaluator.metrics.storytelling') },
+            { key: 'scalability', label: t('brand_evaluator.metrics.scalability') },
+            { key: 'commercialAppeal', label: t('brand_evaluator.metrics.commercialAppeal') },
+            { key: 'consistency', label: t('brand_evaluator.metrics.consistency') }
         ];
 
         const ratingInfo = getRatingLevel(brandData.overallScore);
-        const recommendations = generateRecommendations();
 
         return (
             <div className="form-section">
-                <div className="ai-badge">AI-Generated Evaluation</div>
-                <h2 className="section-title">Your Brand Evaluation Results</h2>
-                <p className="section-subtitle">Comprehensive analysis based on 8 key brand metrics</p>
+                <div className="ai-badge">{t('brand_evaluator.ai_badge')}</div>
+                <h2 className="section-title">{t('brand_evaluator.results.title')}</h2>
+                <p className="section-subtitle">{t('brand_evaluator.results.subtitle')}</p>
 
                 <div className="overall-score">
-                    <div className="overall-score-label">Overall Brand Strength</div>
+                    <div className="overall-score-label">{t('brand_evaluator.results.overall_strength')}</div>
                     <div className="overall-score-value">{brandData.overallScore.toFixed(1)}/5.0</div>
                     <div className={`rating-badge ${ratingInfo.class}`}>{ratingInfo.label}</div>
+                    {brandData.analysis && (
+                        <div className="ai-analysis-text" style={{ marginTop: '20px', fontSize: '1.1rem', color: 'var(--midnight-black)', opacity: 0.8, fontStyle: 'italic' }}>
+                            "{brandData.analysis}"
+                        </div>
+                    )}
                 </div>
 
                 <div className="score-display">
@@ -724,7 +755,6 @@ This evaluation uses AI-powered analysis to assess your brand across 8 critical 
                             <div key={metric.key} className="score-item">
                                 <div className="score-value">{score.toFixed(1)}/5</div>
                                 <div className="score-label">{metric.label}</div>
-                                <div className="score-description">{metric.description}</div>
                                 <div style={{ marginTop: '10px', color: 'var(--warning-yellow)', fontSize: '1.2rem' }}>{stars}</div>
                             </div>
                         );
@@ -734,31 +764,39 @@ This evaluation uses AI-powered analysis to assess your brand across 8 critical 
                 <div className="recommendation-section">
                     <h3 className="recommendation-title">
                         <span style={{ fontSize: '1.8rem' }}>💡</span>
-                        Strategic Recommendations for Improvement
+                        {t('brand_evaluator.results.recommendations_title')}
                     </h3>
                     <ul className="recommendation-list">
-                        {recommendations.map((rec, idx) => (
-                            <li key={idx}>
-                                <strong>{rec.title}:</strong> {rec.description}
-                            </li>
-                        ))}
+                        {brandData.recommendations && brandData.recommendations.length > 0 ? (
+                            brandData.recommendations.map((rec, idx) => (
+                                <li key={idx}>
+                                    <strong>{rec.title}:</strong> {rec.description}
+                                </li>
+                            ))
+                        ) : (
+                            generateRecommendations().map((rec, idx) => (
+                                <li key={idx}>
+                                    <strong>{rec.title}:</strong> {rec.description}
+                                </li>
+                            ))
+                        )}
                     </ul>
                 </div>
 
                 <div className="results-section">
-                    <h3 style={{ marginBottom: '20px' }}>Your Brand Responses</h3>
+                    <h3 style={{ marginBottom: '20px' }}>{t('brand_evaluator.results.foundation_title')}</h3>
                     <div className="evaluation-card">
-                        <h4 style={{ color: 'var(--electric-blue)', marginBottom: '20px' }}>Your Brand Foundation</h4>
+                        <h4 style={{ color: 'var(--electric-blue)', marginBottom: '20px' }}>{t('brand_evaluator.steps.what')}</h4>
                         <div style={{ marginBottom: '20px' }}>
-                            <h5 style={{ color: 'var(--midnight-black)', marginBottom: '10px' }}>❶ What You Offer:</h5>
+                            <h5 style={{ color: 'var(--midnight-black)', marginBottom: '10px' }}>❶ {t('brand_evaluator.questions.what_label')}</h5>
                             <p style={{ padding: '15px', background: 'white', borderRadius: '10px', borderLeft: '4px solid var(--electric-blue)' }}>{brandData.whatOffer}</p>
                         </div>
                         <div style={{ marginBottom: '20px' }}>
-                            <h5 style={{ color: 'var(--midnight-black)', marginBottom: '10px' }}>❷ Who You Target:</h5>
+                            <h5 style={{ color: 'var(--midnight-black)', marginBottom: '10px' }}>❷ {t('brand_evaluator.questions.who_label')}</h5>
                             <p style={{ padding: '15px', background: 'white', borderRadius: '10px', borderLeft: '4px solid var(--electric-blue)' }}>{brandData.whoTarget}</p>
                         </div>
                         <div style={{ marginBottom: '20px' }}>
-                            <h5 style={{ color: 'var(--midnight-black)', marginBottom: '10px' }}>❸ How It's Accessible:</h5>
+                            <h5 style={{ color: 'var(--midnight-black)', marginBottom: '10px' }}>❸ {t('brand_evaluator.questions.how_label')}</h5>
                             <p style={{ padding: '15px', background: 'white', borderRadius: '10px', borderLeft: '4px solid var(--electric-blue)' }}>{brandData.howAccessible}</p>
                         </div>
                     </div>
@@ -767,12 +805,12 @@ This evaluation uses AI-powered analysis to assess your brand across 8 critical 
                 {/* Next Step CTA */}
                 <div className="next-step-cta" style={{ marginTop: '40px' }}>
                     <div className="cta-header">
-                        <h3>🚀 Continue Your Strategic Journey</h3>
-                        <p>Your brand foundation is evaluated. Now define your product positioning.</p>
+                        <h3>🚀 {t('brand_evaluator.results.next_step_title')}</h3>
+                        <p>{t('brand_evaluator.results.next_step_desc')}</p>
                     </div>
                     <div className="cta-content">
                         <div className="cta-info">
-                            <h4>Profile Your Product</h4>
+                            <h4>{t('brand_evaluator.results.next_step_button')}</h4>
                             <p>Use the <strong>Product Profiler</strong> to create your Unique Value Proposition, identify target niches, and build your ideal client avatar with AI-powered insights.</p>
                             <ul className="cta-benefits">
                                 <li>✓ Generate compelling UVP statements</li>
@@ -785,7 +823,7 @@ This evaluation uses AI-powered analysis to assess your brand across 8 critical 
                             className="cta-button"
                             onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-tool', { detail: 'product-profiler' }))}
                         >
-                            Profile Your Product <ArrowRight size={20} />
+                            {t('brand_evaluator.results.next_step_button')} <ArrowRight size={20} />
                         </button>
                     </div>
                 </div>

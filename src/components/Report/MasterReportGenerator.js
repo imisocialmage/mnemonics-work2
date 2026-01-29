@@ -77,11 +77,19 @@ export const generateMasterReport = () => {
         y += 5;
         addSubtitle("Strategic Mission");
         addText(advice.mission);
-        y += 5;
-        addSubtitle("Action Plan & Recommendations");
-        advice.nextSteps.forEach(step => addText("• " + step));
     } else {
         addText("Data from Marketing Compass not found.");
+    }
+
+    // AI Strategic Roadmap Synthesis (If exists)
+    const deepAnalysis = JSON.parse(localStorage.getItem('imi-p0-deep-analysis') || 'null');
+    if (deepAnalysis) {
+        y += 5;
+        addSubtitle("AI MASTER STRATEGY SUMMARY", 16, [41, 121, 255]);
+        addText(deepAnalysis.executiveSummary);
+        y += 3;
+        addSubtitle("Primary Edge");
+        addText(deepAnalysis.primaryCompetitiveAdvantage);
     }
     addSeparator();
 
@@ -90,13 +98,18 @@ export const generateMasterReport = () => {
     addTitle("2. Brand Equity & Strength");
     y += 5;
     if (brandData.overallScore) {
-        addSubtitle("Overall Brand Strength: " + brandData.overallScore + "/100");
+        addSubtitle("Overall Brand Score: " + (brandData.aiResults?.overallScore || (brandData.overallScore / 20).toFixed(1)) + "/5.0");
+        if (brandData.aiResults?.analysis) {
+            y += 2;
+            addText(brandData.aiResults.analysis);
+        }
         y += 5;
-        addSubtitle("Attribute Scores");
-        if (brandData.scores) {
-            Object.entries(brandData.scores).forEach(([attr, score]) => {
-                addText(`• ${attr.charAt(0).toUpperCase() + attr.slice(1)}: ${score}/10`);
-            });
+        addSubtitle("Strategic Recommendations");
+        const recs = brandData.aiResults?.recommendations || [];
+        if (recs.length > 0) {
+            recs.forEach(r => addText(`• ${r.title}: ${r.description}`));
+        } else {
+            addText("Focus on improving clarity, relevance, and emotional resonance.");
         }
     } else {
         addText("Data from Brand Evaluator not found.");
@@ -110,12 +123,19 @@ export const generateMasterReport = () => {
     if (productData.productName) {
         addSubtitle("Product Name: " + productData.productName);
         y += 5;
-        addSubtitle("Unique Value Proposition");
-        addText(`Helping target users achieve results by ${productData.differentiator || 'differentiation'}.`);
-        y += 5;
-        addSubtitle("Ideal Client Avatar Profile");
-        addText("Core Problem: " + (productData.problemSolved || "Not defined"));
-        addText("Primary Benefit: " + (productData.tangibleBenefit || "Not defined"));
+        addSubtitle("Unique Value Proposition (AI-Optimized)");
+        addText(productData.aiResults?.uvp || productData.tangibleBenefit || "Not defined");
+
+        if (productData.aiResults?.avatars) {
+            y += 5;
+            addSubtitle("Ideal Client Avatars");
+            productData.aiResults.avatars.forEach(avatar => {
+                checkPage(30);
+                addText(`• ${avatar.role}: ${avatar.description}`);
+                addText(`  Pains: ${avatar.pains}`);
+                addText(`  Triggers: ${avatar.buyingTriggers}`);
+            });
+        }
     } else {
         addText("Data from Product Profiler not found.");
     }
@@ -126,12 +146,21 @@ export const generateMasterReport = () => {
     addTitle("4. Prospect Persona & Intelligence");
     y += 5;
     if (prospectData.jobTitle) {
-        addSubtitle("Target Role: " + prospectData.jobTitle);
-        addText("Industry: " + (prospectData.industry || "General"));
+        addSubtitle("Personality Type: " + (prospectData.aiResults?.personalityType || "Analyzed"));
+        if (prospectData.aiResults?.strategicAngle) {
+            addText("Strategic Angle: " + prospectData.aiResults.strategicAngle);
+        }
         y += 5;
-        addSubtitle("Psychological Profile");
-        addText("Pain Points: " + (prospectData.painPoints || "Not specified"));
-        addText("Values: " + (prospectData.values || "Not specified"));
+        addSubtitle("Outreach Strategy");
+        const msgs = prospectData.aiResults?.messages || [];
+        if (msgs.length > 0) {
+            msgs.slice(0, 2).forEach(m => {
+                addSubtitle(m.title, 11);
+                addText(m.content.replace(/<br>/g, '\n'));
+            });
+        } else {
+            addText("Pain Points: " + (prospectData.painPoints || "Not specified"));
+        }
     } else {
         addText("Data from Prospect Profiler not found.");
     }
@@ -141,13 +170,40 @@ export const generateMasterReport = () => {
     checkPage(50);
     addTitle("5. Conversion & Sales Flow");
     y += 5;
-    if (conversationData.clarity) {
-        addSubtitle("Product-Prospect Match Score: " + (matchScorePlaceholder(conversationData) || "Analyzed"));
-        y += 5;
-        addSubtitle("Core Messaging Strategy");
-        addText("The strategy focuses on bridging the gap between current conflicts and desired results through your unique product framework.");
+    if (conversationData.aiResults || conversationData.matchScore) {
+        addSubtitle("Product-Prospect Match Score: " + (conversationData.aiResults?.matchScore || conversationData.matchScore) + "/10");
+        if (conversationData.aiResults?.scoreAnalysis) {
+            addText(conversationData.aiResults.scoreAnalysis);
+        }
+
+        if (conversationData.aiResults?.storyFramework) {
+            y += 5;
+            addSubtitle("Story Framework");
+            const framework = conversationData.aiResults.storyFramework;
+            addText("• Situation: " + framework.situation);
+            addText("• Conflict: " + framework.conflicts);
+            addText("• Change: " + framework.changes);
+            addText("• Result: " + framework.results);
+        }
     } else {
         addText("Data from Conversation Guide not found.");
+    }
+
+    // --- SECTION 6: ASSET AI - VISUAL CONCEPT ---
+    const assetData = JSON.parse(localStorage.getItem('imi-p0-imi-asset-ai-results') || 'null');
+    if (assetData) {
+        checkPage(60);
+        addSeparator();
+        addTitle("6. Visual Marketing Asset Concept");
+        y += 5;
+        addSubtitle(`Asset Type: ${assetData.assetType}`);
+        addSubtitle("Hero Messaging", 12);
+        addText(`Headline: ${assetData.headline}`);
+        addText(`Subheadline: ${assetData.subheadline}`);
+        addText(`CTA: ${assetData.ctaText}`);
+        y += 5;
+        addSubtitle("Strategic Statement", 12);
+        addText(assetData.exampleStatement);
     }
 
     // Footer
@@ -161,8 +217,4 @@ export const generateMasterReport = () => {
     }
 
     doc.save("IMI_Master_Strategic_Blueprint.pdf");
-};
-
-const matchScorePlaceholder = (data) => {
-    return data.matchScore || "Analyzed";
 };

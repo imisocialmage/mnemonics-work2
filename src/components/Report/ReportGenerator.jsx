@@ -1,21 +1,60 @@
 import React from 'react';
-import { STRATEGIC_ADVICE, getHighlightedPositions, COMPASS_NODES, getRandomQuote } from '../../data/compassData';
+import { STRATEGIC_ADVICE, getHighlightedPositions, COMPASS_NODES, getRandomQuote, getLocalizedStrategicAdvice } from '../../data/compassData';
 import { jsPDF } from 'jspdf';
-import { Download, Calendar, CheckCircle, AlertTriangle, ArrowRight, BookOpen, Users, Video } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Download, Calendar, CheckCircle, AlertTriangle, ArrowRight, BookOpen, Users, Video, Zap } from 'lucide-react';
+import { analyzeToolData } from '../../utils/analysisService';
 import './Report.css';
 
 const ReportGenerator = ({ formData, selectedObjective }) => {
+    const { t, i18n } = useTranslation();
+
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [deepAnalysis, setDeepAnalysis] = React.useState(() => {
+        const saved = localStorage.getItem(`imi-p${formData.profileIndex || 0}-deep-analysis`);
+        return saved ? JSON.parse(saved) : null;
+    });
+
     if (!selectedObjective) return null;
 
-    const advice = STRATEGIC_ADVICE[selectedObjective.id];
+    const localizedAdvice = getLocalizedStrategicAdvice(i18n.language);
+    const advice = localizedAdvice[selectedObjective.id];
     const apexPos = selectedObjective.targetPosition;
-    const highlighted = getHighlightedPositions(apexPos).map(pos => COMPASS_NODES[pos].label);
-    const quote = getRandomQuote();
+    const highlighted = getHighlightedPositions(apexPos).map(pos => t(`nodes.${COMPASS_NODES[pos].id}`));
+    const quote = getRandomQuote(i18n.language);
+
+    const runDeepAnalysis = async () => {
+        setIsLoading(true);
+        try {
+            const profileIndex = formData.profileIndex || 0;
+            const getProfileKey = (key) => `imi-p${profileIndex}-${key}`;
+
+            const brand = JSON.parse(localStorage.getItem(getProfileKey('imi-brand-data')) || '{}');
+            const product = JSON.parse(localStorage.getItem(getProfileKey('imi-product-data')) || '{}');
+            const prospect = JSON.parse(localStorage.getItem(getProfileKey('imi-prospect-data')) || '{}');
+            const conversation = JSON.parse(localStorage.getItem(getProfileKey('imi-conversation-data')) || '{}');
+
+            const allData = {
+                objective: t(`objectives.${selectedObjective.id}`),
+                brand: brand,
+                product: product,
+                prospect: prospect,
+                conversation: conversation
+            };
+
+            const results = await analyzeToolData('strategicRoadmap', allData, i18n.language);
+            setDeepAnalysis(results);
+            localStorage.setItem(`imi-p${profileIndex}-deep-analysis`, JSON.stringify(results));
+        } catch (error) {
+            console.error("Deep Analysis failed:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleDownloadPDF = () => {
         const doc = new jsPDF();
         let y = 20;
-        const lineHeight = 7;
         const pageHeight = 280; // approximate useful height
         const margin = 20;
         const contentWidth = 210 - 2 * margin;
@@ -30,20 +69,20 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
         // Title & Metadata
         doc.setFontSize(22);
         doc.setTextColor(41, 121, 255);
-        doc.text("IMI Marketing Compass Strategy", margin, y);
+        doc.text(`${t('header.title')} ${t('report.title_suffix')}`, margin, y);
         y += 10;
         doc.setFontSize(10);
         doc.setTextColor(100);
-        doc.text(`Generated: ${new Date().toLocaleDateString()} `, margin, y);
+        doc.text(t('report.generated_on', { date: new Date().toLocaleDateString(i18n.language) }), margin, y);
         y += 15;
 
         doc.setFontSize(12);
         doc.setTextColor(0);
-        doc.text(`Brand: ${formData.brandName || 'Not specified'} `, margin, y);
+        doc.text(`${t('report.brand')}: ${formData.brandName || t('report.metadata.not_specified')} `, margin, y);
         y += 6;
-        doc.text(`Objective: ${selectedObjective.label} `, margin, y);
+        doc.text(`${t('report.objective')}: ${t(`objectives.${selectedObjective.id}`)} `, margin, y);
         y += 6;
-        doc.text(`Focus: ${formData.focus.toUpperCase()} `, margin, y);
+        doc.text(`${t('report.focus')}: ${t(`form.focus_${formData.focus}`).toUpperCase()} `, margin, y);
         y += 15;
 
         // Challenge
@@ -51,7 +90,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
             checkPage(30);
             doc.setFontSize(14);
             doc.setTextColor(41, 121, 255);
-            doc.text("Current Challenge", margin, y);
+            doc.text(t('report.current_challenge'), margin, y);
             y += 8;
             doc.setFontSize(11);
             doc.setTextColor(60);
@@ -65,7 +104,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
             checkPage(30);
             doc.setFontSize(14);
             doc.setTextColor(41, 121, 255);
-            doc.text("Strategic Insight", margin, y);
+            doc.text(t('report.strategic_insight'), margin, y);
             y += 8;
             doc.setFontSize(11);
             doc.setTextColor(60);
@@ -79,14 +118,14 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
             checkPage(40);
             doc.setFontSize(14);
             doc.setTextColor(41, 121, 255);
-            doc.text("Key Focus Areas", margin, y);
+            doc.text(t('report.key_focus_areas'), margin, y);
             y += 10;
             advice.focusAreas.forEach(area => {
                 checkPage(20);
                 doc.setFontSize(12);
                 doc.setTextColor(0);
                 doc.setFont("helvetica", "bold");
-                doc.text(area.name, margin, y);
+                doc.text(t(`nodes.${area.name.toLowerCase().replace(/[^a-z]/g, '')}`), margin, y);
                 y += 6;
                 doc.setFontSize(11);
                 doc.setTextColor(60);
@@ -103,7 +142,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
             checkPage(40);
             doc.setFontSize(14);
             doc.setTextColor(41, 121, 255);
-            doc.text("Core Philosophy", margin, y);
+            doc.text(t('report.core_philosophy'), margin, y);
             y += 8;
             doc.setFontSize(11);
             doc.setTextColor(60);
@@ -117,7 +156,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
             checkPage(80);
             doc.setFontSize(14);
             doc.setTextColor(41, 121, 255);
-            doc.text("10 Essential Online Marketing Tips", margin, y);
+            doc.text(t('report.essential_tips'), margin, y);
             y += 10;
             doc.setFontSize(10);
             doc.setTextColor(0);
@@ -135,7 +174,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
             checkPage(60);
             doc.setFontSize(14);
             doc.setTextColor(41, 121, 255);
-            doc.text("7-Day Launch Preparation", margin, y);
+            doc.text(t('report.launch_prep'), margin, y);
             y += 10;
             doc.setFontSize(10);
             doc.setTextColor(0);
@@ -157,7 +196,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
             doc.addPage(); y = 20; // Start fresh for calendar
             doc.setFontSize(14);
             doc.setTextColor(41, 121, 255);
-            doc.text("30-Day Promotional Calendar", margin, y);
+            doc.text(t('report.calendar'), margin, y);
             y += 10;
             advice.thirtyDayCalendar.forEach(week => {
                 checkPage(40);
@@ -183,7 +222,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
             checkPage(60);
             doc.setFontSize(14);
             doc.setTextColor(41, 121, 255);
-            doc.text("Top 5 Strategic Recommendations", margin, y);
+            doc.text(t('report.strategic_recommendations'), margin, y);
             y += 10;
             doc.setTextColor(0);
             doc.setFontSize(10);
@@ -201,7 +240,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
             checkPage(60);
             doc.setFontSize(14);
             doc.setTextColor(220, 38, 38); // Red
-            doc.text("Critical Red Flags to Avoid", margin, y);
+            doc.text(t('report.critical_red_flags'), margin, y);
             y += 10;
             doc.setTextColor(0);
             doc.setFontSize(10);
@@ -219,7 +258,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
             checkPage(60);
             doc.setFontSize(14);
             doc.setTextColor(41, 121, 255);
-            doc.text("Implementation Timeline", margin, y);
+            doc.text(t('report.timeline'), margin, y);
             y += 10;
             doc.setFontSize(10);
             doc.setTextColor(0);
@@ -240,7 +279,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
             checkPage(60);
             doc.setFontSize(14);
             doc.setTextColor(41, 121, 255);
-            doc.text("Next Steps", margin, y);
+            doc.text(t('report.next_steps'), margin, y);
             y += 10;
             doc.setTextColor(0);
             doc.setFontSize(10);
@@ -267,18 +306,90 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
         checkPage(40);
         doc.setFontSize(14);
         doc.setTextColor(41, 121, 255);
-        doc.text("Book Your Personalized Assessment", margin, y);
+        doc.text(t('report.cta.book_assessment'), margin, y);
         y += 8;
         doc.setFontSize(10);
         doc.setTextColor(60);
-        doc.text("Dive deeper into your strategy with a one-on-one session.", margin, y);
+        doc.text(t('report.cta.one_on_one'), margin, y);
         y += 15;
 
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.text("Helpful Resources: Team Section | Main Support Hub | YouTube Channel", margin, y);
+        doc.text(`${t('report.cta.resources')}: ${t('report.cta.team')} | ${t('report.cta.support')} | ${t('report.cta.youtube')}`, margin, y);
         y += 10;
 
+
+        // Deep Analysis / Strategic Roadmap
+        if (deepAnalysis) {
+            doc.addPage();
+            y = 20;
+            doc.setFontSize(18);
+            doc.setTextColor(41, 121, 255);
+            doc.text("AI STRATEGIC ROADMAP", margin, y);
+            y += 12;
+
+            doc.setFontSize(14);
+            doc.text("Executive Summary", margin, y);
+            y += 8;
+            doc.setFontSize(11);
+            doc.setTextColor(60);
+            const splitSummary = doc.splitTextToSize(deepAnalysis.executiveSummary, contentWidth);
+            doc.text(splitSummary, margin, y);
+            y += (splitSummary.length * 6) + 10;
+
+            doc.setFontSize(14);
+            doc.setTextColor(41, 121, 255);
+            doc.text("Primary Competitive Advantage", margin, y);
+            y += 8;
+            doc.setFontSize(11);
+            doc.setTextColor(60);
+            const splitAdv = doc.splitTextToSize(deepAnalysis.primaryCompetitiveAdvantage, contentWidth);
+            doc.text(splitAdv, margin, y);
+            y += (splitAdv.length * 6) + 10;
+
+            doc.setFontSize(14);
+            doc.setTextColor(41, 121, 255);
+            doc.text("Strategic Pillars", margin, y);
+            y += 10;
+            deepAnalysis.strategicPillars.forEach(pillar => {
+                checkPage(30);
+                doc.setFontSize(12);
+                doc.setTextColor(0);
+                doc.setFont("helvetica", "bold");
+                doc.text(pillar.title, margin, y);
+                y += 6;
+                doc.setFontSize(11);
+                doc.setTextColor(60);
+                doc.setFont("helvetica", "normal");
+                const splitDesc = doc.splitTextToSize(pillar.description, contentWidth);
+                doc.text(splitDesc, margin, y);
+                y += (splitDesc.length * 6) + 8;
+            });
+
+            checkPage(40);
+            doc.setFontSize(14);
+            doc.setTextColor(41, 121, 255);
+            doc.text("Immediate Action Plan", margin, y);
+            y += 10;
+            doc.setFontSize(10);
+            doc.setTextColor(0);
+            deepAnalysis.immediateActionPlan.forEach((action, i) => {
+                checkPage(10);
+                const splitAction = doc.splitTextToSize(`${i + 1}. ${action}`, contentWidth);
+                doc.text(splitAction, margin, y);
+                y += (splitAction.length * 5) + 2;
+            });
+            y += 10;
+
+            checkPage(30);
+            doc.setFontSize(14);
+            doc.setTextColor(41, 121, 255);
+            doc.text("Long-Term Vision", margin, y);
+            y += 8;
+            doc.setFontSize(11);
+            doc.setTextColor(60);
+            const splitVision = doc.splitTextToSize(deepAnalysis.longTermVision, contentWidth);
+            doc.text(splitVision, margin, y);
+            y += (splitVision.length * 6) + 15;
+        }
 
         doc.save(`IMI - Strategy - ${selectedObjective.id}.pdf`);
     };
@@ -288,7 +399,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
             {/* Header */}
             <div className="report-header">
                 <h2>{advice.title}</h2>
-                <div className="report-subtitle">Navigate Your Strategy Through Conversation, Not Coercion</div>
+                <div className="report-subtitle">{t('header.subtitle')}</div>
                 <div className="focus-badges">
                     {highlighted.map((label, idx) => (
                         <span key={idx} className="badge">{label}</span>
@@ -297,30 +408,72 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
             </div>
 
             <div className="report-content">
+                {/* Deep Analysis Mode */}
+                <div className="deep-analysis-teaser" style={{ marginBottom: '40px', background: 'linear-gradient(135deg, #1a237e, #0d47a1)', padding: '30px', borderRadius: '20px', color: 'white', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+                            <Zap size={24} color="var(--warning-yellow)" fill="var(--warning-yellow)" />
+                            <h3 style={{ margin: 0, color: 'white', fontSize: '1.5rem' }}>AI Deep Strategic Analysis</h3>
+                        </div>
+                        {deepAnalysis ? (
+                            <div className="deep-analysis-content">
+                                <p style={{ fontSize: '1.1rem', opacity: 0.9, lineHeight: '1.6', marginBottom: '20px' }}>{deepAnalysis.executiveSummary}</p>
+
+                                <div className="grid-areas" style={{ marginTop: '20px' }}>
+                                    <div className="area-card" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}>
+                                        <h4 style={{ color: 'var(--electric-blue)' }}>Competitive Edge</h4>
+                                        <p style={{ color: 'white', opacity: 0.9 }}>{deepAnalysis.primaryCompetitiveAdvantage}</p>
+                                    </div>
+                                    {deepAnalysis.strategicPillars.slice(0, 2).map((pillar, idx) => (
+                                        <div key={idx} className="area-card" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}>
+                                            <h4 style={{ color: 'var(--electric-blue)' }}>{pillar.title}</h4>
+                                            <p style={{ color: 'white', opacity: 0.9 }}>{pillar.description}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                                    <button className="btn" onClick={runDeepAnalysis} disabled={isLoading} style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid white' }}>
+                                        {isLoading ? 'Regenerating...' : 'Update Analysis'}
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div>
+                                <p style={{ fontSize: '1.1rem', opacity: 0.9, marginBottom: '20px' }}>
+                                    Synthesize all your tools (Brand, Product, Prospect, Conversation) into a single, cohesive strategic roadmap using Gemini AI.
+                                </p>
+                                <button className="btn" onClick={runDeepAnalysis} disabled={isLoading} style={{ background: 'var(--digital-white)', color: 'var(--midnight-black)' }}>
+                                    {isLoading ? 'Analyzing...' : 'Run Deep Analysis'}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
                 {/* Metadata */}
                 <div className="report-metadata-grid">
                     <div>
-                        <span className="meta-label">Brand / Product</span>
-                        <span className="meta-value">{formData.brandName || 'Not specified'}</span>
+                        <span className="meta-label">{t('report.metadata.brand_product')}</span>
+                        <span className="meta-value">{formData.brandName || t('report.metadata.not_specified')}</span>
                     </div>
                     <div>
-                        <span className="meta-label">Target Audience</span>
-                        <span className="meta-value">{formData.audience || 'Not specified'}</span>
+                        <span className="meta-label">{t('report.metadata.target_audience')}</span>
+                        <span className="meta-value">{formData.audience || t('report.metadata.not_specified')}</span>
                     </div>
                     <div>
-                        <span className="meta-label">Compass Focus</span>
-                        <span className="meta-value">{formData.focus.toUpperCase()}</span>
+                        <span className="meta-label">{t('report.metadata.compass_focus')}</span>
+                        <span className="meta-value">{t(`form.focus_${formData.focus}`).toUpperCase()}</span>
                     </div>
                     <div>
-                        <span className="meta-label">Date Generated</span>
-                        <span className="meta-value">{new Date().toLocaleDateString()}</span>
+                        <span className="meta-label">{t('report.metadata.date_generated')}</span>
+                        <span className="meta-value">{new Date().toLocaleDateString(i18n.language)}</span>
                     </div>
                 </div>
 
                 {/* Challenge */}
                 {formData.challenge && (
                     <div className="challenge-section">
-                        <h4>Current Challenge/Goal:</h4>
+                        <h4>{t('report.current_challenge')}:</h4>
                         <p>"{formData.challenge}"</p>
                     </div>
                 )}
@@ -328,7 +481,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
                 {/* Strategic Insight Highlight */}
                 {advice.highlight && (
                     <div className="section-block">
-                        <h3>Strategic Insight</h3>
+                        <h3>{t('report.strategic_insight')}</h3>
                         <p className="highlight-text">{advice.highlight}</p>
                     </div>
                 )}
@@ -336,11 +489,11 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
                 {/* Key Focus Areas */}
                 {advice.focusAreas && advice.focusAreas.length > 0 && (
                     <div className="section-block">
-                        <h3>Key Focus Areas</h3>
+                        <h3>{t('report.key_focus_areas')}</h3>
                         <div className="grid-areas">
                             {advice.focusAreas.map((area, idx) => (
                                 <div key={idx} className="area-card">
-                                    <h4>{area.name}</h4>
+                                    <h4>{t(`nodes.${area.name.toLowerCase().replace(/[^a-z]/g, '')}`)}</h4>
                                     <p>{area.desc}</p>
                                 </div>
                             ))}
@@ -351,7 +504,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
                 {/* Core Philosophy */}
                 {advice.corePhilosophy && (
                     <div className="section-block">
-                        <h3>Core Philosophy</h3>
+                        <h3>{t('report.core_philosophy')}</h3>
                         <div className="philosophy-box">
                             <p>{advice.corePhilosophy}</p>
                         </div>
@@ -361,7 +514,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
                 {/* 10 Essentials */}
                 {advice.tips && advice.tips.length > 0 && (
                     <div className="section-block">
-                        <h3>10 Essential Online Marketing Tips</h3>
+                        <h3>{t('report.essential_tips')}</h3>
                         <ul className="check-list">
                             {advice.tips.map((tip, idx) => (
                                 <li key={idx}><CheckCircle size={18} className="icon-check" /> {tip}</li>
@@ -375,7 +528,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
                     {/* 7-Day Plan */}
                     {advice.sevenDayPlan && advice.sevenDayPlan.length > 0 && (
                         <div className="plan-column">
-                            <h3>7-Day Launch Preparation</h3>
+                            <h3>{t('report.launch_prep')}</h3>
                             <div className="timeline-simple">
                                 {advice.sevenDayPlan.map((item, idx) => (
                                     <div key={idx} className="timeline-item">
@@ -393,7 +546,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
                     {/* Timeline */}
                     {advice.implementationTimeline && advice.implementationTimeline.length > 0 && (
                         <div className="plan-column">
-                            <h3>Implementation Timeline</h3>
+                            <h3>{t('report.timeline')}</h3>
                             <div className="timeline-simple">
                                 {advice.implementationTimeline.map((item, idx) => (
                                     <div key={idx} className="timeline-item">
@@ -412,7 +565,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
                 {/* 30-Day Calendar */}
                 {advice.thirtyDayCalendar && advice.thirtyDayCalendar.length > 0 && (
                     <div className="section-block">
-                        <h3>30-Day Promotional Calendar</h3>
+                        <h3>{t('report.calendar')}</h3>
                         <div className="calendar-grid">
                             {advice.thirtyDayCalendar.map((week, idx) => (
                                 <div key={idx} className="calendar-card">
@@ -436,7 +589,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
                 <div className="plans-grid">
                     {advice.strategicRecommendations && advice.strategicRecommendations.length > 0 && (
                         <div className="plan-column">
-                            <h3>Top 5 Strategic Recommendations</h3>
+                            <h3>{t('report.strategic_recommendations')}</h3>
                             <ul className="star-list">
                                 {advice.strategicRecommendations.map((rec, i) => <li key={i}>{rec}</li>)}
                             </ul>
@@ -445,7 +598,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
 
                     {advice.redFlags && advice.redFlags.length > 0 && (
                         <div className="plan-column">
-                            <h3 className="text-red">5 Critical Red Flags</h3>
+                            <h3 className="text-red">{t('report.critical_red_flags')}</h3>
                             <ul className="alert-list">
                                 {advice.redFlags.map((flag, i) => (
                                     <li key={i}><AlertTriangle size={16} className="icon-alert" /> {flag}</li>
@@ -458,7 +611,7 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
                 {/* Next Steps */}
                 {advice.nextSteps && advice.nextSteps.length > 0 && (
                     <div className="section-block">
-                        <h3>Next Steps</h3>
+                        <h3>{t('report.next_steps')}</h3>
                         <ul className="check-list">
                             {advice.nextSteps.map((step, idx) => (
                                 <li key={idx}><ArrowRight size={18} className="icon-arrow" /> {step}</li>
@@ -475,24 +628,32 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
 
                 {/* CTA & Footer */}
                 <div className="cta-section">
-                    <h3>📅 Book Your Personalized Assessment</h3>
-                    <p>Dive deeper into your strategy with a one-on-one session.</p>
-                    <button className="book-btn">Schedule Your 30-Minute Session <ArrowRight size={16} /></button>
+                    <h3>📅 {t('report.cta.book_assessment')}</h3>
+                    <p>{t('report.cta.one_on_one')}</p>
+                    <a
+                        href="https://calendly.com/imi-socialmediaimage/30min"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="book-btn"
+                        style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none' }}
+                    >
+                        {t('report.cta.schedule_session')} <ArrowRight size={16} />
+                    </a>
                 </div>
 
                 <div className="footer-links">
-                    <h4>📚 Helpful Resources & Links</h4>
+                    <h4>📚 {t('report.cta.resources')}</h4>
                     <div className="links-row">
-                        <span><Users size={14} /> Team Section</span>
-                        <span><BookOpen size={14} /> Main Support Hub</span>
-                        <span><Video size={14} /> YouTube Channel</span>
+                        <span><Users size={14} /> {t('report.cta.team')}</span>
+                        <span><BookOpen size={14} /> {t('report.cta.support')}</span>
+                        <span><Video size={14} /> {t('report.cta.youtube')}</span>
                     </div>
                 </div>
 
                 <div className="download-section">
                     <button className="premium-btn" onClick={handleDownloadPDF}>
                         <Download size={20} style={{ marginRight: '8px' }} />
-                        Download Full Strategy PDF
+                        {t('report.cta.download_pdf')}
                     </button>
                 </div>
             </div>
@@ -500,24 +661,24 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
             {/* Next Step CTA */}
             <div className="next-step-cta">
                 <div className="cta-header">
-                    <h3>🎯 Ready for the Next Step?</h3>
-                    <p>Now that you have your strategic direction, strengthen your brand foundation</p>
+                    <h3>🎯 {t('report.next_step_cta.ready')}</h3>
+                    <p>{t('report.next_step_cta.now_that')}</p>
                 </div>
                 <div className="cta-content">
                     <div className="cta-info">
-                        <h4>Evaluate Your Brand Strength</h4>
-                        <p>Use the <strong>Brand Evaluation Tool</strong> to assess your brand across 8 critical metrics including clarity, relevance, and emotional resonance. Get AI-powered recommendations to strengthen your positioning.</p>
+                        <h4>{t('report.next_step_cta.evaluate_brand')}</h4>
+                        <p>{t('report.next_step_cta.tool_desc')}</p>
                         <ul className="cta-benefits">
-                            <li>✓ Comprehensive 8-metric brand analysis</li>
-                            <li>✓ AI-generated strategic recommendations</li>
-                            <li>✓ Downloadable evaluation report</li>
+                            <li>✓ {t('report.next_step_cta.benefit_1')}</li>
+                            <li>✓ {t('report.next_step_cta.benefit_2')}</li>
+                            <li>✓ {t('report.next_step_cta.benefit_3')}</li>
                         </ul>
                     </div>
                     <button
                         className="cta-button"
                         onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-tool', { detail: 'brand-evaluator' }))}
                     >
-                        Evaluate Your Brand <ArrowRight size={20} />
+                        {t('report.next_step_cta.evaluate_button')} <ArrowRight size={20} />
                     </button>
                 </div>
             </div>

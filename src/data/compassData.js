@@ -516,6 +516,505 @@ export const MARKETING_QUOTES = [
     { quote: "Don't find customers for your products, find products for your customers.", author: "Seth Godin" }
 ];
 
-export const getRandomQuote = () => {
-    return MARKETING_QUOTES[Math.floor(Math.random() * MARKETING_QUOTES.length)];
+
+export const STRATEGIC_ADVICE_FR = {
+    acquisition: {
+        title: 'Aperçu de la Stratégie d\'Acquisition',
+        mission: 'Attirer des prospects de haute valeur par une conversion authentique et une démonstration de valeur.',
+        highlight: 'Votre stratégie d\'acquisition commence par un énoncé clair de la valeur, des avantages et de la confiance dans l\'approche et l\'utilisation des atouts.',
+        focusAreas: [
+            { name: 'ACQUISITION', desc: 'Renforcez la notoriété à travers plusieurs canaux qui résonnent avec votre audience idéale.' },
+            { name: 'COMMENT ?', desc: 'Définissez votre méthodologie et votre approche de livraison. Qu\'est-ce qui rend votre processus unique et efficace ?' },
+            { name: 'INTENTIONS', desc: "Clarifiez l'objectif et la mission de votre marque. Pourquoi existez-vous au-delà de la vente ?" }
+        ],
+        keyActions: "Créez du contenu qui présente clairement votre proposition de valeur. Démontrez les avantages de votre offre à travers des études de cas, des témoignages et un récit authentique.",
+        remember: "L'acquisition consiste à attirer les bonnes personnes, pas seulement plus de monde. Privilégiez la qualité à la quantité.",
+        corePhilosophy: "La boussole marketing IMI repose sur le principe que la psychologie d'une relation valorisée l'emportera toujours sur la psychologie de la vente forcée.",
+        tips: [
+            "Optimisez votre site web pour les moteurs de recherche avec des mots-clés ciblés",
+            "Créez du contenu de valeur qui répond aux points de douleur de votre audience",
+            "Exploitez la preuve sociale à travers les témoignages clients",
+            "Engagez-vous activement sur les plateformes de médias sociaux",
+            "Utilisez des aimants à prospects (lead magnets) pour capturer les coordonnées",
+            "Lancez des campagnes publicitaires ciblées sur les plateformes pertinentes",
+            "Collaborez avec des influenceurs dans votre créneau",
+            "Optimisez vos pages de destination pour la conversion",
+            "Utilisez le marketing par courriel pour nourrir les prospects",
+            "Surveillez et analysez vos mesures d'acquisition"
+        ],
+        sevenDayPlan: [
+            { day: 'Jour 1', focus: 'Identifiez vos 3 principaux canaux d\'acquisition.' },
+            { day: 'Jour 2', focus: 'Auditez votre proposition de valeur actuelle.' },
+            { day: 'Jour 3', focus: 'Créez un aimant à prospects qui résout un problème central.' },
+            { day: 'Jour 4', focus: 'Créez une page de destination simple pour l\'aimant à prospects.' },
+            { day: 'Jour 5', focus: 'Rédigez 5 publications sur les réseaux sociaux pour promouvoir l\'offre.' },
+            { day: 'Jour 6', focus: 'Configurez des suivis par courriel automatisés.' },
+            { day: 'Jour 7', focus: 'Lancez votre première campagne et suivez les résultats.' }
+        ],
+        thirtyDayCalendar: [
+            { week: 'Semaine 1', theme: 'Fondation et Notoriété', items: ['Optimisation SEO', 'Lancement de l\'aimant à prospects', 'Mises à jour quotidiennes sur les réseaux sociaux'] },
+            { week: 'Semaine 2', theme: 'Engagement et Portée', items: ['Partenariats', 'Publicités à petite échelle', 'Publication d\'étude de cas'] },
+            { week: 'Semaine 3', theme: 'Autorité et Confiance', items: ['Animation d\'un webinaire en direct', 'Partage d\'histoires de réussite clients', 'Affinage de la page de destination'] },
+            { week: 'Semaine 4', theme: 'Optimisation et Croissance', items: ['Analyse des données de conversion', 'Augmentation des publicités gagnantes', 'Planification du mois prochain'] }
+        ],
+        strategicRecommendations: [
+            "Concentrez-vous sur un canal d'acquisition principal avant de diversifier.",
+            "Priorisez la construction d'une liste de diffusion plutôt que les abonnements sur les réseaux sociaux.",
+            "Testez plusieurs versions du titre de votre aimant à prospects.",
+            "Investissez dans du contenu visuel de haute qualité pour renforcer l'autorité de la marque.",
+            "Mettez à jour régulièrement votre profil 'QUI' pour rester aligné sur les évolutions du marché."
+        ],
+        redFlags: [
+            "Se concentrer uniquement sur la quantité de prospects plutôt que sur la qualité.",
+            "Utiliser des titres agressifs ou 'putaclic' qui nuisent à la confiance.",
+            "Ignorer les données et se fier à son 'intuition' pour les dépenses publicitaires.",
+            "Négliger le processus de suivi des nouveaux prospects.",
+            "Ne pas avoir de moyen clair de mesurer le retour sur investissement (ROI) pour chaque canal."
+        ],
+        implementationTimeline: [
+            { period: 'Premieres 24 heures', focus: 'Sélectionnez un objectif principal et alignez-vous.' },
+            { period: 'Premiers 7 jours', focus: 'Construisez votre fondation de capture de prospects.' },
+            { period: 'Premiers 30 jours', focus: 'Exécutez des actions régulières et analysez les données.' }
+        ],
+        nextSteps: ["Approfondissez QUI vous servez", "Alignez les messages avec Acq/Comment/Intentions", "Priorisez la conversation plutôt que la coercition"]
+    },
+    conversion: {
+        title: 'Aperçu de la Stratégie de Conversion',
+        mission: 'Guider les prospects de la curiosité à l\'engagement par un dialogue fondé sur la confiance.',
+        highlight: 'Votre stratégie de conversion réussit grâce à une conversation authentique, suscitant l\'intérêt et guidant naturellement les prospects vers l\'action.',
+        focusAreas: [
+            { name: 'CONVERSION', desc: 'Transformez l\'intérêt en engagement par la construction de la confiance et la démonstration de valeur.' },
+            { name: 'APPEL À L\'ACTION', desc: 'Créez des invitations claires et convaincantes qui semblent naturelles, pas insistantes.' },
+            { name: 'INTÉRÊT', desc: 'Maintenez l\'engagement par un contenu de valeur et une construction de relation authentique.' }
+        ],
+        keyActions: "Engagez les prospects par des conversations significatives qui répondent à leurs besoins et préoccupations spécifiques. Montrez un intérêt sincère pour leur réussite.",
+        remember: "La conversion se fait par la conversation, pas par la coercition. Établissez d'abord des relations, les transactions suivront.",
+        corePhilosophy: "La psychologie d'une relation valorisée gagne sur les ventes forcées à chaque fois.",
+        tips: [
+            "Simplifiez votre entonnoir de conversion",
+            "Utilisez la preuve sociale près des points de conversion",
+            "Implémentez un tchat en direct pour des réponses en temps réel",
+            "Créez une urgence authentique",
+            "Optimisez la vitesse de chargement des pages",
+            "Utilisez des appels à l'action clairs et convaincants",
+            "Offrez un essai ou une démonstration à faible risque",
+            "Personnalisez vos messages de suivi",
+            "Répondez aux objections de manière proactive dans vos textes",
+            "Assurez une expérience d'achat mobile fluide"
+        ],
+        sevenDayPlan: [
+            { day: 'Jour 1', focus: 'Cartographiez votre entonnoir de vente actuel.' },
+            { day: 'Jour 2', focus: 'Identifiez le point de chute le plus important.' },
+            { day: 'Jour 3', focus: 'Réécrivez votre appel à l\'action principal.' },
+            { day: 'Jour 4', focus: 'Ajoutez un témoignage à côté de votre formulaire d\'inscription.' },
+            { day: 'Jour 5', focus: 'Rédigez une séquence de trois courriels de suivi.' },
+            { day: 'Jour 6', focus: 'Simplifiez votre page de paiement ou d\'inscription.' },
+            { day: 'Jour 7', focus: 'Effectuez un test complet de votre propre processus.' }
+        ],
+        thirtyDayCalendar: [
+            { week: 'Semaine 1', theme: 'Optimisation de l\'entonnoir', items: ['Tests A/B sur les titres', 'Suppression des champs inutiles', 'Test de vitesse'] },
+            { week: 'Semaine 2', theme: 'Construction de la confiance', items: ['Ajout d\'études de cas', 'Mise à jour de la FAQ', 'Mise en place du tchat'] },
+            { week: 'Semaine 3', theme: 'Incitations et Rareté', items: ['Lancement d\'une offre limitée', 'Mise en avant des avantages uniques', 'Relance par courriel'] },
+            { week: 'Semaine 4', theme: 'Poussée finale de conversion', items: ['Publicités de reciblage', 'Approche personnalisée', 'Examen des taux de conversion'] }
+        ],
+        strategicRecommendations: [
+            "Utilisez des 'Demandes Douces' pour évaluer l'intérêt avant la 'Demande Majeure'.",
+            "Personnalisez les pages de destination pour différentes sources de trafic.",
+            "Incluez une vidéo explicative sur vos pages à haute conversion.",
+            "Rendez votre politique de retour/remboursement visible pour réduire les frictions.",
+            "Assurez-vous que votre image de marque est cohérente de la publicité au paiement."
+        ],
+        redFlags: [
+            "Avoir trop de liens distrayants sur une page de destination.",
+            "Demander trop d'informations trop tôt dans la relation.",
+            "Utiliser un texte de bouton générique comme 'Envoyer'.",
+            "Temps de réponse lents aux demandes des prospects.",
+            "Manque de 'prochaines étapes' claires après une conversion."
+        ],
+        implementationTimeline: [
+            { period: 'Premieres 24 heures', focus: 'Mettez à jour le texte de votre bouton principal.' },
+            { period: 'Premiers 7 jours', focus: 'Optimisez votre page de destination au trafic le plus élevé.' },
+            { period: 'Premiers 30 jours', focus: 'Affinez votre séquence d\'automatisation d\'e-mails.' }
+        ],
+        nextSteps: ["Examinez les taux de conversion actuels", "Identifiez les principaux points de friction", "Réécrivez l'appel à l'action principal"]
+    },
+    retention: {
+        title: 'Aperçu de la Stratégie de Rétention',
+        mission: 'Transformer les clients satisfaits en défenseurs loyaux et partenaires à vie.',
+        highlight: 'Votre stratégie de rétention prospère grâce à une livraison de valeur constante, à la construction de relations et à la transformation des clients en ambassadeurs.',
+        focusAreas: [
+            { name: 'RÉTENTION', desc: 'Perfectionnez vos méthodes de livraison et l\'expérience pour dépasser les attentes des clients.' },
+            { name: 'INTENTIONS', desc: 'Maintenez l\'engagement des clients en alignant continuellement l\'objectif de votre marque sur leurs besoins évolutifs.' },
+            { name: 'QUOI ?', desc: 'Définissez clairement la valeur continue que vous offrez, transformant les clients satisfaits en ambassadeurs actifs.' }
+        ],
+        keyActions: "Contactez les clients de manière proactive avant que les problèmes ne surviennent. Célébrez leurs étapes importantes et montrez votre appréciation.",
+        remember: "La vente n'est pas la fin du voyage, mais le début d'une relation.",
+        corePhilosophy: "Un client heureux est le moteur marketing le plus puissant que puisse avoir votre entreprise.",
+        tips: [
+            "Implémentez l'accueil des clients (onboarding)",
+            "Créez un programme de fidélité",
+            "Envoyez régulièrement du contenu de valeur",
+            "Sensibilisation proactive",
+            "Célébrez les étapes clés des clients",
+            "Demandez régulièrement des commentaires",
+            "Fournissez un support exceptionnel",
+            "Surprenez et ravissez avec des extras",
+            "Créez une communauté pour vos utilisateurs",
+            "Personnalisez l'expérience après-vente"
+        ],
+        sevenDayPlan: [
+            { day: 'Jour 1', focus: 'Listez votre top 20% de clients.' },
+            { day: 'Jour 2', focus: 'Auditez votre séquence de bienvenue post-achat.' },
+            { day: 'Jour 3', focus: 'Contactez 5 clients pour une discussion rapide sur leurs retours.' },
+            { day: 'Jour 4', focus: 'Créez un cadeau ou une remise "surprise et enchantement".' },
+            { day: 'Jour 5', focus: 'Rédigez un modèle de newsletter mensuelle.' },
+            { day: 'Jour 6', focus: 'Examinez vos temps de réponse au support client.' },
+            { day: 'Jour 7', focus: 'Configurez une célébration d\'étape automatisée.' }
+        ],
+        thirtyDayCalendar: [
+            { week: 'Semaine 1', theme: 'L\'Expérience de Bienvenue', items: ['Optimisation de l\'accueil', 'Envoi de cadeaux de bienvenue', 'Vérification de la livraison'] },
+            { week: 'Semaine 2', theme: 'Valeur Continue', items: ['Contenu éducatif', 'Appels de suivi', 'Sondage de satisfaction'] },
+            { week: 'Semaine 3', theme: 'Communauté et Connexion', items: ['Nouvelles du fondateur', 'Mise en avant du client du mois', 'Q&A exclusif'] },
+            { week: 'Semaine 4', theme: 'Fidélité et Plaidoyer', items: ['Lancement du programme de parrainage', 'Focus sur les renouvellements', 'Analyse du taux d\'attrition'] }
+        ],
+        strategicRecommendations: [
+            "Répondez à l'attrition avant qu'elle ne survienne en suivant les mesures d'utilisation.",
+            "Impliquez vos clients dans le développement de nouvelles fonctionnalités.",
+            "Répondez à tous les commentaires, bons ou mauvais, dans les 24 heures.",
+            "Mettez en avant les histoires de réussite de vos clients dans votre marketing public.",
+            "Offrez des avantages réservés aux clients fidèles qui ne sont pas disponibles pour les nouveaux prospects."
+        ],
+        redFlags: [
+            "Communiquer uniquement lorsqu'il est temps de renouveler ou de monter en gamme.",
+            "Ignorer les retours négatifs ou rejeter les plaintes des clients.",
+            "Avoir un processus d'annulation lent ou difficile.",
+            "Défaut de mise à jour du produit/service pour rester pertinent.",
+            "Manque de touche personnelle dans les communications avec les clients."
+        ],
+        implementationTimeline: [
+            { period: 'Premieres 24 heures', focus: 'Envoyez un mot de remerciement personnel à un client.' },
+            { period: 'Premiers 7 jours', focus: 'Auditez et améliorez votre courriel de bienvenue.' },
+            { period: 'Premiers 30 jours', focus: 'Établissez un rythme constant de suivi client.' }
+        ],
+        nextSteps: ["Auditez l'expérience de déballage", "Appelez 5 clients récents", "Rédigez des e-mails de réengagement"]
+    },
+    how: {
+        title: 'Aperçu de la Méthodologie et Livraison',
+        mission: 'Démontrer des résultats supérieurs grâce à un processus de livraison unique et évolutif.',
+        highlight: 'Votre méthodologie est le pont entre le défi actuel d\'un prospect et les résultats souhaités.',
+        focusAreas: [
+            { name: 'COMMENT ?', desc: 'Définissez le processus ou le système unique que vous utilisez pour livrer des résultats.' },
+            { name: 'INTÉRÊT', desc: 'Accrochez votre audience en lui montrant une meilleure façon d\'atteindre ses objectifs.' },
+            { name: 'ACQUISITION', desc: 'Utilisez votre méthodologie unique comme principal différenciateur dans votre approche.' }
+        ],
+        keyActions: "Documentez votre processus de base et visualisez-le pour vos clients. Expliquez le 'pourquoi' derrière votre 'comment'.",
+        remember: "Les gens n'achètent pas seulement ce que vous faites ; ils achètent comment vous le faites mieux que quiconque.",
+        corePhilosophy: "La clarté du processus renforce la confiance dans les résultats.",
+        tips: [
+            "Visualisez votre processus avec un diagramme",
+            "Donnez à votre méthodologie un nom unique",
+            "Concentrez-vous sur l'efficacité et la vitesse",
+            "Mettez en avant l'élément secret",
+            "Utilisez du contenu 'coulisses'",
+            "Expliquez la livraison étape par étape",
+            "Standardisez vos résultats",
+            "Utilisez des outils ou des frameworks propriétaires",
+            "Éduquez-les sur pourquoi votre méthode est meilleure",
+            "Montrez le chemin de transformation"
+        ],
+        sevenDayPlan: [
+            { day: 'Jour 1', focus: 'Ébauchez les 5 étapes de votre processus unique.' },
+            { day: 'Jour 2', focus: 'Définissez l\'ingrédient secret de votre méthodologie.' },
+            { day: 'Jour 3', focus: 'Esquissez une carte visuelle simple de votre processus.' },
+            { day: 'Jour 4', focus: 'Créez une vidéo explicative d\'une étape clé.' },
+            { day: 'Jour 5', focus: 'Rassemblez 3 études de cas qui suivent la méthode.' },
+            { day: 'Jour 6', focus: 'Auditez votre livraison pour les goulots d\'étranglement.' },
+            { day: 'Jour 7', focus: 'Nommez votre cadre (ex: Le Système IMI).' }
+        ],
+        thirtyDayCalendar: [
+            { week: 'Semaine 1', theme: 'Définition du Cadre', items: ['Finalisation du visuel', 'Nommage du système', 'Formation interne'] },
+            { week: 'Semaine 2', theme: 'Éducation Publique', items: ['Série d\'articles sur la méthode', 'Démo vidéo', 'Accroches sociales'] },
+            { week: 'Semaine 3', theme: 'Preuves et Témoignages', items: ['Publication d\'études de cas', 'Collecte de témoignages vidéo', 'Guide comparatif'] },
+            { week: 'Semaine 4', theme: 'Mise à l\'échelle', items: ['Automatisation des étapes', 'Synchronisation de l\'accueil client', 'Affinage de l\'efficacité'] }
+        ],
+        strategicRecommendations: [
+            "Possédez votre propre catégorie en nommant votre processus.",
+            "Utilisez votre méthodologie pour disqualifier les mauvais prospects.",
+            "Concentrez-vous sur le 'Rendu' plutôt que sur le 'Travail'.",
+            "Gardez le visuel simple — s'ils ne peuvent pas le dessiner, ils ne s'en souviendront pas.",
+            "Montrez systématiquement l'écart entre l'ancienne méthode et la vôtre."
+        ],
+        redFlags: [
+            "Rendre votre processus trop complexe ou académique.",
+            "Défaut d'expliquer les résultats produits à chaque étape.",
+            "Changer de processus pour chaque client (non évolutif).",
+            "Se concentrer sur les 'Fonctionnalités' plutôt que sur le 'Mécanisme'.",
+            "Manque de représentation visuelle du parcours."
+        ],
+        implementationTimeline: [
+            { period: 'Premieres 24 heures', focus: 'Définissez les 3 piliers majeurs de votre travail.' },
+            { period: 'Premiers 7 jours', focus: 'Créez une carte visuelle de la méthode.' },
+            { period: 'Premiers 30 jours', focus: 'Intégrez la méthode dans toutes les conversations de vente.' }
+        ],
+        nextSteps: ["Cartographiez votre flux de livraison de service", "Identifiez votre facteur X unique", "Créez une représentation visuelle de votre méthode"]
+    },
+    calltoact: {
+        title: 'Aperçu de l\'Invitation et de l\'Offre',
+        mission: 'Créer des transitions sans friction de la curiosité à l\'engagement actif.',
+        highlight: 'Un bon appel à l\'action n\'est pas une demande ; c\'est une invitation convaincante au niveau supérieur de valeur.',
+        focusAreas: [
+            { name: 'APPEL À L\'ACTION', desc: 'Concevez vos invitations pour qu\'elles soient l\'étape suivante naturelle de la conversation.' },
+            { name: 'QUOI ?', desc: 'Articulez clairement la valeur spécifique qu\'ils recevront en agissant.' },
+            { name: 'CONVERSION', desc: 'Optimisez le chemin de l\'invitation à l\'engagement en supprimant toute friction.' }
+        ],
+        keyActions: "Testez différents styles d'invitation (directe vs douce). Assurez-vous que la valeur est claire et que la friction est faible.",
+        remember: "La clarté l'emporte sur l'originalité à chaque fois. Dites-leur exactement quoi faire et pourquoi c'est important.",
+        corePhilosophy: "L'invitation est le pont vers la solution.",
+        tips: [
+            "Utilisez des verbes d'action",
+            "Mettez en avant le bénéfice immédiat",
+            "Gardez-le court et percutant",
+            "Utilisez des couleurs contrastées pour les boutons",
+            "Incluez une garantie (inversion du risque)",
+            "Créez une urgence ou une rareté",
+            "Minimisez le nombre d'étapes",
+            "Utilisez un langage à la première personne ('Recevoir mon exemplaire')",
+            "Ajoutez un appel à l'action secondaire 'doux'",
+            "Testez l'emplacement sur la page"
+        ],
+        sevenDayPlan: [
+            { day: 'Jour 1', focus: 'Auditez chaque appel à l\'action sur votre site.' },
+            { day: 'Jour 2', focus: 'Réécrivez 3 titres principaux pour vos appels à l\'action.' },
+            { day: 'Jour 3', focus: 'Ajoutez une "Demande Directe" à votre dernier article.' },
+            { day: 'Jour 4', focus: 'Testez une nouvelle couleur de bouton.' },
+            { day: 'Jour 5', focus: 'Rédigez une invitation douce pour votre signature d\'e-mail.' },
+            { day: 'Jour 6', focus: 'Supprimez un champ de votre formulaire de contact.' },
+            { day: 'Jour 7', focus: 'Sondez 5 personnes sur la clarté de vos appels à l\'action.' }
+        ],
+        thirtyDayCalendar: [
+            { week: 'Semaine 1', theme: 'Clarté et Friction', items: ['Raccourcissement des formulaires', 'Réparation des liens brisés', 'Titres clairs'] },
+            { week: 'Semaine 2', theme: 'Commandement Visuel', items: ['Optimisation du design des boutons', 'Couleurs contrastées', 'Correction mobile'] },
+            { week: 'Semaine 3', theme: 'Attraction Psychologique', items: ['Ajout de balises d\'urgence', 'Test peur vs gain', 'Preuve sociale'] },
+            { week: 'Semaine 4', theme: 'Multi-canaux', items: ['Appels à l\'action dans la bio', 'Signatures d\'e-mails', 'Lancement d\'une nouvelle offre'] }
+        ],
+        strategicRecommendations: [
+            "Adaptez l'intensité de l'appel à l'action à la valeur du contenu.",
+            "Incluez toujours une option principale et une secondaire.",
+            "Utilisez l'espace blanc autour des boutons pour augmenter le focus.",
+            "Indiquez le prix (si bas) ou le temps requis (si important).",
+            "Automatisez la redirection après soumission vers une page de valeur."
+        ],
+        redFlags: [
+            "Utiliser plusieurs appels à l'action principaux qui se font concurrence.",
+            "Appels à l'action 'cachés' sous la ligne de flottaison d'une page.",
+            "Langage vague comme 'En savoir plus' ou 'Cliquez ici'.",
+            "Formulaires demandant un numéro de téléphone sans nécessité.",
+            "Demander une vente avant de fournir toute éducation/valeur."
+        ],
+        implementationTimeline: [
+            { period: 'Premieres 24 heures', focus: 'Remplacez un "En savoir plus" par un bénéfice spécifique.' },
+            { period: 'Premiers 7 jours', focus: 'Effectuez un test de clarté de 5 secondes sur votre site.' },
+            { period: 'Premiers 30 jours', focus: 'Testez deux types d\'offres différents.' }
+        ],
+        nextSteps: ["Auditez tous les CTAs actuels du site", "Testez une invitation douce vs une demande directe", "Simplifiez le flux d'inscription/paiement"]
+    },
+    intentions: {
+        title: 'Aperçu de l\'Objectif et de la Mission',
+        mission: 'Ancrer votre marketing dans un "Pourquoi" qui résonne émotionnellement avec votre tribu.',
+        highlight: 'Vos intentions définissent l\'âme de votre entreprise et créent une résonance logique et émotionnelle.',
+        focusAreas: [
+            { name: 'INTENTIONS', desc: 'Énoncez clairement le "Pourquoi" derrière votre marque. Pourquoi faites-vous ce que vous faites ?' },
+            { name: 'ACQUISITION', desc: 'Attirez les personnes qui partagent vos valeurs et croient en votre mission.' },
+            { name: 'RÉTENTION', desc: 'Maintenez votre communauté connectée grâce à un sens partagé de l\'objectif et de la direction.' }
+        ],
+        keyActions: "Communiquez les valeurs de votre marque de manière cohérente sur tous les points de contact. Partagez votre histoire d'origine.",
+        remember: "Le profit est le résultat d'une mission bien exécutée, pas la mission elle-même.",
+        corePhilosophy: "Le marketing consiste à trouver ceux qui croient ce que vous croyez.",
+        tips: [
+            "Écrivez un manifeste",
+            "Partagez votre histoire de fondateur",
+            "Soyez transparent sur votre entreprise",
+            "Montrez les coulisses",
+            "Mettez en avant les œuvres caritatives",
+            "Utilisez des vidéos authentiques, non polies",
+            "Définissez les ennemis de votre marque",
+            "Dites votre vérité hardiment",
+            "Bâtissez une communauté autour d'une cause",
+            "Alignez tous les recrutements sur vos valeurs"
+        ],
+        sevenDayPlan: [
+            { day: 'Jour 1', focus: 'Rédigez votre histoire d\'origine (500 mots).' },
+            { day: 'Jour 2', focus: 'Identifiez 3 valeurs fondamentales que vous ne briserez jamais.' },
+            { day: 'Jour 3', focus: 'Auditez votre page d\'accueil pour l\'authenticité.' },
+            { day: 'Jour 4', focus: 'Partagez un post "Pourquoi j\'ai commencé cela" sur les réseaux.' },
+            { day: 'Jour 5', focus: 'Trouvez un moyen de redonner à votre communauté.' },
+            { day: 'Jour 6', focus: 'Interrogez un client fidèle sur les raisons de sa fidélité.' },
+            { day: 'Jour 7', focus: 'Rédigez le manifeste de votre marque.' }
+        ],
+        thirtyDayCalendar: [
+            { week: 'Semaine 1', theme: 'Vérité Intérieure', items: ['Rédaction du manifeste', 'Définition des valeurs', 'Alignement interne'] },
+            { week: 'Semaine 2', theme: 'Partage du Récit', items: ['Vidéo d\'histoire d\'origine', 'Article sur les valeurs', 'Interventions podcast'] },
+            { week: 'Semaine 3', theme: 'Construction de la Tribu', items: ['Sensibilisation communautaire', 'Newsletter axée valeurs', 'Q&A en direct'] },
+            { week: 'Semaine 4', theme: 'Évaluation de l\'Impact', items: ['Examen des mesures d\'impact', 'Mise à jour de la page à propos', 'Campagne solidaire'] }
+        ],
+        strategicRecommendations: [
+            "Mettez votre 'Pourquoi' en avant dans votre page À propos et votre bio LinkedIn.",
+            "Utilisez vos valeurs pour recruter vos collaborateurs et choisir vos clients.",
+            "Soyez prêt à polariser — votre mission n'est pas pour tout le monde.",
+            "Connectez chaque fonctionnalité de produit à une intention de marque.",
+            "Célébrez les succès de votre communauté plus que les vôtres."
+        ],
+        redFlags: [
+            "Le jargon corporatif qui masque votre vraie personnalité.",
+            "Suivre des tendances qui contredisent vos valeurs déclarées.",
+            "Prioriser le profit à court terme sur la mission à long terme.",
+            "Manque de transparence sur vos processus ou vos prix.",
+            "La mission de la marque est cachée et difficile à trouver."
+        ],
+        implementationTimeline: [
+            { period: 'Premieres 24 heures', focus: 'Dites votre vérité dans un post sur les réseaux sociaux.' },
+            { period: 'Premiers 7 jours', focus: 'Réécrivez votre page À propos pour mener par l\'intention.' },
+            { period: 'Premiers 30 jours', focus: 'Établissez un pilier de contenu basé sur les valeurs.' }
+        ],
+        nextSteps: ["Écrivez une mission de marque en une phrase", "Identifiez 3 valeurs de marque clés", "Partagez une histoire des coulisses sur les réseaux sociaux"]
+    },
+    interest: {
+        title: 'Aperçu de l\'Engagement et de la Curiosité',
+        mission: 'Maintenir un haut niveau d\'engagement en livrant systématiquement découverte et éducation.',
+        highlight: 'L\'intérêt est l\'étincelle qui transforme un inconnu en prospect. Il est alimenté par la curiosité.',
+        focusAreas: [
+            { name: 'INTÉRÊT', desc: 'Créez du contenu qui arrête le défilement et invite à une enquête plus approfondie.' },
+            { name: 'CONVERSION', desc: 'Nourrissez l\'intérêt pour en faire un désir pour les résultats de votre produit.' },
+            { name: 'COMMENT ?', desc: 'Montrez-leur assez de votre méthodologie pour piquer leur curiosité.' }
+        ],
+        keyActions: "Utilisez des 'Boucles Ouvertes' dans votre contenu. Concentrez-vous sur les avantages des avantages. Répondez à leurs questions.",
+        remember: "Soyez plus intéressé par eux que vous n'êtes intéressant pour eux.",
+        corePhilosophy: "La curiosité est le carburant du cycle de vente.",
+        tips: [
+            "Utilisez des titres intriguants",
+            "Posez des questions qui font réfléchir",
+            "Partagez des statistiques surprenantes",
+            "Utilisez des 'Boucles Ouvertes'",
+            "Publiez des conseils éducatifs réguliers",
+            "Organisez des sondages interactifs",
+            "Partagez du contenu qui casse les idées reçues",
+            "Donnez le 'Quoi' gratuitement",
+            "Nourrissez avec des séquences d'e-mails",
+            "Répondez à CHAQUE commentaire"
+        ],
+        sevenDayPlan: [
+            { day: 'Jour 1', focus: 'Listez les 10 questions que vos prospects posent le plus.' },
+            { day: 'Jour 2', focus: 'Identifiez 3 mythes de votre industrie à déconstruire.' },
+            { day: 'Jour 3', focus: 'Rédigez un e-mail qui raconte une histoire curieuse.' },
+            { day: 'Jour 4', focus: 'Créez un sondage sur LinkedIn à propos d\'un point de douleur.' },
+            { day: 'Jour 5', focus: 'Postez un fait surprenant dans votre créneau.' },
+            { day: 'Jour 6', focus: 'Auditez vos réseaux sociaux pour le taux d\'engagement.' },
+            { day: 'Jour 7', focus: 'Configurez un e-mail automatisé de soin des prospects.' }
+        ],
+        thirtyDayCalendar: [
+            { week: 'Semaine 1', theme: 'Étincelle de Curiosité', items: ['Mythes du secteur', 'Sondages et enquêtes', 'Faits surprenants'] },
+            { week: 'Semaine 2', theme: 'Éducation et Vision', items: ['Guides pratiques', 'Conseils quotidiens', 'Interviews d\'experts'] },
+            { week: 'Semaine 3', theme: 'Nourrir la Relation', items: ['Invitation webinaire', 'Guide long format', 'Storytelling par courriel'] },
+            { week: 'Semaine 4', theme: 'Boucler la Boucle', items: ['Offres d\'essai douces', 'Sessions Q&A', 'Examen de l\'engagement'] }
+        ],
+        strategicRecommendations: [
+            "Le soin des prospects est un marathon, pas un sprint — soyez régulier.",
+            "Utilisez des publicités de reciblage pour rester présent dans l'esprit.",
+            "Concentrez-vous sur le fait d'être utile plutôt que d'être vendeur.",
+            "Utilisez des accroches dans chaque pièce de contenu produite.",
+            "Variez vos formats : texte, vidéo, image, sondage."
+        ],
+        redFlags: [
+            "Contenu ennuyeux et clinique qui ne suscite aucune émotion.",
+            "Publier uniquement quand vous avez quelque chose à vendre.",
+            "Ignorer les commentaires et messages directs des prospects.",
+            "Utilisation excessive d'outils automatisés qui tuent le côté humain.",
+            "Fournir une impasse sans étape suivante pour les prospects curieux."
+        ],
+        implementationTimeline: [
+            { period: 'Premieres 24 heures', focus: 'Posez une question à haut potentiel d\'engagement.' },
+            { period: 'Premiers 7 jours', focus: 'Lancez une série de contenus "Intérêt" en 3 parties.' },
+            { period: 'Premiers 30 jours', focus: 'Affinez votre flux d\'engagement vers les prospects.' }
+        ],
+        nextSteps: ["Auditez vos taux d'engagement sociaux", "Créez une pièce de contenu 'Top 10 Questions'", "Implémentez une séquence d'e-mails de soin"]
+    },
+    what: {
+        title: 'Aperçu de la Solution et de la UVP',
+        mission: 'Clarifier la transformation tangible que votre solution apporte au marché.',
+        highlight: 'Le "Quoi" est le résultat tangible de votre promesse de marque. Il doit être clair et unique.',
+        focusAreas: [
+            { name: 'QUOI ?', desc: 'Définissez votre produit ou service en termes de résultats spécifiques.' },
+            { name: 'RÉTENTION', desc: 'Assurez-vous que le "Quoi" continue de livrer de la valeur longtemps après l\'achat.' },
+            { name: 'APPEL À L\'ACTION', desc: 'Facilitez la compréhension de ce qu\'ils obtiennent en répondant.' }
+        ],
+        keyActions: "Affinez votre proposition de valeur unique (UVP) jusqu'à ce qu'elle soit indubitable. Mise sur la transformation.",
+        remember: "Votre produit est un pont du problème vers le résultat. Maintenez ce pont solide.",
+        corePhilosophy: "Les gens achètent le trou, pas la perceuse.",
+        tips: [
+            "Indiquez le résultat en premier",
+            "Utilisez des chiffres et des résultats concrets",
+            "Faites le contraste avec l'alternative",
+            "Mettez en avant un différenciateur majeur",
+            "Restez assez simple pour un enfant de 10 ans",
+            "Utilisez des images de produit de haute qualité",
+            "Offrez un avant/après clair",
+            "Listez exactement ce qu'ils reçoivent",
+            "Fournissez une garantie en béton",
+            "Montrez le produit en action"
+        ],
+        sevenDayPlan: [
+            { day: 'Jour 1', focus: 'Rédigez 3 versions différentes de votre UVP.' },
+            { day: 'Jour 2', focus: 'Listez les 5 résultats tangibles de vos clients.' },
+            { day: 'Jour 3', focus: 'Créez un tableau Fonctionnalités vs Bénéfices.' },
+            { day: 'Jour 4', focus: 'Récoltez 3 captures d\'écran ou photos du produit.' },
+            { day: 'Jour 5', focus: 'Rédigez un énoncé d\'unicité (Nous sommes les SEULS...).' },
+            { day: 'Jour 6', focus: 'Auditez votre accueil pour la clarté de l\'offre.' },
+            { day: 'Jour 7', focus: 'Sélectionnez l\'UVP gagnante pour votre titre.' }
+        ],
+        thirtyDayCalendar: [
+            { week: 'Semaine 1', theme: 'Clarté UVP', items: ['Mise à jour du titre', 'Clarification des livrables', 'Test A/B de l\'offre'] },
+            { week: 'Semaine 2', theme: 'Preuve Visuelle', items: ['Vidéo démo produit', 'Images Avant/Après', 'Preuve de déballage'] },
+            { week: 'Semaine 3', theme: 'Avantage Compétitif', items: ['Tableau comparatif', 'Focus différenciateurs', 'Blog d\'autorité'] },
+            { week: 'Semaine 4', theme: 'Intégration UVP', items: ['Mise à jour des bios', 'Synchro deck de vente', 'Examen retours'] }
+        ],
+        strategicRecommendations: [
+            "Votre UVP doit se concentrer sur le plus gros résultat que vous livrez.",
+            "Évitez les promesses génériques comme 'meilleure qualité'.",
+            "Testez votre UVP sur quelqu'un qui n'y connaît rien à votre domaine.",
+            "Assurez-vous que votre UVP est visible dès l'arrivée sur le site.",
+            "Mettez à jour votre offre en fonction des retours clients."
+        ],
+        redFlags: [
+            "Une UVP trop longue qui nécessite plusieurs phrases.",
+            "Utiliser des affirmations exagérées incroyables.",
+            "Se concentrer sur les objectifs internes de l'entreprise au lieu du client.",
+            "Votre produit est indiscernable de celui des concurrents.",
+            "Descriptions vagues qui n'expliquent pas ce que l'on reçoit vraiment."
+        ],
+        implementationTimeline: [
+            { period: 'Premieres 24 heures', focus: 'Définissez votre chiffre magique (ex: Économisez 40%).' },
+            { period: 'Premiers 7 jours', focus: 'Enregistrez une démo produit de 60 secondes.' },
+            { period: 'Premiers 30 jours', focus: 'Synchronisez votre UVP sur tous vos canaux.' }
+        ],
+        nextSteps: ["Auditez votre UVP pour la clarté et le punch", "Vérifiez les promesses de vos concurrents", "Sondez vos utilisateurs sur le bénéfice n°1"]
+    }
+};
+
+export const MARKETING_QUOTES_FR = [
+    { quote: "Le contenu est le feu. Les réseaux sociaux sont l'essence.", author: "Jay Baer" },
+    { quote: "Le but du marketing est de connaître et de comprendre le client si bien que le produit ou le service lui convient et se vend tout seul.", author: "Peter Drucker" },
+    { quote: "Le marketing ne concerne plus les choses que vous fabriquez, mais les histoires que vous racontez.", author: "Seth Godin" },
+    { quote: "Ne cherchez pas de clients pour vos produits, cherchez des produits pour vos clients.", author: "Seth Godin" }
+];
+
+export const getLocalizedStrategicAdvice = (lng) => {
+    if (lng.startsWith('fr')) {
+        return STRATEGIC_ADVICE_FR;
+    }
+    return STRATEGIC_ADVICE;
+};
+
+export const getRandomQuote = (lng = 'en') => {
+    const quotes = lng.startsWith('fr') ? MARKETING_QUOTES_FR : MARKETING_QUOTES;
+    return quotes[Math.floor(Math.random() * quotes.length)];
 };

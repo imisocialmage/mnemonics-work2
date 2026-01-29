@@ -1,26 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, Download, Sparkles } from 'lucide-react';
+import { analyzeToolData } from '../../utils/analysisService';
 import '../shared-tool-styles.css';
 
-const ConversationGuide = ({ allToolsCompleted = false }) => {
+const ConversationGuide = ({ allToolsCompleted = false, profileIndex }) => {
+    const { t } = useTranslation();
+    const getProfileKey = useCallback((key) => `imi-p${profileIndex}-${key}`, [profileIndex]);
+
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState(() => {
-        const saved = localStorage.getItem('imi-conversation-data');
-        return saved ? JSON.parse(saved) : {
+        const saved = localStorage.getItem(getProfileKey('imi-conversation-data'));
+        if (saved) return JSON.parse(saved);
+
+        // Fallback to product and prospect data
+        const product = JSON.parse(localStorage.getItem(getProfileKey('imi-product-data')) || '{}');
+        const prospect = JSON.parse(localStorage.getItem(getProfileKey('imi-prospect-data')) || '{}');
+        const brand = JSON.parse(localStorage.getItem(getProfileKey('imi-brand-data')) || '{}');
+
+        return {
+            productName: product.productName || brand.brandName || '',
+            problemSolved: product.problemSolved || '',
+            tangibleBenefit: product.tangibleBenefit || '',
+            emotionalBenefit: '',
+            painPoints: prospect.painPoints || '',
+            motivations: '',
             clarity: 5, relevance: 5, distinctiveness: 5, memorability: 5, scalability: 5
         };
     });
 
+    const [isLoading, setIsLoading] = useState(false);
+    const [aiResults, setAiResults] = useState(null);
+    const [matchScore, setMatchScore] = useState(0);
+    const [showMessage, setShowMessage] = useState(false);
+    const [message, setMessage] = useState('');
+
     // Save conversation data and score to localStorage
-    React.useEffect(() => {
-        localStorage.setItem('imi-conversation-data', JSON.stringify({
+    useEffect(() => {
+        localStorage.setItem(getProfileKey('imi-conversation-data'), JSON.stringify({
             ...formData,
             matchScore: matchScore
         }));
-    }, [formData, matchScore]);
-    const [showMessage, setShowMessage] = useState(false);
-    const [message, setMessage] = useState('');
-    const [matchScore, setMatchScore] = useState(0);
+    }, [formData, matchScore, getProfileKey]);
+
     const totalSteps = 4;
 
     const updateField = (field, value) => {
@@ -43,7 +65,7 @@ const ConversationGuide = ({ allToolsCompleted = false }) => {
             setCurrentStep(currentStep + 1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-            displayMessage('Please fill in all required fields');
+            displayMessage(t('conversation_guide.required_fields'));
         }
     };
 
@@ -52,12 +74,27 @@ const ConversationGuide = ({ allToolsCompleted = false }) => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const generateMatchAnalysis = () => {
-        setCurrentStep(4);
-        calculateMatchScore();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        // Mark this tool as completed
-        window.dispatchEvent(new CustomEvent('tool-completed', { detail: 'conversationGuide' }));
+    const generateMatchAnalysis = async () => {
+        if (validateStep()) {
+            setIsLoading(true);
+            try {
+                const results = await analyzeToolData('conversationGuide', formData, t('common.lang_code'));
+                setAiResults(results);
+                setMatchScore(results.matchScore);
+                setCurrentStep(4);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                // Mark tool as completed
+                window.dispatchEvent(new CustomEvent('tool-completed', { detail: 'conversationGuide' }));
+            } catch (error) {
+                console.error("AI Analysis failed:", error);
+                displayMessage(t('common.error_occurred'));
+                // Fallback to local logic
+                calculateMatchScore();
+                setCurrentStep(4);
+            } finally {
+                setIsLoading(false);
+            }
+        }
     };
 
     const displayMessage = (msg) => {
@@ -102,10 +139,10 @@ const ConversationGuide = ({ allToolsCompleted = false }) => {
     };
 
     const getScoreDescription = () => {
-        if (matchScore >= 8) return 'Excellent alignment! Your product, prospect, and brand are strongly matched.';
-        if (matchScore >= 6) return 'Good alignment with optimization opportunities.';
-        if (matchScore >= 4) return 'Moderate alignment. Consider refining your messaging.';
-        return 'Limited alignment detected. Review your product positioning.';
+        if (matchScore >= 8) return t('conversation_guide.score_excellent');
+        if (matchScore >= 6) return t('conversation_guide.score_good');
+        if (matchScore >= 4) return t('conversation_guide.score_moderate');
+        return t('conversation_guide.score_limited');
     };
 
     const generateConversationGuides = () => {
@@ -116,45 +153,40 @@ const ConversationGuide = ({ allToolsCompleted = false }) => {
 
         return [
             {
-                stage: '1. Connection',
-                title: 'Situation Hook',
-                guide: `"I'd love to hear where you are right now in ${problem}."`,
-                why: 'Surfaces the Situation early and shows genuine curiosity.'
+                key: 'connection',
+                context: { problem }
             },
             {
-                stage: '2. Building Rapport',
-                title: 'Desire Discovery',
-                guide: `"If you had the ideal outcome in ${problem}, what would it look like for you?"`,
-                why: 'Shifts from where they are → where they want to be.'
+                key: 'rapport_desire',
+                context: { problem }
             },
             {
-                stage: '2. Building Rapport',
-                title: 'Conflict Validation',
-                guide: `"What's been the biggest challenge keeping you from that result?"`,
-                why: 'Gets to the Conflict, allows empathy, and builds trust.'
+                key: 'rapport_conflict',
+                context: {}
             },
             {
-                stage: '3. Presenting',
-                title: 'Mapping Product to Prospect',
-                guide: `"What you've just described connects directly with how ${productName} works. For example, you mentioned ${painPoint}, and our approach addresses that."`,
-                why: 'Directly links their story to your product.'
+                key: 'presenting',
+                context: { productName, painPoint }
             },
             {
-                stage: '4. Booking/Closing',
-                title: 'Trial Close',
-                guide: `"If we could solve ${painPoint} and help you reach ${desire}, would you feel comfortable moving forward with a trial/next step?"`,
-                why: 'Checks readiness and leads toward decision.'
+                key: 'closing',
+                context: { painPoint, desire }
             }
-        ];
+        ].map(config => ({
+            stage: t(`conversation_guide.guides.${config.key}.stage`),
+            title: t(`conversation_guide.guides.${config.key}.title`),
+            guide: t(`conversation_guide.guides.${config.key}.guide`, config.context),
+            why: t(`conversation_guide.guides.${config.key}.why`)
+        }));
     };
 
     const startNewAnalysis = () => {
-        if (window.confirm('Start a new analysis? All current data will be cleared.')) {
+        if (window.confirm(t('conversation_guide.new_analysis_confirm'))) {
             setFormData({ clarity: 5, relevance: 5, distinctiveness: 5, memorability: 5, scalability: 5 });
             setMatchScore(0);
             setCurrentStep(1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            displayMessage('New analysis started!');
+            displayMessage(t('conversation_guide.new_analysis_started'));
         }
     };
 
@@ -166,7 +198,7 @@ const ConversationGuide = ({ allToolsCompleted = false }) => {
 
     const renderStepIndicator = () => (
         <div className="step-indicator">
-            {['Product Profile', 'Prospect Profile', 'Brand Attributes', 'Match Analysis'].map((label, idx) => (
+            {t('conversation_guide.progress_steps', { returnObjects: true }).map((label, idx) => (
                 <div key={idx} className={`step ${currentStep === idx + 1 ? 'active' : ''} ${currentStep > idx + 1 ? 'completed' : ''}`}>
                     <div className="step-number">{idx + 1}</div>
                     <span className="step-label">{label}</span>
@@ -191,7 +223,7 @@ const ConversationGuide = ({ allToolsCompleted = false }) => {
                                 <div className="brand-tagline">I Make Image</div>
                             </div>
                         </div>
-                        <h1>Product-Prospect Match & Conversation Guide</h1>
+                        <h1>{t('conversation_guide.title')}</h1>
                     </div>
                 </div>
             </header>
@@ -203,32 +235,32 @@ const ConversationGuide = ({ allToolsCompleted = false }) => {
                 {/* Step 1 - Product Profile */}
                 {currentStep === 1 && (
                     <div className="form-section">
-                        <h2 className="section-title">Product Profile - 5 Key Dimensions</h2>
-                        <p className="section-subtitle">Define your product across the core attributes</p>
+                        <h2 className="section-title">{t('conversation_guide.step1_title')}</h2>
+                        <p className="section-subtitle">{t('conversation_guide.step1_subtitle')}</p>
 
                         <div className="form-group">
-                            <label>Product Name *</label>
+                            <label>{t('conversation_guide.product_name')} *</label>
                             <input type="text" value={formData.productName || ''} onChange={(e) => updateField('productName', e.target.value)} placeholder="Product Name" />
                         </div>
 
                         <div className="form-group">
-                            <label>Problem Solved *</label>
-                            <textarea value={formData.problemSolved || ''} onChange={(e) => updateField('problemSolved', e.target.value)} placeholder="What specific problem does it solve?" />
+                            <label>{t('conversation_guide.problem_solved')} *</label>
+                            <textarea value={formData.problemSolved || ''} onChange={(e) => updateField('problemSolved', e.target.value)} placeholder={t('conversation_guide.problem_placeholder')} />
                         </div>
 
                         <div className="form-group">
-                            <label>Unique Differentiator</label>
-                            <textarea value={formData.differentiator || ''} onChange={(e) => updateField('differentiator', e.target.value)} placeholder="What makes your product unique?" />
+                            <label>{t('conversation_guide.differentiator')}</label>
+                            <textarea value={formData.differentiator || ''} onChange={(e) => updateField('differentiator', e.target.value)} placeholder={t('conversation_guide.differentiator_placeholder')} />
                         </div>
 
                         <div className="form-group">
-                            <label>Tangible Benefits</label>
-                            <textarea value={formData.tangibleBenefit || ''} onChange={(e) => updateField('tangibleBenefit', e.target.value)} placeholder="Tangible benefits (saves time, increases revenue, etc.)" />
+                            <label>{t('conversation_guide.tangible_benefits')}</label>
+                            <textarea value={formData.tangibleBenefit || ''} onChange={(e) => updateField('tangibleBenefit', e.target.value)} placeholder={t('conversation_guide.benefits_placeholder')} />
                         </div>
 
                         <div className="navigation-buttons">
                             <div></div>
-                            <button className="btn" onClick={nextStep}>Next: Prospect Profile</button>
+                            <button className="btn" onClick={nextStep}>{t('conversation_guide.next_prospect')}</button>
                         </div>
                     </div>
                 )}
@@ -236,32 +268,32 @@ const ConversationGuide = ({ allToolsCompleted = false }) => {
                 {/* Step 2 - Prospect Profile */}
                 {currentStep === 2 && (
                     <div className="form-section">
-                        <h2 className="section-title">Prospect Profile - 5 Core Attributes</h2>
-                        <p className="section-subtitle">Define your ideal prospect across key dimensions</p>
+                        <h2 className="section-title">{t('conversation_guide.step2_title')}</h2>
+                        <p className="section-subtitle">{t('conversation_guide.step2_subtitle')}</p>
 
                         <div className="form-group">
-                            <label>Pain Points & Needs *</label>
-                            <textarea value={formData.painPoints || ''} onChange={(e) => updateField('painPoints', e.target.value)} placeholder="What problems are they struggling with?" />
+                            <label>{t('conversation_guide.pain_points')} *</label>
+                            <textarea value={formData.painPoints || ''} onChange={(e) => updateField('painPoints', e.target.value)} placeholder={t('conversation_guide.pain_placeholder')} />
                         </div>
 
                         <div className="form-group">
-                            <label>Motivations</label>
-                            <textarea value={formData.motivations || ''} onChange={(e) => updateField('motivations', e.target.value)} placeholder="What motivates them?" />
+                            <label>{t('conversation_guide.motivations')}</label>
+                            <textarea value={formData.motivations || ''} onChange={(e) => updateField('motivations', e.target.value)} placeholder={t('conversation_guide.motivations_placeholder')} />
                         </div>
 
                         <div className="form-group">
-                            <label>Readiness to Take Action</label>
+                            <label>{t('conversation_guide.readiness')}</label>
                             <select value={formData.buyerStage || ''} onChange={(e) => updateField('buyerStage', e.target.value)}>
-                                <option value="">Select Stage</option>
-                                <option value="awareness">Awareness - Just learning about the problem</option>
-                                <option value="consideration">Consideration - Evaluating solutions</option>
-                                <option value="decision">Decision - Ready to purchase</option>
+                                <option value="">{t('conversation_guide.select_stage')}</option>
+                                <option value="awareness">{t('conversation_guide.stage_awareness')}</option>
+                                <option value="consideration">{t('conversation_guide.stage_consideration')}</option>
+                                <option value="decision">{t('conversation_guide.stage_decision')}</option>
                             </select>
                         </div>
 
                         <div className="navigation-buttons">
-                            <button className="btn btn-secondary" onClick={previousStep}>Previous</button>
-                            <button className="btn" onClick={nextStep}>Next: Brand Attributes</button>
+                            <button className="btn btn-secondary" onClick={previousStep}>{t('conversation_guide.previous')}</button>
+                            <button className="btn" onClick={nextStep}>{t('conversation_guide.next_brand')}</button>
                         </div>
                     </div>
                 )}
@@ -269,69 +301,92 @@ const ConversationGuide = ({ allToolsCompleted = false }) => {
                 {/* Step 3 - Brand Attributes */}
                 {currentStep === 3 && (
                     <div className="form-section">
-                        <h2 className="section-title">Brand Attributes - 5 Core Qualities</h2>
-                        <p className="section-subtitle">Rate your brand strength on each attribute (1-10)</p>
+                        <h2 className="section-title">{t('conversation_guide.step3_title')}</h2>
+                        <p className="section-subtitle">{t('conversation_guide.step3_subtitle')}</p>
 
                         {['clarity', 'relevance', 'distinctiveness', 'memorability', 'scalability'].map(attr => (
                             <div key={attr} className="slider-group">
                                 <div className="slider-label">
-                                    <span>{attr.charAt(0).toUpperCase() + attr.slice(1)}</span>
+                                    <span>{t(`conversation_guide.attributes.${attr}`)}</span>
                                     <span className="slider-value">{formData[attr]}</span>
                                 </div>
                                 <input type="range" min="1" max="10" value={formData[attr]} onChange={(e) => updateField(attr, e.target.value)} />
                                 <div className="slider-scale">
-                                    <span>Low</span>
-                                    <span>High</span>
+                                    <span>{t('conversation_guide.low')}</span>
+                                    <span>{t('conversation_guide.high')}</span>
                                 </div>
                             </div>
                         ))}
 
                         <div className="navigation-buttons">
-                            <button className="btn btn-secondary" onClick={previousStep}>Previous</button>
-                            <button className="btn" onClick={generateMatchAnalysis}>Generate Match Analysis</button>
+                            <button className="btn btn-secondary" onClick={previousStep}>{t('conversation_guide.previous')}</button>
+                            <button className="btn" onClick={generateMatchAnalysis} disabled={isLoading}>
+                                {isLoading ? t('common.generating') : t('conversation_guide.generate')}
+                            </button>
                         </div>
+
+                        {isLoading && (
+                            <div className="loading-overlay">
+                                <div className="loader"></div>
+                                <p>{t('common.analyzing_match')}</p>
+                            </div>
+                        )}
                     </div>
                 )}
 
                 {/* Step 4 - Results */}
                 {currentStep === 4 && (
                     <div className="form-section">
-                        <div className="ai-badge">AI-Powered Match Analysis</div>
-                        <h2 className="section-title">Your Product-Prospect Match Report</h2>
-                        <p className="section-subtitle">Complete analysis with conversation strategies</p>
+                        <div className="ai-badge">{t('conversation_guide.ai_badge')}</div>
+                        <h2 className="section-title">{t('conversation_guide.step4_title')}</h2>
+                        <p className="section-subtitle">{t('conversation_guide.step4_subtitle')}</p>
 
                         <div style={{ textAlign: 'center', padding: '40px', margin: '30px 0' }}>
                             <div style={{ width: '200px', height: '200px', margin: '0 auto 20px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--electric-blue), var(--coral-red))', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white', boxShadow: '0 10px 40px rgba(41, 121, 255, 0.3)' }}>
                                 <div style={{ fontSize: '4rem', fontWeight: '700', fontFamily: 'Space Grotesk, sans-serif' }}>{matchScore}</div>
-                                <div style={{ fontSize: '1.2rem', opacity: 0.9 }}>Match Score</div>
+                                <div style={{ fontSize: '1.2rem', opacity: 0.9 }}>{t('conversation_guide.match_score')}</div>
                             </div>
-                            <p style={{ fontSize: '1.2rem', color: 'var(--slate-gray)', maxWidth: '600px', margin: '0 auto' }}>{getScoreDescription()}</p>
+                            <p style={{ fontSize: '1.2rem', color: 'var(--slate-gray)', maxWidth: '600px', margin: '0 auto' }}>
+                                {aiResults?.scoreAnalysis || getScoreDescription()}
+                            </p>
                         </div>
 
                         <div className="results-section">
-                            <h3>Story Framework Map</h3>
+                            <h3>{t('conversation_guide.story_framework')}</h3>
                             <div className="grid-3">
-                                {['Situation', 'Desires', 'Conflicts', 'Changes', 'Results'].map((stage, idx) => (
-                                    <div key={idx} className="analysis-card">
-                                        <h4 style={{ color: 'var(--electric-blue)' }}>{stage}</h4>
-                                        <p>{idx === 0 ? formData.painPoints || 'Prospect current challenges' :
-                                            idx === 1 ? formData.motivations || 'What they want to achieve' :
-                                                idx === 2 ? formData.painPoints || 'Obstacles preventing success' :
-                                                    idx === 3 ? `Implementing ${formData.productName || 'your solution'}` :
-                                                        formData.tangibleBenefit || 'Desired outcome achieved'}</p>
-                                    </div>
-                                ))}
+                                {aiResults?.storyFramework ? (
+                                    Object.entries(aiResults.storyFramework).map(([key, val], idx) => (
+                                        <div key={idx} className="analysis-card">
+                                            <h4 style={{ color: 'var(--electric-blue)' }}>{t(`conversation_guide.framework.${key}`)}</h4>
+                                            <p>{val}</p>
+                                        </div>
+                                    ))
+                                ) : (
+                                    [
+                                        { key: 'situation', val: formData.painPoints },
+                                        { key: 'desires', val: formData.motivations },
+                                        { key: 'conflicts', val: formData.painPoints },
+                                        { key: 'changes', val: `Implementing ${formData.productName || 'your solution'}` },
+                                        { key: 'results', val: formData.tangibleBenefit }
+                                    ].map((stage, idx) => (
+                                        <div key={idx} className="analysis-card">
+                                            <h4 style={{ color: 'var(--electric-blue)' }}>{t(`conversation_guide.framework.${stage.key}`)}</h4>
+                                            <p>{stage.val || t(`conversation_guide.framework.desc_${stage.key}`, { product: formData.productName || 'your solution' })}</p>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
 
                         <div className="results-section">
-                            <h3>Complete Sales Flow - Conversation Guides</h3>
-                            {generateConversationGuides().map((guide, idx) => (
+                            <h3>{t('conversation_guide.conversation_title')}</h3>
+                            {(aiResults?.guides || generateConversationGuides()).map((guide, idx) => (
                                 <div key={idx} className="analysis-card" style={{ background: 'linear-gradient(135deg, #fff3e0, #ffe0b2)', borderLeft: '4px solid #ff9800', marginBottom: '20px' }}>
                                     <div style={{ fontSize: '0.85rem', color: '#666', fontWeight: '600', marginBottom: '5px' }}>{guide.stage}</div>
                                     <h4 style={{ color: '#f57c00', marginBottom: '10px' }}>{guide.title}</h4>
-                                    <div style={{ fontStyle: 'italic', background: 'white', padding: '12px', borderRadius: '8px', margin: '10px 0', color: 'var(--midnight-black)' }}>{guide.guide}</div>
-                                    <div style={{ fontSize: '0.9rem', color: '#666' }}><strong>Why it works:</strong> {guide.why}</div>
+                                    <div style={{ fontStyle: 'italic', background: 'white', padding: '12px', borderRadius: '8px', margin: '10px 0', color: 'var(--midnight-black)' }}
+                                        dangerouslySetInnerHTML={{ __html: guide.content || guide.guide }} />
+                                    <div style={{ fontSize: '0.9rem', color: '#666' }}><strong>{t('conversation_guide.why_works')}</strong> {guide.why}</div>
                                 </div>
                             ))}
                         </div>
@@ -339,18 +394,16 @@ const ConversationGuide = ({ allToolsCompleted = false }) => {
                         {/* Completion CTA */}
                         <div className="next-step-cta" style={{ marginTop: '40px', background: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)', borderColor: '#4caf50' }}>
                             <div className="cta-header">
-                                <h3>🎉 Congratulations! Your Strategic Foundation is Complete</h3>
-                                <p>You've completed the full IMI strategic workflow</p>
+                                <h3>{t('conversation_guide.completion_title')}</h3>
+                                <p>{t('conversation_guide.completion_subtitle')}</p>
                             </div>
                             <div className="cta-content" style={{ flexDirection: 'column', textAlign: 'center' }}>
                                 <div className="cta-info">
-                                    <h4>You Now Have:</h4>
+                                    <h4>{t('conversation_guide.you_now_have')}</h4>
                                     <ul className="cta-benefits" style={{ textAlign: 'left', maxWidth: '600px', margin: '0 auto' }}>
-                                        <li>✓ Strategic marketing direction from the Compass</li>
-                                        <li>✓ Comprehensive brand evaluation and recommendations</li>
-                                        <li>✓ Defined product positioning and ideal client avatar</li>
-                                        <li>✓ AI-generated prospect connection messages</li>
-                                        <li>✓ Complete conversation guide for your sales flow</li>
+                                        {t('conversation_guide.benefits_unlocked', { returnObjects: true }).map((benefit, idx) => (
+                                            <li key={idx}>✓ {benefit}</li>
+                                        ))}
                                     </ul>
 
                                     {allToolsCompleted && (
@@ -363,9 +416,9 @@ const ConversationGuide = ({ allToolsCompleted = false }) => {
                                                 marginTop: '30px',
                                                 boxShadow: '0 8px 25px rgba(255, 152, 0, 0.2)'
                                             }}>
-                                                <h4 style={{ color: '#f57c00', marginBottom: '15px', fontSize: '1.3rem' }}>🏆 Master Report Available!</h4>
+                                                <h4 style={{ color: '#f57c00', marginBottom: '15px', fontSize: '1.3rem' }}>{t('conversation_guide.master_report_title')}</h4>
                                                 <p style={{ marginBottom: '20px', color: '#666' }}>
-                                                    You've completed all 5 strategic tools! Download your comprehensive Master Report containing all insights, recommendations, and strategies in one unified document.
+                                                    {t('conversation_guide.master_report_desc')}
                                                 </p>
                                                 <button
                                                     className="cta-button"
@@ -375,7 +428,7 @@ const ConversationGuide = ({ allToolsCompleted = false }) => {
                                                         margin: '0 auto'
                                                     }}
                                                 >
-                                                    <Download size={20} /> Download Master Report (PDF)
+                                                    <Download size={20} /> {t('conversation_guide.download_master')}
                                                 </button>
                                             </div>
 
@@ -388,9 +441,9 @@ const ConversationGuide = ({ allToolsCompleted = false }) => {
                                                 color: 'white',
                                                 boxShadow: '0 8px 25px rgba(41, 121, 255, 0.2)'
                                             }}>
-                                                <h4 style={{ color: 'var(--electric-blue)', marginBottom: '15px', fontSize: '1.3rem' }}>✨ Performance Tool Unlocked: Pitch Master</h4>
+                                                <h4 style={{ color: 'var(--electric-blue)', marginBottom: '15px', fontSize: '1.3rem' }}>{t('conversation_guide.pitch_master_title')}</h4>
                                                 <p style={{ marginBottom: '20px', opacity: 0.9 }}>
-                                                    Your strategic foundation is now integrated. Enter the **Strategic Pitch Master** to instantly generate winning sales pitches, outreach messages, and expert Q&A tailored to your exact data.
+                                                    {t('conversation_guide.pitch_master_desc')}
                                                 </p>
                                                 <button
                                                     className="cta-button"
@@ -400,29 +453,29 @@ const ConversationGuide = ({ allToolsCompleted = false }) => {
                                                         margin: '0 auto'
                                                     }}
                                                 >
-                                                    Enter Pitch Master <Sparkles size={18} />
+                                                    {t('conversation_guide.enter_pitch_master')} <Sparkles size={18} />
                                                 </button>
                                             </div>
                                         </>
                                     )}
 
-                                    <p style={{ marginTop: '25px', fontSize: '1.1rem', fontWeight: '500' }}>Ready to implement? Start with the Compass tool to refine your strategy, or revisit any tool to update your approach.</p>
+                                    <p style={{ marginTop: '25px', fontSize: '1.1rem', fontWeight: '500' }}>{t('conversation_guide.ready_text')}</p>
                                 </div>
                                 <button
                                     className="cta-button"
                                     onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-tool', { detail: 'compass' }))}
                                     style={{ margin: '20px auto 0' }}
                                 >
-                                    Return to Compass <ArrowRight size={20} />
+                                    {t('conversation_guide.return_compass')} <ArrowRight size={20} />
                                 </button>
                             </div>
                         </div>
 
                         <div className="navigation-buttons">
-                            <button className="btn btn-secondary" onClick={previousStep}>Previous</button>
+                            <button className="btn btn-secondary" onClick={previousStep}>{t('conversation_guide.previous')}</button>
                             <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-                                <button className="btn" onClick={generateMatchAnalysis}>Regenerate Analysis</button>
-                                <button className="btn btn-secondary" onClick={startNewAnalysis}>New Analysis</button>
+                                <button className="btn" onClick={generateMatchAnalysis}>{t('conversation_guide.regenerate')}</button>
+                                <button className="btn btn-secondary" onClick={startNewAnalysis}>{t('conversation_guide.new_analysis')}</button>
                             </div>
                         </div>
                     </div>

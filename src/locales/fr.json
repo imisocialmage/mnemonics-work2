@@ -1,0 +1,964 @@
+{
+    "header": {
+        "title": "Boussole Marketing IMI",
+        "subtitle": "Naviguez dans votre stratégie par la conversation, pas la coercition"
+    },
+    "nav": {
+        "compass": "Boussole",
+        "brand": "Marque",
+        "product": "Produit",
+        "prospect": "Prospect",
+        "guide": "Guide",
+        "pitch": "Maître du Pitch",
+        "tracker": "Suivi de Progrès",
+        "elite": "Défis Élite",
+        "locked": "Complétez toutes les étapes pour débloquer",
+        "solocorp": "Solo Corp 101"
+    },
+    "profiles": {
+        "title": "Profils Stratégiques",
+        "p1": "Profil Principal",
+        "p2": "Profil Secondaire",
+        "p3": "Profil Expérimental",
+        "switch": "Changer",
+        "active": "Actif",
+        "backup": "Sauvegarder toutes les données",
+        "restore": "Restaurer depuis une sauvegarde",
+        "restore_confirm": "Cela écrasera tous les profils et données actuels. Êtes-vous sûr de vouloir continuer ?",
+        "restore_success": "Données restaurées avec succès ! L'application va maintenant se recharger.",
+        "restore_error": "Fichier de sauvegarde invalide. Veuillez vous assurer d'avoir sélectionné une sauvegarde IMI Compass valide.",
+        "backup_info": {
+            "title": "Guide de Sauvegarde et Restauration",
+            "nature": "Nature des données : Toutes vos données de profil, historiques de chat et progrès stratégiques sont stockés localement dans le stockage privé de votre navigateur.",
+            "storage": "Format d'exportation : Lorsque vous effectuez une sauvegarde, un fichier .json est créé. Ce fichier contient un instantané complet des trois profils.",
+            "best_practices": "Meilleures pratiques :",
+            "tip1": "Sauvegardes régulières : Enregistrez vos progrès avant d'essayer des expériences stratégiques majeures.",
+            "tip2": "Multi-appareils : Utilisez le fichier de sauvegarde pour déplacer votre stratégie vers un autre ordinateur ou navigateur.",
+            "tip3": "Sécurité : Gardez vos fichiers de sauvegarde dans un endroit sûr, car ils contiennent vos données stratégiques propriétaires.",
+            "close": "Compris !"
+        }
+    },
+    "advisor": {
+        "tabs": {
+            "pitches": "Pitchs de Vente",
+            "outreach": "Messages de Prospection",
+            "qa": "Q&A Stratégique",
+            "ai": "Assistant IA",
+            "solocorp": "Coach Solo Corp 101"
+        },
+        "ai": {
+            "welcome": "Bonjour ! Je suis votre Assistant Stratégique IMI. J'ai analysé vos nœuds de Boussole et vos données de profil. Comment puis-je vous aider à affiner votre stratégie aujourd'hui ?",
+            "placeholder": "Posez des questions sur votre stratégie, les prochaines étapes ou des pitchs spécifiques...",
+            "thinking": "Synthèse de la stratégie...",
+            "send": "Envoyer",
+            "clear": "Effacer l'historique",
+            "book_call_instruction": "Je vous recommande de réserver une réunion de cadrage individuelle avec un coach si vous avez besoin d'aide supplémentaire.",
+            "book_calibration": "Réserver une Réunion de Cadrage"
+        },
+        "ai_responses": {
+            "missing_data": "J'analyse votre profil, mais certaines données logiques manquent. Pour vous donner une stratégie précise, j'ai besoin que votre {{missing}} soit complété. Allons-nous vers ces onglets d'abord ?",
+            "greeting_new": "Bonjour {{level}} ! Je suis le Moteur Logique IMI. J'ai synthétisé une stratégie pour {{brand}} ciblant les {{role}}s dans {{industry}}. De quel aperçu stratégique avez-vous besoin en premier ?",
+            "greeting_returning": "Bon retour, {{level}}. J'ai synthétisé vos derniers progrès sur {{brand}}. Quel est notre prochain mouvement stratégique ?",
+            "next_step": "Basé sur votre statut **{{level}}**, votre prochain mouvement critique pour {{brand}} est d'aligner votre feuille de route {{objective}} avec les signaux actuels du marché. Assurez-vous que votre connexion avec les {{role}}s se concentre sur la résolution de {{painPoint}}. Dois-je extraire la liste de contrôle exacte pour votre jalon actuel ?",
+            "pitch_improve": "Pour dominer {{industry}}, vous devez exploiter **{{usp}}** comme une arme contre {{painPoint}}. La plupart des {{role}}s sont fatigués des offres génériques ; notre logique suggère un pivot 'Haute-Confiance'. Dois-je rédiger une accroche spécifique pour votre prochaine prospection ?",
+            "compass_analysis": "Analyse de votre trajectoire récente via le nœud **{{nodeId}}**. Ma synthèse : \"{{highlight}}\". C'est le point de levier pour votre objectif {{objective}}. Comment devrions-nous appliquer cela à {{brand}} aujourd'hui ?",
+            "compass_missing": "Je remarque que vous n'avez pas interagi avec des nœuds spécifiques de la Boussole récemment. Pour que {{brand}} passe à l'échelle, nous devons analyser vos nœuds 'Confiance' ou 'Conversion'. Allez dans l'onglet Boussole, cliquez sur un nœud, puis revenez ici pour une synthèse stratégique approfondie.",
+            "who_am_i": "Vous êtes un **{{level}}** construisant **{{brand}}** pour le secteur {{targetIndustry}}. Votre objectif actuel est **{{objective}}**, et nous nous concentrons sur la résolution de {{painPoint}} pour les {{role}}s en utilisant votre unique **{{usp}}**. Y a-t-il une partie spécifique de ce profil que vous aimeriez optimiser ?",
+            "fix_brand": "Corriger les données de marque",
+            "show_tactic": "Afficher la tactique du jour",
+            "why_needed": "Pourquoi est-ce nécessaire ?",
+            "explain_roadmap": "Expliquer la feuille de route",
+            "improve_pitch": "Améliorer le pitch",
+            "give_exercise": "Donner l'exercice",
+            "back_tactic": "Retour à la tactique",
+            "why_this_tactic": "Pourquoi cette tactique ?",
+            "mission_accomplished": "Mission accomplie",
+            "need_help": "Besoin d'aide avec ça",
+            "log_full": "Enregistrer tous les détails",
+            "back_day": "Retour au Jour {{day}}",
+            "show_week_focus": "Afficher le focus de la Semaine {{week}}",
+            "clarify_intent": "Je comprends que vous posez des questions sur {{topic}}. Voulez-vous dire : {{options}} ?",
+            "disambiguation": "J'ai détecté plusieurs demandes. Voulez-vous de l'aide avec :",
+            "confidence_low": "Je ne suis pas entièrement sûr, mais basé sur votre {{context}}, je suggère :",
+            "suggest_completion": "Pour vous donner de meilleurs conseils, veuillez d'abord compléter votre {{missing}}.",
+            "stuck_detection": "Je remarque que nous discutons de {{topic}} plusieurs fois. Aimeriez-vous essayer une approche différente ou obtenir de l'aide pour autre chose ?",
+            "proactive_tip": "💡 Conseil Pro : ",
+            "gemini_sync": "Sync avec Gemini",
+            "gemini_copied": "Prompt copié ! Collez dans Gemini.",
+            "no_match": "Je ne suis pas sûr de comment aider avec '{{input}}'. Voici quelques choses avec lesquelles je peux vous aider :",
+            "show_capabilities": "Montrer ce que vous pouvez faire",
+            "guided_tour": "Faire une visite guidée",
+            "try_different": "Essayer une approche différente"
+        },
+        "title": "Maître Stratégique du Pitch",
+        "description": "Toutes vos analyses IMI consolidées en pitchs et messages gagnants.",
+        "pitches_header": "Pitchs de Vente Dynamiques",
+        "outreach_header": "Connexion & Prospection",
+        "qa_header": "Q&A Stratégique Interactif",
+        "variation_indicator": "Variation {{current}} sur {{total}}",
+        "regenerate_pitches": "Régénérer les Variations",
+        "regenerate_outreach": "Régénérer les Messages",
+        "regenerate_qa": "Régénérer le Q&A",
+        "copied": "Copié !",
+        "copy_button": "Copier dans le presse-papier",
+        "ai_header": "Assistant IA Stratégique",
+        "ai_version": "Moteur Logique IMI v1.0",
+        "pitches": [
+            [
+                {
+                    "tag": "Le Pitch Ascenseur (30s)",
+                    "content": "Vous savez comment les {{role}} luttent avec {{pain}} ? J'ai développé {{product}} qui aide spécifiquement les entreprises du secteur {{industry}} à obtenir {{benefit}}. Contrairement aux approches traditionnelles, nous nous concentrons sur {{diff}}{{userLevel}} pour garantir que {{brand}} garde une longueur d'avance.{{adviceText}}"
+                },
+                {
+                    "tag": "L'Accroche Stratégique",
+                    "content": "La plupart des concurrents de {{industry}} ignorent {{values}}. Chez {{brand}}, nous alignons votre {{product}} avec les objectifs de {{objective}} pour contourner entièrement {{pain}}. Rappelez-vous : {{adviceText}}"
+                }
+            ],
+            [
+                {
+                    "tag": "Le Pivot sur le Point de Douleur",
+                    "content": "Arrêtez de laisser {{pain}} puiser dans vos ressources. {{product}} a été conçu pour que {{industry}} transforme ce goulot d'étranglement spécifique en {{benefit}}. C'est le {{diff}} que vos équipes de {{role}} attendaient."
+                },
+                {
+                    "tag": "Le Pitch de l'Efficacité",
+                    "content": "L'efficacité dans {{industry}} n'est pas seulement une question de logiciel ; c'est une question de {{objective}}. {{brand}} combine votre {{product}} actuel avec un focus sur {{diff}} pour livrer {{benefit}} en un temps record."
+                }
+            ],
+            [
+                {
+                    "tag": "Le Pitch Visionnaire",
+                    "content": "L'avenir de {{industry}} appartient à ceux qui maîtrisent {{objective}}. Avec {{product}}, {{brand}} redéfinit la manière dont les {{role}} atteignent {{benefit}}. Nous ne nous contentons pas de résoudre {{pain}} ; nous automatisons l'excellence."
+                },
+                {
+                    "tag": "L'Accroche sur les Capacités",
+                    "content": "Imaginez un monde où {{pain}} ne limite plus votre {{brand}}. En tirant parti de {{product}} et de notre {{diff}}, vous pouvez enfin passer à l'échelle {{objective}} sans compromis."
+                }
+            ],
+            [
+                {
+                    "tag": "Le Pitch d'Autorité",
+                    "content": "Après avoir analysé plus de 200 entreprises de {{industry}}, nous avons constaté que {{pain}} est le tueur n°1 de {{objective}}. {{product}} est la seule solution qui utilise {{diff}} pour garantir {{benefit}} pour les {{role}}."
+                },
+                {
+                    "tag": "L'Accroche Analytique",
+                    "content": "Les données sont claires : {{industry}} a besoin de meilleurs {{product}}. {{brand}} livre {{benefit}} en cartographiant votre {{objective}} par rapport à {{values}}."
+                }
+            ],
+            [
+                {
+                    "tag": "Le Pitch Authentique",
+                    "content": "Nous avons lancé {{brand}} parce que nous étions fatigués de voir les {{role}} lutter avec {{pain}}. {{product}} est notre réponse — une approche simple et {{diff}} pour {{benefit}} dans l'espace {{industry}}."
+                },
+                {
+                    "tag": "L'Accroche Communautaire",
+                    "content": "Rejoignez les leaders de {{industry}} qui ont dépassé {{pain}} pour entrer dans {{objective}}. Notre {{product}} rend la transition vers {{benefit}} naturelle et gratifiante."
+                }
+            ]
+        ],
+        "outreach": [
+            [
+                {
+                    "tag": "Connexion LinkedIn",
+                    "content": "Bonjour [Prénom], j'ai remarqué votre travail dans le secteur {{industry}}. En tant que professionnel axé sur {{objective}}, j'aimerais me connecter et partager des idées sur la façon dont les {{role}} abordent {{pain}}."
+                },
+                {
+                    "tag": "E-mail Direct",
+                    "content": "Objet : Résoudre {{pain}} chez [Entreprise]\n\nBonjour [Nom],\n\nJ'ai suivi [Entreprise] dans le secteur {{industry}}. Nous avons récemment aidé une marque similaire à atteindre {{benefit}} en nous concentrant sur {{objective}}. Cela vaudrait-il une discussion de 10 minutes sur {{product}} ?"
+                }
+            ],
+            [
+                {
+                    "tag": "L'Invitation par Curiosité",
+                    "content": "Bonjour [Nom], je me demandais si vous aviez vu le récent changement dans {{industry}} concernant {{pain}}. Je vois beaucoup de {{role}} se tourner vers {{objective}} — j'aimerais beaucoup me connecter."
+                },
+                {
+                    "tag": "L'E-mail d'Étude de Cas",
+                    "content": "Objet : {{benefit}} pour votre équipe de {{role}}\n\nBonjour [Nom], nous venons de terminer un projet dans {{industry}} qui a réduit {{pain}} de 40 %. Étant donné votre focus sur {{objective}}, j'ai pensé que notre approche {{brand}} pourrait vous intéresser."
+                }
+            ],
+            [
+                {
+                    "tag": "La Demande de Prop. de Valeur",
+                    "content": "Bonjour [Nom], je recherche comment les {{role}} gèrent {{pain}} dans l'espace {{industry}}. Chez {{brand}}, nous avons trouvé un moyen d'adresse {{objective}}. J'aimerais beaucoup me connecter."
+                },
+                {
+                    "tag": "L'Offre Directe",
+                    "content": "Objet : Une meilleure façon de {{objective}} ?\n\nBonjour [Nom], êtes-vous toujours aux prises avec {{pain}} ? Notre {{product}} a été conçu pour aider les marques de {{industry}} comme la vôtre à atteindre {{benefit}} sans les maux de tête habituels."
+                }
+            ],
+            [
+                {
+                    "tag": "Le Pair Local/Sectoriel",
+                    "content": "Bonjour [Nom], je me connecte avec d'autres experts de {{industry}}. Je me spécialise dans l'aide aux transitions des {{role}} de {{pain}} vers {{objective}}. J'espère en apprendre plus sur [Entreprise] !"
+                },
+                {
+                    "tag": "Le Style Recommandation",
+                    "content": "Objet : Introduction recommandation : {{brand}} & [Entreprise]\n\nBonjour [Nom], je regardais votre empreinte dans {{industry}} et j'ai remarqué un potentiel pour {{benefit}}. Notre {{product}} a changé la donne pour les {{role}} qui luttent avec {{pain}}."
+                }
+            ],
+            [
+                {
+                    "tag": "L'Intro Douce",
+                    "content": "Bonjour [Nom], j'adore ce que vous faites chez [Entreprise]. Je travaille avec des leaders de {{industry}} sur des stratégies de {{objective}}. Connectons-nous et échangeons des notes."
+                },
+                {
+                    "tag": "L'E-mail Sans Pression",
+                    "content": "Objet : Petite question sur la croissance de {{industry}}\n\nBonjour [Nom], j'ai une idée rapide sur la façon de résoudre {{pain}} pour [Entreprise] en utilisant {{diff}}. Pas de pitch, juste une intro de 5 min si vous êtes curieux ?"
+                }
+            ]
+        ],
+        "qa": [
+            [
+                {
+                    "q": "Comment cet alignement améliore-t-il mon ROI ?",
+                    "a": "En vous concentrant sur votre {{objective}}, nous éliminons les 30 % de gaspillage généralement consacrés à des efforts marketing mal alignés. Cela garantit que chaque dollar dépensé pour {{product}} soutient directement votre résultat."
+                },
+                {
+                    "q": "Qu'est-ce qui rend cela différent des autres stratégies ?",
+                    "a": "La plupart des stratégies sont génériques. La vôtre est bâtie sur l'intersection unique de la personnalité de {{brand}} et des déclencheurs émotionnels profonds de vos {{role}}."
+                }
+            ],
+            [
+                {
+                    "q": "Dans quel délai puis-je espérer des résultats ?",
+                    "a": "Parce que nous tirons parti de votre {{voice}} existante et la jumelons avec {{product}}, la plupart des clients constatent un changement dans l'engagement des prospects dans les 14 premiers jours de mise en œuvre."
+                },
+                {
+                    "q": "Est-ce évolutif pour de plus grandes équipes ?",
+                    "a": "Absolument. Le {{diff}} que nous avons défini est conçu pour des scénarios de {{objective}}, ce qui facilite sa reproduction dans plusieurs équipes de {{industry}}."
+                }
+            ],
+            [
+                {
+                    "q": "Quels sont les pièges courants à éviter ?",
+                    "a": "Le plus grand risque dans {{industry}} est de retomber dans {{pain}}. Restez concentré sur votre {{objective}} et les {{values}} spécifiques que nous avons identifiées."
+                },
+                {
+                    "q": "Comment gérer les objections sur le prix ?",
+                    "a": "Déplacez l'attention du coût vers le {{benefit}}. Votre {{product}} n'est pas une dépense ; c'est l'antidote aux {{bottlenecks}} auxquels ils sont confrontés."
+                }
+            ],
+            [
+                {
+                    "q": "Cela peut-il fonctionner pour un tout nouveau produit ?",
+                    "a": "Oui, en fait c'est mieux. En commençant par la fondation {{brand}} et en cartographiant directement les besoins des {{role}}, vous évitez la phase de 'test' où la plupart des marques perdent des mois."
+                },
+                {
+                    "q": "Comment maintenir la cohérence de la marque ?",
+                    "a": "Utilisez les {{voice}} que nous avons établies dans le Brand Evaluator. Elles sont conçues pour garder votre messagerie cohérente sur tous les {{channels}}."
+                }
+            ],
+            [
+                {
+                    "q": "À quoi devraient ressembler mes premières 24 heures ?",
+                    "a": "Commencez par envoyer les messages de prospection {{variation}} à 5 {{role}} clés. Utilisez l'UVP de {{product}} comme accroche centrale."
+                },
+                {
+                    "q": "Comment mesurer le succès au-delà des ventes ?",
+                    "a": "Suivez la qualité des conversations. Si les {{role}} répondent avec curiosité à propos de votre {{diff}}, votre stratégie de {{objective}} fonctionne."
+                }
+            ]
+        ],
+        "solocorp": {
+            "welcome": "Bienvenue dans le Moteur de Stratégie. Consultez le Playbook pour cartographier votre transition de 30 jours.",
+            "thinking": "Synthèse des insights du playbook...",
+            "book_call_instruction": "Je vous recommande de réserver une réunion de cadrage individuelle avec un coach.",
+            "responses": {
+                "missing_brand": "J'analyse votre mission du Jour {{day}}, mais j'ai besoin que votre **Brand Profiler** soit complété pour vous donner une stratégie précise. Allons-nous d'abord là-bas ?",
+                "greeting_returning": "Bon retour, {{name}}. Nous sommes au Jour {{day}} de votre transition {{brand}}. Notre objectif actuel est {{objectiveId}}. Quel est notre prochain mouvement ?",
+                "greeting_new": "Bonjour {{name}} ! Je suis le Moteur de Stratégie. C'est le Jour {{day}} de votre transition pour {{brand}}. Votre mission aujourd'hui : \"{{title}}\"\n\nRappelez-vous : \"{{quote}}\"\n\nNous utiliserons la méthode {{authority}}. Prêt à vous lancer ?",
+                "roadmap_milestone": "Votre feuille de route {{objectiveId}} pour {{period}} (Jour {{day}}) se concentre sur : **{{title}}**.\n\nFocus Stratégique : {{focus}}",
+                "improve_pitch": "Pour améliorer votre pitch dans le créneau {{industry}}, regardons la tactique d'aujourd'hui : **{{tactic}}** (Jour {{day}}).",
+                "tactic_strategy": "Tactique Stratégique du Jour {{day}} : **{{tactic}}**.\n\nPour {{brand}} ({{objectiveId}}), la clé est {{highlight}}.",
+                "exercise_mission": "Mission du Jour {{day}} : **{{exercise}}**\n\nC'est une partie critique de l'élan de la Semaine {{week}}. Prêt à exécuter ?",
+                "mission_logged": "Mission Accomplie ! {{ref}}\n\nLes résultats du Jour {{day}} pour {{brand}} ont été enregistrés. Demain (Jour {{nextDay}}) : **{{nextTitle}}**.",
+                "day_preview": "Aperçu du Jour {{day}}",
+                "roadmap_week": "Focus de la Semaine {{week}} : **{{title}}**\n\nProgrès : {{completed}} missions complétées sur {{available}} disponibles.",
+                "exercise_vault": "Ouverture du Coffre d'Exercices pour le Jour {{day}}... Enregistrez votre preuve de travail ci-dessous.",
+                "unknown": "J'analyse votre demande : \"{{input}}\". Pour le Jour {{day}} ({{title}}), concentrons-nous sur la stratégie {{brand}}. Quelle partie spécifique devrions-nous affiner ?"
+            },
+            "capabilities": [
+                "Protocole de Transition Étape par Étape de 30 Jours",
+                "Conseil Stratégique Contextuel basé sur votre Boussole",
+                "Décomposition Interactive des Tactiques & Exercices",
+                "Enregistrement Automatisé de la Preuve de Travail",
+                "Gestion Dynamique de la Feuille de Route & du Portfolio"
+            ]
+        }
+    },
+    "protocol": {
+        "title": "Protocole de Transition Élite",
+        "subtitle": "Suivez le rythme de 30 jours. Les missions se débloquent après la complétion précédente.",
+        "start_mission": "Démarrer la Mission",
+        "log_results": "Enregistrer les Résultats",
+        "portfolio_logged": "Portfolio Enregistré",
+        "locked": "Protocole Verrouillé",
+        "refined": "Affiné",
+        "day": "Jour",
+        "completed": "Complété",
+        "available": "Disponible",
+        "legend_locked": "Protocole Verrouillé",
+        "portfolio_title": "Portfolio de Mission Indépendante",
+        "portfolio_subtitle": "Enregistrez des analyses approfondies ou des tâches indépendantes en dehors du protocole.",
+        "new_entry": "Nouvelle Entrée Portfolio",
+        "empty_portfolio": "Aucune preuve de travail enregistrée dans le portfolio pour le moment.",
+        "modal": {
+            "log_mission": "Enregistrer la Complétion de Mission",
+            "log_detailed": "Enregistrer l'Exercice Détaillé",
+            "day_number": "Numéro de Jour",
+            "date": "Date",
+            "mission_title": "Titre de la Mission",
+            "exercise_title": "Titre de l'Exercice",
+            "notes": "Notes & Insights",
+            "content": "Contenu & Notes",
+            "project_link": "Lien du Projet (URL)",
+            "image_url": "URL de l'Image",
+            "save_strategy": "Enregistrer la Stratégie",
+            "save_portfolio": "Sauvegarder dans le Portfolio"
+        }
+    },
+    "conversation_guide": {
+        "title": "Correspondance Produit-Prospect & Guide de Conversation",
+        "progress_steps": [
+            "Profil Produit",
+            "Profil Prospect",
+            "Attributs de Marque",
+            "Analyse de Correspondance"
+        ],
+        "step1_title": "Profil Produit - 5 Dimensions Clés",
+        "step1_subtitle": "Définissez votre produit à travers les attributs principaux",
+        "product_name": "Nom du Produit",
+        "problem_solved": "Problème Résolu",
+        "problem_placeholder": "Quel problème spécifique résout-il ?",
+        "differentiator": "Différenciateur Unique",
+        "differentiator_placeholder": "Qu'est-ce qui rend votre produit unique ?",
+        "tangible_benefits": "Bénéfices Tangibles",
+        "benefits_placeholder": "Bénéfices tangibles (gagne du temps, augmente le revenu, etc.)",
+        "next_prospect": "Suivant : Profil Prospect",
+        "step2_title": "Profil Prospect - 5 Attributs Clés",
+        "step2_subtitle": "Définissez votre prospect idéal à travers les dimensions clés",
+        "pain_points": "Points de Douleur & Besoins",
+        "pain_placeholder": "Avec quels problèmes luttent-ils ?",
+        "motivations": "Motivations",
+        "motivations_placeholder": "Qu'est-ce qui les motive ?",
+        "readiness": "Prêt à Passer à l'Action",
+        "select_stage": "Sélectionnez l'Étape",
+        "stage_awareness": "Sensibilisation - Apprend juste le problème",
+        "stage_consideration": "Considération - Évalue les solutions",
+        "stage_decision": "Décision - Prêt à acheter",
+        "next_brand": "Suivant : Attributs de Marque",
+        "step3_title": "Attributs de Marque - 5 Qualités Clés",
+        "step3_subtitle": "Évaluez la force de votre marque sur chaque attribut (1-10)",
+        "low": "Faible",
+        "high": "Élevé",
+        "generate": "Générer l'Analyse de Correspondance",
+        "ai_badge": "Analyse de Correspondance Propulsée par IA",
+        "step4_title": "Votre Rapport de Correspondance Produit-Prospect",
+        "step4_subtitle": "Analyse complète avec stratégies de conversation",
+        "match_score": "Score de Correspondance",
+        "story_framework": "Carte du Cadre Narratif",
+        "conversation_title": "Flux de Vente Complet - Guides de Conversation",
+        "why_works": "Pourquoi ça fonctionne :",
+        "score_excellent": "Excellente correspondance ! Votre produit, prospect et marque sont fortement alignés.",
+        "score_good": "Bonne correspondance avec opportunités d'optimisation.",
+        "score_moderate": "Correspondance modérée. Considérez d'affiner votre message.",
+        "score_limited": "Correspondance limitée détectée. Révisez le positionnement de votre produit.",
+        "completion_title": "🎉 Félicitations ! Votre Fondation Stratégique est Complète",
+        "completion_subtitle": "Vous avez terminé le workflow stratégique complet IMI",
+        "you_now_have": "Vous avez maintenant :",
+        "master_report_title": "🏆 Rapport Maître Disponible !",
+        "master_report_desc": "Vous avez terminé tous les 5 outils stratégiques ! Téléchargez votre Rapport Maître complet contenant tous les insights, recommandations et stratégies dans un document unifié.",
+        "download_master": "Télécharger le Rapport Maître (PDF)",
+        "pitch_master_title": "✨ Outil de Performance Débloqué : Maître du Pitch",
+        "pitch_master_desc": "Votre fondation stratégique est maintenant intégrée. Entrez dans le **Maître Stratégique du Pitch** pour générer instantanément des pitchs de vente gagnants, des messages de prospection et des Q&A experts adaptés à vos données exactes.",
+        "enter_pitch_master": "Entrer Maître du Pitch",
+        "ready_text": "Prêt à mettre en œuvre ? Commencez avec l'outil Boussole pour affiner votre stratégie, ou revisitez n'importe quel outil pour mettre à jour votre approche.",
+        "return_compass": "Retour à la Boussole",
+        "regenerate": "Régénérer l'Analyse",
+        "new_analysis": "Nouvelle Analyse",
+        "previous": "Précédent",
+        "required_fields": "Veuillez remplir tous les champs obligatoires",
+        "new_analysis_confirm": "Démarrer une nouvelle analyse ? Toutes les données actuelles seront effacées.",
+        "new_analysis_started": "Nouvelle analyse démarrée !"
+    },
+    "unlock": {
+        "title": "Débloquer le Suivi de Progrès",
+        "description": "Entrez le code administrateur pour obtenir un accès anticipé au Suivi de Progrès High-Trust Doer.",
+        "placeholder": "Entrez le code...",
+        "submit": "Débloquer",
+        "error": "Code invalide. Veuillez réessayer."
+    },
+    "tracker": {
+        "principles": {
+            "real_work": "Construire quelque chose de réel",
+            "ai_driver": "Piloter les outils IA",
+            "portfolio": "Construire un portfolio",
+            "soft_skills": "Acquérir des compétences humaines",
+            "distribution": "Posséder la distribution",
+            "protect_real": "Protéger la vie réelle",
+            "run_business": "Gérer comme une entreprise"
+        },
+        "paths": {
+            "college": "Université/Faculté",
+            "trade": "École de métier",
+            "military": "Militaire",
+            "entrepreneur": "Entrepreneuriat direct",
+            "unsure": "Exploration des options"
+        },
+        "ui": {
+            "log_activity": "Enregistrer une activité",
+            "settings": "Paramètres",
+            "total_xp": "XP Total",
+            "week_streak": "Série Hebdomadaire",
+            "portfolio_pieces": "Pièces du Portfolio",
+            "activities_logged": "Activités Enregistrées",
+            "active_days": "Jours Actifs",
+            "dashboard": "Tableau de bord",
+            "principles": "Principes",
+            "portfolio": "Portfolio",
+            "activities": "Activités",
+            "export": "Exporter les données",
+            "reset": "Réinitialiser toutes les données",
+            "goal_12_month": "Obectif 12 Mois",
+            "recent_activities": "Activités Récentes",
+            "add_piece": "Ajouter une pièce",
+            "save_profile": "Enregistrer le profil",
+            "delete_confirm": "Supprimer cette pièce ?",
+            "delete_confirm_all": "⚠️ Cela supprimera TOUTES les données. Êtes-vous sûr ?",
+            "no_goal_set": "Aucun objectif défini.",
+            "no_activities_yet": "Aucune activité pour le moment.",
+            "portfolio_highlights": "Points forts du portfolio",
+            "view_project": "Voir le projet",
+            "full_activity_log": "Journal complet des activités",
+            "export_data": "Exporter les données",
+            "reset_data": "Réinitialiser les données",
+            "edit_profile": "Modifier le profil",
+            "set_up_profile": "Configurez votre profil",
+            "full_name": "Nom Complet",
+            "your_name_placeholder": "Votre Nom",
+            "current_path": "Parcours Actuel",
+            "focus_interest": "Focus/Intérêt",
+            "focus_placeholder": "ex: Python, Menuiserie",
+            "goal_placeholder": "Où voulez-vous être dans un an ?",
+            "principle": "Principe",
+            "activity_title": "Titre de l'activité",
+            "activity_title_placeholder": "Qu'avez-vous fait ?",
+            "description": "Description",
+            "description_placeholder": "Décrivez brièvement le résultat...",
+            "date": "Date",
+            "xp_value": "Valeur XP",
+            "add_portfolio_piece": "Ajouter une pièce au portfolio",
+            "project_title": "Titre du projet",
+            "project_title_placeholder": "Nom de votre travail",
+            "type": "Type",
+            "type_case_study": "Étude de cas",
+            "type_automation": "Automatisation",
+            "type_app": "App/Tableau de bord",
+            "type_repair": "Réparation de projet",
+            "full_description": "Description complète",
+            "full_description_placeholder": "Problème, Solution, Résultats...",
+            "skills_tools": "Compétences & Outils",
+            "skills_placeholder": "ex: React, SQL, Menuiserie",
+            "project_link": "Lien du projet"
+        }
+    },
+    "common": {
+        "search": "Rechercher",
+        "generate": "Générer le rapport",
+        "download": "Télécharger le rapport maître",
+        "back": "Retour",
+        "next": "Suivant",
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "select": "Sélectionner...",
+        "generate_strategy": "Générer le rapport stratégique",
+        "required_fields": "Veuillez remplir tous les champs obligatoires",
+        "min_chars": "Veuillez fournir une réponse détaillée (au moins {{min}} caractères)",
+        "success": "Succès !",
+        "your_industry": "votre industrie",
+        "leadership_role": "rôle de leadership",
+        "operational_challenges": "défis opérationnels",
+        "common_challenges": "défis courants",
+        "this_solution": "cette solution"
+    },
+    "member": {
+        "title": "Accès Élite Requis",
+        "description": "Veuillez entrer votre code de membre Core Elite pour accéder à ces défis premium.",
+        "placeholder": "Entrez le code de membre...",
+        "submit": "Débloquer les défis",
+        "error": "Code de membre invalide. Veuillez réessayer."
+    },
+    "elite": {
+        "welcome_title": "Bienvenue dans Core Elite !",
+        "welcome_desc": "Configurez votre profil élite pour commencer à suivre vos contributions tribales de haut niveau et votre croissance en leadership.",
+        "get_started": "Initialiser le profil élite",
+        "edit_profile": "Modifier le profil",
+        "save_profile": "Enregistrer le profil",
+        "setup_profile": "Configuration du profil élite",
+        "export": "Exporter Excel",
+        "add_activity": "Ajouter une activité",
+        "log_activity": "Enregistrer une activité élite",
+        "save_activity": "Enregistrer l'activité",
+        "level_progression": "Progression de niveau",
+        "to_next_level": "vers le niveau suivant",
+        "congratulations": "Félicitations ! Vous êtes passé au niveau {{level}} !",
+        "tabs": {
+            "overview": "Aperçu",
+            "activities": "Activités",
+            "milestones": "Jalons",
+            "growth": "Graphique de croissance"
+        },
+        "stats": {
+            "current_xp": "XP Actuel",
+            "target_xp": "Prochain Palier",
+            "activities": "Journaux d'actions",
+            "total_xp": "XP Total",
+            "level_xp": "XP du Niveau",
+            "next_level": "Prochain Niveau",
+            "current_milestones": "Jalons Actuels",
+            "global_rank": "Rang Global",
+            "community_role": "Rôle Communautaire",
+            "xp_history": "Historique XP",
+            "strategic_growth": "Croissance Stratégique",
+            "xp": "XP",
+            "timeline": "Chronologie",
+            "no_data": "Aucune donnée pour la période sélectionnée."
+        },
+        "levels": {
+            "newbie": {
+                "name": "Novice",
+                "motto": "L’Étincelle"
+            },
+            "beginner": {
+                "name": "Débutant",
+                "motto": "L'Initiateur"
+            },
+            "intermediate": {
+                "name": "Intermédiaire",
+                "motto": "Le Pont"
+            },
+            "elite": {
+                "name": "Élite",
+                "motto": "L'Architecte"
+            },
+            "leader": {
+                "name": "Leader",
+                "motto": "Bâtisseur de Patrimoine"
+            }
+        },
+        "milestones_data": {
+            "newbie": [
+                "Assister à 3 sessions Tribe",
+                "Compléter Solo Corp 101",
+                "Créer le Profil de Base"
+            ],
+            "beginner": [
+                "Animer ou co-animer 1 session en direct",
+                "Créer un tunnel de vente/recrutement",
+                "Développer 50 à 100 abonnés engagés"
+            ],
+            "intermediate": [
+                "Atteindre 10+ partenaires actifs",
+                "Établir une newsletter hebdomadaire",
+                "Automatiser 1 processus métier de base"
+            ],
+            "elite": [
+                "Passer à 5 000 $+ de profit/mois",
+                "Mentorer 3 membres débutants",
+                "Intervenir lors d'un événement Tribe"
+            ],
+            "leader": [
+                "Établir une sous-tribu IMI",
+                "Lancer un projet patrimonial",
+                "Atteindre l'autonomie à plein temps"
+            ]
+        },
+        "modals": {
+            "setup_title": "Configuration du Profil Membre",
+            "setup_subtitle": "Configurez votre identité au sein de la Tribe Élite.",
+            "name_label": "Nom Professionnel",
+            "pic_label": "URL de la Photo de Profil",
+            "save_changes": "Enregistrer les Modifications",
+            "activity_title": "Enregistrer l'Activité Élite",
+            "activity_subtitle": "Chaque action construit votre preuve de travail stratégique.",
+            "type_label": "Type d'Activité",
+            "types": {
+                "training": "Formation / Coaching",
+                "session": "Session Tribe",
+                "mentor": "Mentorat Donné",
+                "host": "Session Animée",
+                "content": "Contenu Publié",
+                "recruit": "Nouveau Partenaire/Recrue",
+                "event": "Événement Majeur / Lancement"
+            },
+            "date_label": "Date",
+            "notes_label": "Notes d'Exécution",
+            "save_activity": "Enregistrer l'Activité",
+            "delete_activity": "Supprimer l'Activité",
+            "confirm_delete": "Êtes-vous sûr de vouloir supprimer cette activité ?"
+        },
+        "export_headers": {
+            "sheet_member": "Membre",
+            "sheet_activities": "Activités",
+            "name": "Nom",
+            "email": "E-mail",
+            "level": "Niveau",
+            "xp": "XP",
+            "join_date": "Date d'adhésion",
+            "date": "Date",
+            "type": "Type",
+            "notes": "Notes"
+        }
+    },
+    "form": {
+        "title": "Définissez votre objectif",
+        "objective_label": "Objectif Marketing Principal *",
+        "objective_placeholder": "Sélectionnez votre objectif...",
+        "focus_label": "Focus Central de la Boussole *",
+        "focus_who": "QUI ? (L'Audience)",
+        "focus_brand": "MARQUE",
+        "focus_product": "PRODUIT",
+        "focus_service": "SERVICE",
+        "brand_name_label": "Nom de la Marque/Produit *",
+        "brand_name_placeholder": "Entrez le nom de votre marque ou produit",
+        "audience_label": "Audience Cible",
+        "audience_placeholder": "Décrivez votre audience cible",
+        "challenge_label": "Défi/Objectif Actuel",
+        "challenge_placeholder": "Décrivez votre principal défi ou objectif marketing..."
+    },
+    "nodes": {
+        "acquisition": "Acquisition",
+        "retention": "Rétention",
+        "how": "Comment ?",
+        "calltoact": "Appel à l'action",
+        "intentions": "Intentions",
+        "interest": "Intérêt",
+        "what": "Quoi ?",
+        "conversion": "Conversion"
+    },
+    "objectives": {
+        "acquisition": "Acquisition - Attirer de nouveaux clients",
+        "conversion": "Conversion - Transformer les prospects en clients",
+        "retention": "Rétention - Fidéliser les clients existants"
+    },
+    "modal": {
+        "focus_areas": "Zones de focus :",
+        "key_actions": "Actions clés :",
+        "implementation_plan": "Plan d'implémentation de 7 jours :",
+        "strategic_focus": "Focus stratégique de 30 jours :",
+        "remember": "Rappelez-vous :"
+    },
+    "report": {
+        "title_suffix": "Stratégie",
+        "generated_on": "Généré le : {{date}}",
+        "brand": "Marque",
+        "objective": "Objectif",
+        "focus": "Focus",
+        "current_challenge": "Défi actuel",
+        "strategic_insight": "Aperçu stratégique",
+        "key_focus_areas": "Zones de focus clés",
+        "core_philosophy": "Philosophie centrale",
+        "essential_tips": "10 conseils essentiels du marketing en ligne",
+        "launch_prep": "Préparation au lancement de 7 jours",
+        "strategic_recommendations": "Top 5 des recommandations stratégiques",
+        "critical_red_flags": "5 drapeaux rouges critiques",
+        "next_steps": "Prochaines étapes",
+        "calendar": "Calendrier promotionnel de 30 jours",
+        "timeline": "Timeline d'implémentation",
+        "metadata": {
+            "brand_product": "Marque / Produit",
+            "target_audience": "Audience Cible",
+            "compass_focus": "Focus de la Boussole",
+            "date_generated": "Date de Génération",
+            "not_specified": "Non spécifié"
+        },
+        "cta": {
+            "book_assessment": "Réservez votre évaluation personnalisée",
+            "one_on_one": "Approfondissez votre stratégie avec une session individuelle.",
+            "schedule_session": "Planifiez votre session de 30 minutes",
+            "resources": "Ressources et liens utiles",
+            "team": "Section Équipe",
+            "support": "Centre de support principal",
+            "youtube": "Chaîne YouTube",
+            "download_pdf": "Télécharger le PDF de stratégie complet"
+        },
+        "next_step_cta": {
+            "ready": "Prêt pour la prochaine étape ?",
+            "now_that": "Maintenant que vous avez votre direction stratégique, renforcez les fondations de votre marque",
+            "evaluate_brand": "Évaluez la force de votre marque",
+            "tool_desc": "Utilisez l'outil d'évaluation de marque pour évaluer votre marque selon 8 critères critiques, dont la clarté, la pertinence et la résonance émotionnelle. Obtenez des recommandations basées sur l'IA pour renforcer votre positionnement.",
+            "benefit_1": "Analyse de marque complète en 8 critères",
+            "benefit_2": "Recommandations stratégiques générées par l'IA",
+            "benefit_3": "Rapport d'évaluation téléchargeable",
+            "evaluate_button": "Évaluez votre marque"
+        }
+    },
+    "brand_evaluator": {
+        "title": "Evaluateur de Marque Élite",
+        "subtitle": "Analysez les fondations de votre marque et son alignement stratégique.",
+        "ai_badge": "Analyse de Marque Propulsée par l'IA",
+        "your_answer": "Votre Réponse",
+        "steps": {
+            "what": "Qu'offrez-vous ?",
+            "who": "Pour qui est-ce ?",
+            "how": "Comment est-ce accessible ?",
+            "score": "Analyse du Score de Marque"
+        },
+        "questions": {
+            "what_label": "Définissez clairement votre offre. Quelle valeur apportez-vous ?",
+            "what_placeholder": "ex: Un service de conseil premium pour les solopreneurs...",
+            "who_label": "Qui est votre client idéal absolu ?",
+            "who_placeholder": "ex: Responsables marketing axés sur les données dans la Tech...",
+            "how_label": "Comment vous trouvent-ils ou utilisent-ils votre service ?",
+            "how_placeholder": "ex: Via un appel stratégique individuel..."
+        },
+        "metrics": {
+            "clarity": "Clarté et Identité",
+            "relevance": "Pertinence sur le Marché",
+            "emotionalResonance": "Résonance Émotionnelle",
+            "originality": "Originalité",
+            "storytelling": "Potentiel Narratif",
+            "scalability": "Potentiel d'Évolutivité",
+            "commercialAppeal": "Attrait Commercial",
+            "consistency": "Cohérence de la Marque"
+        },
+        "results": {
+            "title": "Résultats de Votre Évaluation de Marque",
+            "subtitle": "Analyse complète basée sur 8 métriques clés de la marque",
+            "overall_strength": "Force Globale de la Marque",
+            "rating_excellent": "Excellente Force de Marque",
+            "rating_strong": "Fondation de Marque Solide",
+            "rating_good": "Bon Potentiel de Marque",
+            "rating_fair": "Passable - Marge de Progression",
+            "rating_needs_work": "Nécessite un Développement Stratégique",
+            "score_breakdown": "Détail des Scores",
+            "recommendations_title": "Recommandations Stratégiques d'Amélioration",
+            "foundation_title": "Votre Fondation de Marque",
+            "cta_ready": "Prêt à Transformer Votre Marque ?",
+            "cta_guidance": "Obtenez des conseils personnalisés pour faire passer votre marque au niveau supérieur",
+            "cta_assessment": "Réserver Votre Évaluation Stratégique",
+            "cta_join": "Rejoindre IMI CORE TRIBE",
+            "next_step_title": "Continuez Votre Parcours Stratégique",
+            "next_step_desc": "Votre fondation de marque est évaluée. Maintenant, définissez le positionnement de votre produit.",
+            "next_step_button": "Profiler Votre Produit"
+        },
+        "recommendations": {
+            "clarity": {
+                "title": "Améliorer la Clarté",
+                "desc": "Rendez votre offre plus spécifique et concrète. Évitez le jargon et expliquez clairement ce que vous faites, comment cela fonctionne et les avantages tangibles que reçoivent les clients."
+            },
+            "relevance": {
+                "title": "Renforcer la Pertinence",
+                "desc": "Connectez-vous plus directement aux points de douleur et aux désirs de votre public. Approfondissez votre recherche sur votre marché cible et abordez explicitement leurs défis spécifiques."
+            },
+            "emotionalResonance": {
+                "title": "Améliorer la Connexion Émotionnelle",
+                "desc": "Incorporez davantage de déclencheurs et d'avantages émotionnels. Allez au-delà des caractéristiques fonctionnelles pour expliquer ce que votre offre fait ressentir aux gens et comment elle transforme leur vie."
+            },
+            "originality": {
+                "title": "Augmenter la Différenciation",
+                "desc": "Clarifiez ce qui vous rend unique. Identifiez votre angle distinctif, évitez les affirmations génériques et mettez l'accent sur des caractéristiques ou des approches spécifiques qui vous distinguent."
+            },
+            "storytelling": {
+                "title": "Développer Votre Récit",
+                "desc": "Créez un arc narratif plus convaincant. Connectez le problème, la solution et la transformation de manière plus fluide. Montrez le parcours que vos clients effectuent avec votre marque."
+            },
+            "scalability": {
+                "title": "Élargir le Potentiel du Marché",
+                "desc": "Élargissez votre public cible ou clarifiez comment votre solution peut servir plusieurs segments. Considérez comment votre offre peut croître et s'adapter à différents marchés."
+            },
+            "commercialAppeal": {
+                "title": "Renforcer le Modèle Économique",
+                "desc": "Clarifiez votre stratégie de monétisation et votre proposition de valeur. Renforcez l'argumentaire commercial en mettant l'accent sur le ROI, les gains d'efficacité ou les économies de coûts pour les clients."
+            },
+            "consistency": {
+                "title": "Améliorer la Cohérence",
+                "desc": "Assurez-vous que votre Quoi, Qui et Comment s'alignent parfaitement. Utilisez une terminologie et des thèmes cohérents à travers les trois éléments pour créer un message de marque unifié."
+            },
+            "general": {
+                "title": "Amélioration Générale",
+                "desc": "Continuez à affiner cet aspect de votre stratégie de marque."
+            },
+            "refinement_needed": {
+                "title": "Affinage Stratégique de la Marque Nécessaire",
+                "desc": "Envisagez de travailler avec un stratège de marque pour affiner votre message de base et votre positionnement. Votre fondation doit être renforcée avant de passer à l'échelle."
+            },
+            "ready_to_scale": {
+                "title": "Fondation Solide - Prêt à Passer à l'Échelle",
+                "desc": "Votre marque a une base solide. Concentrez-vous sur l'exécution, testez votre message sur le marché et recueillez les commentaires des clients pour optimiser davantage."
+            }
+        }
+    },
+    "prospect_profiler": {
+        "title": "Moteur d'Insights Prospect",
+        "subtitle": "Synthétisez les déclencheurs émotionnels profonds de votre audience idéale.",
+        "steps": {
+            "market": "Marché et Industrie",
+            "pains": "Douleurs et Objectifs",
+            "values": "Valeurs Morales",
+            "behavior": "Signaux Comportementaux",
+            "analysis": "Analyse de l'Audience"
+        },
+        "questions": {
+            "industry": "Industrie",
+            "audience": "Audience Cible",
+            "job": "Titre du Poste",
+            "company_size": "Taille de l'Entreprise",
+            "location": "Localisation",
+            "pains": "Points de Douleur",
+            "values": "Valeurs Morales",
+            "channels": "Canaux de Contenu"
+        },
+        "titles": {
+            "authority": "Approche Autorité et Expertise",
+            "curiosity": "Stratégie de l'Écart de Curiosité",
+            "data_driven": "Méthode des Preuves par les Données",
+            "connection": "Focus Connexion Personnelle",
+            "pain_point": "Pivot sur un Point de Douleur Spécifique"
+        },
+        "analysis": {
+            "personality_types": {
+                "analytical": "Analyste - Concentré sur les résultats basés sur les données et les résultats mesurables",
+                "visionary": "Innovateur Visionnaire - Leader tourné vers l'avenir, concentré sur la croissance",
+                "balanced": "Professionnel Équilibré - Motivé par plusieurs facteurs stratégiques"
+            },
+            "messages": {
+                "authority": "Après avoir travaillé avec plus de 200 professionnels {{role}}, j'ai découvert un modèle critique dans l'industrie {{industry}}.",
+                "curiosity": "J'ai découvert quelque chose de contre-intuitif sur les entreprises de {{industry}} que la plupart ignorent.",
+                "data_driven": "Des données récentes provenant de plus de 300 entreprises de {{industry}} montrent une tendance surprenante affectant les leaders {{role}}.",
+                "connection": "J'ai remarqué votre approche innovante chez [Company] dans {{industry}}.",
+                "pain_point": "En recherchant les défis de {{industry}}, un problème revient sans cesse : {{painPoint}}.",
+                "credibility": "Cette approche a aidé nos clients à obtenir une amélioration de l'efficacité de 35 % en 8 semaines.",
+                "cta": "Seriez-vous ouvert à une conversation de 15 minutes pour appliquer cela à votre situation ?",
+                "regards": "Cordialement,",
+                "name_placeholder": "[Votre Nom]",
+                "first_name_placeholder": "[Prénom]"
+            }
+        }
+    },
+    "product_profiler": {
+        "title": "Profil de Logique Produit",
+        "subtitle": "Démontez votre produit en ses composants stratégiques de base.",
+        "steps": {
+            "foundation": "Fondation du Produit",
+            "features": "Caractéristiques et Différences",
+            "benefits": "Avantages Tangibles",
+            "delivery": "Livraison et Prix",
+            "analysis": "Matrice Produit"
+        },
+        "analysis": {
+            "niches": {
+                "startup": "Fondateurs de startups et entrepreneurs en début de parcours",
+                "coaches": "Coachs, consultants et prestataires de services",
+                "freelance": "Freelances et solopreneurs bâtissant leur pratique",
+                "smb": "Petites et moyennes entreprises (PME)",
+                "pro": "Professionnels recherchant l'efficacité et de meilleurs résultats",
+                "owners": "Propriétaires d'entreprises cherchant à rationaliser leurs opérations"
+            },
+            "demographics": {
+                "income_luxury": "Revenu : 80k$ - 200k$+ par an",
+                "income_budget": "Revenu : 35k$ - 80k$ par an",
+                "income_mid": "Revenu : 50k$ - 120k$ par an",
+                "age": "Âge : 28-50 ans",
+                "location": "Lieu : Mondial (professionnels en télétravail)",
+                "work_style": "Style de travail : Indépendant ou dans de petites équipes"
+            },
+            "psychographics": {
+                "confidence": "Désirs : Confiance et maîtrise dans leur domaine",
+                "freedom": "Désirs : Autonomie et contrôle sur leur travail",
+                "peace": "Désirs : Tranquillité d'esprit et réduction de la surcharge",
+                "motivation": "Motivé par : La croissance, l'efficacité et les résultats",
+                "values": "Valeurs : Innovation et amélioration continue"
+            },
+            "triggers": [
+                "Lutte déjà avec la gestion du temps",
+                "Cherche des moyens d'augmenter ses revenus",
+                "Cherche à optimiser les flux de travail et les processus",
+                "Prêt à investir dans des solutions de qualité",
+                "Valorise les résultats prouvés plutôt que l'expérimentation"
+            ],
+            "hooks": [
+                "Fatigué de {{problem}} ? Il existe une meilleure solution.",
+                "{{name}} - l'approche qu'il vous manquait.",
+                "Arrêtez de lutter. Commencez à réussir avec {{name}}.",
+                "Et si vous pouviez résoudre {{problem}} en deux fois moins de temps ?"
+            ],
+            "signals": [
+                "Mentionne qu'il travaille de longues heures ou se sent débordé",
+                "Parle de vouloir se développer ou augmenter son chiffre d'affaires",
+                "Se plaint de systèmes ou de processus inefficaces",
+                "Recherche activement des solutions dans votre catégorie",
+                "Dispose d'un budget alloué pour des outils de résolution de problèmes"
+            ],
+            "ctas": {
+                "digital": [
+                    "Essayez {{name}} gratuitement pendant 14 jours - aucune carte de crédit requise.",
+                    "Voyez {{name}} en action - réservez une démo rapide de 10 minutes.",
+                    "Commencez avec {{name}} aujourd'hui - voyez les résultats sous 30 jours."
+                ],
+                "service": [
+                    "Réservez une consultation gratuite de 20 minutes pour voir si {{name}} vous convient.",
+                    "Planifiez un appel stratégique pour explorer comment {{name}} peut vous aider.",
+                    "Prêt à transformer vos résultats ? Parlons de {{name}}."
+                ],
+                "default": [
+                    "En savoir plus sur {{name}} et commencez votre parcours aujourd'hui.",
+                    "Téléchargez notre guide pour voir comment {{name}} peut vous aider.",
+                    "Contactez notre équipe pour discuter de vos besoins spécifiques."
+                ]
+            }
+        }
+    },
+    "center_advice": {
+        "who": {
+            "title": "QUI : Le Cœur de l'Audience",
+            "definition": "L'être humain spécifique dont vous résolvez le problème. Pas une 'démographie', mais une personne avec des désirs, des peurs et des objectifs.",
+            "value": "Empathie & Pertinence",
+            "system": "Dans le système IMI, le 'Qui' dicte toute autre décision. Si vous manquez le Qui, votre 'Quoi' (Produit) est non pertinent et votre 'Comment' (Méthode) est du bruit. Nous validons le Qui par leurs points de douleur, pas leurs titres de poste.",
+            "questions": [
+                "Qu'est-ce qui les empêche de dormir à 3 heures du matin ?",
+                "Qu'ont-ils déjà essayé qui a échoué ?",
+                "Qui admirent-ils ?"
+            ],
+            "labels": {
+                "definition": "DÉFINITION",
+                "system": "DANS LE SYSTÈME",
+                "questions": "QUESTIONS CLÉS",
+                "continue": "Continuer la Stratégie"
+            }
+        },
+        "brand": {
+            "title": "MARQUE : L'Identité & la Confiance",
+            "definition": "La réputation et la promesse que vous faites au marché. C'est l' 'Âme' de l'entreprise qui existe avant qu'un seul produit ne soit vendu.",
+            "value": "Autorité & Confiance",
+            "system": "Votre Marque est le contenant de la confiance. Dans les ventes de 'Haute-Confiance', la Marque doit signaler 'Expert' et 'Guide' avant de signaler 'Vendeur'. Nous construisons la Marque sur des valeurs fondamentales (Intentions) plutôt que sur une simple esthétique.",
+            "questions": [
+                "Si votre marque était une personne, qui serait-elle ?",
+                "Quelle est la seule chose que vous ne feriez jamais pour de l'argent ?",
+                "Pourquoi devraient-ils vous faire confiance ?"
+            ]
+        },
+        "product": {
+            "title": "PRODUIT : Le Véhicule de Transformation",
+            "definition": "L'outil ou le service tangible qui comble le fossé entre la douleur actuelle du Client et son avenir souhaité.",
+            "value": "Clarté & Résultats",
+            "system": "Le Produit n'est pas le héros ; c'est l'épée que le héros utilise pour terrasser le dragon. Nous positionnons le Produit comme la solution logique à un problème spécifique (Le 'Quoi'), validée par un mécanisme unique (Le 'Comment').",
+            "questions": [
+                "Quel résultat spécifique garantit-il ?",
+                "Comment se différencie-t-il du statu quo ?",
+                "Pouvez-vous l'expliquer à un enfant de 5 ans ?"
+            ]
+        },
+        "service": {
+            "title": "SERVICE : La Livraison & l'Expérience",
+            "definition": "Comment la valeur est transférée et vécue par le client. C'est le 'Comment' en action.",
+            "value": "Excellence & Rétention",
+            "system": "Un excellent Service transforme une Transaction (Conversion) en Relation (Rétention). Dans la Boussole, le Service est l'endroit où la promesse (Marque) rencontre la réalité. Il s'agit d'éliminer les frictions et d'ajouter de l'enchantement.",
+            "questions": [
+                "Où se trouvent les frictions dans votre livraison ?",
+                "Comment ferez-vous pour qu'ils se sentent spéciaux ?",
+                "Que se passe-t-il après qu'ils ont payé ?"
+            ]
+        }
+    }
+}
