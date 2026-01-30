@@ -327,15 +327,15 @@
 /* Responsive Styles */
 @media (max-width: 768px) {
     .compass-container {
-        --compass-size: 350px;
-        --ring-size: 280px;
-        --node-size: 65px;
-        --radius: 140px;
-        --dot-size: 14px;
-        --center-size: 100px;
-        --cross-size: 180px;
-        --arrow-width: 15px;
-        --arrow-height: 30px;
+        --compass-size: 400px;
+        --ring-size: 320px;
+        --node-size: 75px;
+        --radius: 160px;
+        --dot-size: 16px;
+        --center-size: 120px;
+        --cross-size: 200px;
+        --arrow-width: 18px;
+        --arrow-height: 35px;
         margin: 20px auto;
     }
 
@@ -358,14 +358,13 @@
 
     @media (max-width: 480px) {
         .compass-container {
-            --compass-size: 300px;
-            /* Slightly larger to use screen width better */
-            --ring-size: 240px;
-            --node-size: 55px;
-            --radius: 120px;
-            --dot-size: 10px;
-            --center-size: 85px;
-            --cross-size: 150px;
+            --compass-size: 340px;
+            --ring-size: 270px;
+            --node-size: 65px;
+            --radius: 135px;
+            --dot-size: 12px;
+            --center-size: 100px;
+            --cross-size: 170px;
         }
 
         .compass-node {

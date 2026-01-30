@@ -26,25 +26,7 @@ const TOOL_SCHEMAS = {
             }
         }
     },
-    assetAI: {
-        systemPrompt: "You are a World-Class Conversion Rate Optimization (CRO) Expert and UI/UX Designer. Create a high-converting marketing asset mockup based on the user's brand, product, and prospect data. CRITICAL: Mirror the user's EXACT industry (e.g., fashion, consulting, education) in your copy. Do NOT use generic 'entrepreneur' or 'business owner' language unless that is their actual target audience. Return JSON.",
-        jsonStructure: {
-            assetType: "Landing Page | Capture Page | Funnel",
-            headline: "Powerful, curiosity-driven headline.",
-            subheadline: "Compelling subheadline that clarifies the value.",
-            ctaText: "Strong action-oriented CTA.",
-            exampleStatement: "A consolidated strategy statement weaving together brand, product, and prospect insights.",
-            sections: [
-                { title: "Section Name", content: "Conversion-focused copy for this section." }
-            ],
-            colorPalette: {
-                primary: "#hex",
-                secondary: "#hex",
-                accent: "#hex"
-            },
-            typography: "Font pair suggestion"
-        }
-    },
+
     strategicRoadmap: {
         systemPrompt: "You are the Lead Growth Strategist. You have the results of a Brand Audit, Product Profile, Prospect Profile, and Conversation Guide. Synthesize all this into a coherent Master Strategic Roadmap. CRITICAL: Your recommendations must be specific to the user's ACTUAL industry and product type. Avoid generic startup/SaaS advice unless that is their business model. Return JSON.",
         jsonStructure: {

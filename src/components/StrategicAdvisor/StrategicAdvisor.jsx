@@ -199,6 +199,8 @@ const StrategicAdvisor = ({ profileIndex }) => {
             usp: bData.differentiator,
             jobTitle: pData.jobTitle,
             industry: pData.industry,
+            prospectType: pData.prospectType,
+            painPoints: pData.painPoints,
             painPoint: pData.painPoints?.split('.')[0],
             level: eData.skillLevel,
             objective: cData.objective,
@@ -208,6 +210,7 @@ const StrategicAdvisor = ({ profileIndex }) => {
         const brand = availableData.brandName || 'your brand';
         const role = availableData.jobTitle || 'target audience';
         const targetIndustry = availableData.industry || 'your market';
+        const prospectType = availableData.prospectType || 'B2B';
         const painPoint = availableData.painPoint || 'strategic gaps';
         const level = availableData.level || 'Elite Member';
         const objective = availableData.objective || 'Growth';
@@ -216,7 +219,7 @@ const StrategicAdvisor = ({ profileIndex }) => {
 
         const context = {
             ...availableData,
-            brand, usp: availableData.usp, role, targetIndustry,
+            brand, usp: availableData.usp, role, targetIndustry, prospectType,
             painPoint, level, objective, highlight: lastHighlight, nodeId,
             input, messageCount: conversationContext.messageCount,
             lastIntent: conversationContext.lastIntent,
@@ -384,6 +387,8 @@ const StrategicAdvisor = ({ profileIndex }) => {
             ...conversationContext,
             brand: bData.brandName,
             industry: pData.industry,
+            prospectType: pData.prospectType,
+            painPoints: pData.painPoints,
             objective: cData.objective
         };
 
@@ -446,6 +451,8 @@ const StrategicAdvisor = ({ profileIndex }) => {
             ...conversationContext,
             brand: bData.brandName,
             industry: pData.industry,
+            prospectType: pData.prospectType,
+            painPoints: pData.painPoints,
             objective: cData.objective,
             allProfiles: allProfilesSummary // Pass all profiles to Gemini
         };

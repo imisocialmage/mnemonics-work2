@@ -26,6 +26,14 @@ body {
   color: var(--midnight-black);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  /* Prevent horizontal scroll globally */
+}
+
+.app {
+  overflow-x: hidden;
+  /* Ensure content doesn't push width */
+  width: 100%;
 }
 
 h1,
@@ -107,18 +115,19 @@ button {
 .brand-subtitle {
   font-size: 0.9rem;
   color: var(--slate-gray);
+  line-height: 1.4;
 }
 
 .tool-navigation {
   display: flex;
   gap: 8px;
-  overflow-x: auto;
-  /* Allow horizontal scroll on mobile */
+  overflow-x: visible;
+  /* Disable horizontal scroll on mobile */
   padding: 10px 4px;
   width: 100%;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  /* Hide scrollbar for Firefox */
+  flex-wrap: wrap;
+  /* Allow wrapping to grid */
+  justify-content: center;
 }
 
 .tool-navigation::-webkit-scrollbar {
@@ -254,11 +263,11 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   background: rgba(255, 255, 255, 0.05);
-  padding: 5px 8px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 1);
+  padding: 4px 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
@@ -309,7 +318,10 @@ button {
 .profile-switcher-container {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  flex-wrap: nowrap;
+  /* Prevent wrapping of icons in the row */
+  justify-content: center;
 }
 
 .data-actions {
@@ -388,69 +400,135 @@ button {
 
 /* Mobile Responsive Styles */
 @media (max-width: 768px) {
+  .app-header {
+    padding: 10px 0;
+  }
+
   .header-content {
-    padding: 0 20px;
+    padding: 0 10px;
     flex-direction: column;
     text-align: center;
+    gap: 12px;
   }
 
   .brand-section {
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
   }
 
   .brand-title {
     font-size: 1.5rem;
+    line-height: 1.1;
+    margin: 0;
   }
 
-  .tool-navigation {
+  .brand-subtitle {
+    font-size: 0.8rem;
+    max-width: 90%;
+    margin: 0 auto;
+    opacity: 0.8;
+  }
+
+  /* Stack actions and navigation */
+  .flex.items-center.gap-6 {
+    flex-direction: column;
+    gap: 12px;
     width: 100%;
+    margin: 0;
+  }
+
+  /* Row for Lang and Profile Switcher */
+  .profile-switcher-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     gap: 8px;
+    width: 100%;
+    flex-wrap: nowrap;
+  }
+
+  .language-selector {
+    padding: 3px;
+    border-radius: 10px;
+  }
+
+  .lang-btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    min-width: 45px;
+  }
+
+  /* Profile Switcher Compact */
+  .profile-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
+  .data-actions {
+    gap: 4px;
+    padding: 3px;
+  }
+
+  .data-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  /* Navigation Grid - 2 Columns */
+  .tool-navigation {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+    padding: 5px 0 !important;
+    width: 100%;
+    overflow-x: visible !important;
   }
 
   .nav-btn {
-    flex: 1 1 calc(50% - 8px);
-    min-width: 140px;
-    padding: 10px 15px;
-    font-size: 0.85rem;
-    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    padding: 10px 6px;
+    font-size: 0.75rem;
+    justify-content: flex-start;
+    border-radius: 10px;
+    gap: 6px;
+    flex: none;
   }
 
   .nav-btn span {
     display: inline;
+    white-space: normal;
+    text-align: left;
+    line-height: 1.1;
+  }
+
+  .btn-inner {
+    width: 100%;
+    justify-content: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 }
 
 @media (max-width: 480px) {
-  .app-header {
-    padding: 15px 0;
-  }
-
-  .header-content {
-    padding: 0 15px;
-    gap: 15px;
-  }
-
   .brand-title {
     font-size: 1.3rem;
   }
 
   .brand-subtitle {
-    font-size: 0.8rem;
-  }
-
-  .tool-navigation {
-    gap: 6px;
+    font-size: 0.7rem;
   }
 
   .nav-btn {
-    flex: 1 1 calc(50% - 6px);
-    padding: 10px 12px;
-    font-size: 0.85rem;
+    font-size: 0.7rem;
+    padding: 8px 4px;
   }
 
   .nav-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
   }
 }

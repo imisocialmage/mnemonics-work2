@@ -8,7 +8,7 @@ import BrandEvaluator from './components/BrandEvaluator/BrandEvaluator';
 import ProductProfiler from './components/ProductProfiler/ProductProfiler';
 import ProspectProfiler from './components/ProspectProfiler/ProspectProfiler';
 import ConversationGuide from './components/ConversationGuide/ConversationGuide';
-import AssetAI from './components/AssetAI/AssetAI';
+
 import StrategicAdvisor from './components/StrategicAdvisor/StrategicAdvisor';
 import ProgressTracker from './components/ProgressTracker/ProgressTracker';
 import EliteChallenges from './components/EliteChallenges/EliteChallenges';
@@ -112,8 +112,7 @@ function App() {
       brandEvaluator: false,
       productProfiler: false,
       prospectProfiler: false,
-      conversationGuide: false,
-      assetAI: false
+      conversationGuide: false
     };
   });
 
@@ -170,8 +169,7 @@ function App() {
         brandEvaluator: false,
         productProfiler: false,
         prospectProfiler: false,
-        conversationGuide: false,
-        assetAI: false
+        conversationGuide: false
       });
     }
 
@@ -225,7 +223,7 @@ function App() {
   useEffect(() => {
     const handleDownloadMaster = () => {
       try {
-        generateMasterReport();
+        generateMasterReport(currentProfileIndex);
       } catch (error) {
         console.error("Master Report Error:", error);
         alert("There was an error generating the master report. Please ensure you have completed some tools first.");
@@ -489,14 +487,7 @@ function App() {
                 <MessageCircle size={20} />
                 <span>{t('nav.guide')}</span>
               </button>
-              <button
-                className={`nav-btn ${currentView === 'asset-ai' ? 'active' : ''}`}
-                onClick={() => setCurrentView('asset-ai')}
-                title="Asset AI"
-              >
-                <Layout size={20} />
-                <span>Asset AI</span>
-              </button>
+
               <button
                 className={`nav-btn pitch-master-btn ${currentView === 'pitch-master' ? 'active' : ''} ${!allToolsCompleted ? 'locked' : ''}`}
                 onClick={() => allToolsCompleted && setCurrentView('pitch-master')}
@@ -601,8 +592,7 @@ function App() {
             <ProspectProfiler profileIndex={currentProfileIndex} />
           ) : currentView === 'conversation-guide' ? (
             <ConversationGuide allToolsCompleted={allToolsCompleted} profileIndex={currentProfileIndex} />
-          ) : currentView === 'asset-ai' ? (
-            <AssetAI profileIndex={currentProfileIndex} />
+
           ) : currentView === 'pitch-master' ? (
             <StrategicAdvisor profileIndex={currentProfileIndex} />
           ) : currentView === 'progress-tracker' ? (

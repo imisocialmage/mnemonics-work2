@@ -1,107 +1,104 @@
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const MODEL_NAME = 'gemini-2.5-flash';
+import { supabase } from './supabaseClient';
+
+const MODEL_NAME = 'gemini-2.0-flash'; // Edge function uses its own model config, but we keep this for reference
 
 /**
- * Sends a message to the Gemini API
+ * Sends a message to the Gemini API via Supabase Edge Functions
  * @param {Array} history - Array of { role: 'user'|'model', content: string }
  * @param {Object} context - Context object (brand, industry, etc.) to build system prompt
  * @param {string} persona - 'strategic' | 'coach' or a custom system prompt string
  * @returns {Promise<string>} The AI response
  */
 export const getGeminiResponse = async (history, context, persona = 'strategic') => {
-    // Debugging: Check if key is loaded (don't log the actual key in production if possible, but here we need to know)
-    console.log("Gemini Client: Checking API Key...");
-    if (!API_KEY) {
-        console.error("Gemini Client: API Key is MISSING in import.meta.env");
-        throw new Error('API Key is missing. Please check .env file.');
-    } else {
-        console.log("Gemini Client: API Key found (starts with: " + API_KEY.substring(0, 4) + "...)");
-    }
-
     // If persona contains spaces or is long, assume it's a custom prompt
     const systemPrompt = (persona.length > 20 || persona.includes(' '))
         ? persona
         : buildSystemPrompt(context, persona);
 
-    // Format history for Gemini API
-    // Maps 'user' -> 'user', 'assistant' -> 'model'
+    // Get the last user message
+    const lastMessage = history[history.length - 1]?.content;
+
+    // Format history for Gemini API (if needed by Edge Function)
     const contents = history.map(msg => ({
         role: msg.role === 'user' ? 'user' : 'model',
         parts: [{ text: msg.content }]
     }));
 
-    // Prepend system prompt as a user message (or system instruction if using beta API, but user message is safer/standard)
-    const payload = {
-        contents: contents,
-        system_instruction: {
-            parts: [{ text: systemPrompt }]
-        },
-        generationConfig: {
-            temperature: 0.1, // Lowered for more consistent structured/JSON output
-            maxOutputTokens: 2048, // Increased for larger assets
-        }
-    };
-
-    console.log("Gemini Client: Sending request to model:", MODEL_NAME);
-
     try {
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
+        console.log("Gemini Client: Calling Supabase Edge Function 'gemini'...");
+
+        const { data, error } = await supabase.functions.invoke('gemini', {
+            body: {
+                prompt: lastMessage,
+                history: contents,
+                systemInstruction: systemPrompt
             }
-        );
+        });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Gemini API Request Failed. Status:", response.status);
-            console.error("Gemini API Error Detail:", JSON.stringify(errorData, null, 2));
-            throw new Error(errorData.error?.message || `Gemini API connection failed (Status: ${response.status})`);
+        if (error) {
+            console.error("Supabase Edge Function Error:", error);
+            // Handle credit limit specifically
+            if (error.status === 402) {
+                throw new Error('Credit limit reached. Please upgrade your plan.');
+            }
+            throw new Error(error.message || 'Failed to connect to AI service');
         }
 
-        const data = await response.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-        if (!text) {
-            console.error("Gemini Response Empty (No text content found). Full Response:", JSON.stringify(data, null, 2));
-            throw new Error('No response from Gemini.');
+        if (!data?.text) {
+            throw new Error('No response from AI service.');
         }
 
-        return text;
+        // Update local credit display if we have a way to do that (can be done in components)
+        if (data.credits_remaining !== undefined) {
+            console.log(`Credits remaining: ${data.credits_remaining}`);
+        }
+
+        return data.text;
 
     } catch (error) {
-        console.error('Gemini API Error (Catch Block):', error);
+        console.error('AI Service Error:', error);
         throw error;
     }
 };
 
 const buildSystemPrompt = (context, persona) => {
+    let profilesContext = '';
+    if (context.allProfiles && Array.isArray(context.allProfiles) && context.allProfiles.length > 0) {
+        profilesContext = `
+        Other Strategic Profiles:
+        ${context.allProfiles.map(p => `- Profile ${p.id}: ${p.brand} targeting ${p.audience} (Goal: ${p.objective})`).join('\n')}
+        `;
+    }
+
     const baseContext = `
     Project Context:
     - Brand: ${context.brand || 'Not defined'}
     - Industry: ${context.industry || 'Not defined'}
+    - Prospect Type: ${context.prospectType || 'Not defined'} (B2B vs B2C)
+    - Pain Points: ${context.painPoints || 'Not defined'}
     - Objective: ${context.objective || 'Not defined'}
     - Current Progress: Day ${context.day || '?'}
+    ${profilesContext}
     `;
 
     if (persona === 'strategic') {
-        return `You are the Strategic Pitch Master, a world-class brand strategist and copywriter.
+        return `You are the Strategic Pitch Master, a world-class brand strategist and copywriter specializing in High-Trust sales.
         ${baseContext}
         
         Your Goal: Help the user refine their brand strategy, sales pitches, and outreach with high-impact, human-sounding advice.
 
-        Guidelines:
+        CRITICAL GUIDELINES:
+        - **B2B vs B2C Pertinence**: Tailor every piece of advice to the Prospect Type. If B2B, focus on ROI, efficiency, and professional credibility. If B2C, focus on emotional transformation, lifestyle, and individual desires.
+        - **Industry Specificity**: Use terminology and examples relevant to the ${context.industry || 'specified industry'}. Avoid generic templates.
+        - **Intent Recognition**: Address the user's specific intent (pitching, outreach, strategy) with laser focus.
         - **Tone**: Professional but conversational, like a senior partner at a top agency. Avoid robotic or stiff language.
         - **Style**: Use natural transitions. Ask clarifying questions if the user's strategy seems vague.
         - **Format**: specific, actionable advice. Use bullet points for clarity but mix in natural paragraphs.
         - **"Pro Tips"**: Occasionally drop a "Pro Tip" (💡) that offers a counter-intuitive or advanced insight.
-        - **Empathy**: Acknowledge the difficulty of the user's situation (e.g., "I know cold outreach is tough, but here's how we crack it...").
+        - **Empathy**: Acknowledge the difficulty of the user's situation.
         - **Constraint**: Do NOT sound like an AI. Don't say "As an AI...". Just give the advice.
-        - **Out of Scope**: If the user asks about unrelated topics or needs complex hands-on help, recommend they book a calibration meeting at: https://calendly.com/imi-socialmediaimage/30min`;
+        - **Other Profiles**: If other strategic profiles are listed in the context, ensure your current advice is consistent with the current profile but acknowledge the user's broader multi-strategy approach if relevant.
+        - **Out of Scope**: If the user asks about unrelated topics, recommend a calibration meeting at: https://calendly.com/imi-socialmediaimage/30min`;
     } else {
         return `You are the Solo Corp 101 Coach, a battle-hardened entrepreneur guiding a founder through a 30-day launch protocol.
         ${baseContext}
@@ -117,3 +114,4 @@ const buildSystemPrompt = (context, persona) => {
         - **Out of Scope**: If they get stuck or ask for things you can't do, tell them to book a sync: https://calendly.com/imi-socialmediaimage/30min`;
     }
 };
+

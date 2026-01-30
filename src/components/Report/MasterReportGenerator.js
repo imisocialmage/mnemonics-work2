@@ -1,13 +1,14 @@
 import { jsPDF } from 'jspdf';
 import { STRATEGIC_ADVICE, COMPASS_NODES } from '../../data/compassData';
 
-export const generateMasterReport = () => {
-    // 1. Get all data from localStorage
-    const compassData = JSON.parse(localStorage.getItem('imi-compass-data') || '{}');
-    const brandData = JSON.parse(localStorage.getItem('imi-brand-data') || '{}');
-    const productData = JSON.parse(localStorage.getItem('imi-product-data') || '{}');
-    const prospectData = JSON.parse(localStorage.getItem('imi-prospect-data') || '{}');
-    const conversationData = JSON.parse(localStorage.getItem('imi-conversation-data') || '{}');
+export const generateMasterReport = (profileIndex = 0) => {
+    const prefix = `imi-p${profileIndex}-`;
+    // 1. Get all data from localStorage with profile-specific keys
+    const compassData = JSON.parse(localStorage.getItem(`${prefix}imi-compass-data`) || localStorage.getItem('imi-compass-data') || '{}');
+    const brandData = JSON.parse(localStorage.getItem(`${prefix}imi-brand-data`) || localStorage.getItem('imi-brand-data') || '{}');
+    const productData = JSON.parse(localStorage.getItem(`${prefix}imi-product-data`) || localStorage.getItem('imi-product-data') || '{}');
+    const prospectData = JSON.parse(localStorage.getItem(`${prefix}imi-prospect-data`) || localStorage.getItem('imi-prospect-data') || '{}');
+    const conversationData = JSON.parse(localStorage.getItem(`${prefix}imi-conversation-data`) || localStorage.getItem('imi-conversation-data') || '{}');
 
     const doc = new jsPDF();
     let y = 20;
@@ -82,7 +83,7 @@ export const generateMasterReport = () => {
     }
 
     // AI Strategic Roadmap Synthesis (If exists)
-    const deepAnalysis = JSON.parse(localStorage.getItem('imi-p0-deep-analysis') || 'null');
+    const deepAnalysis = JSON.parse(localStorage.getItem(`${prefix}deep-analysis`) || localStorage.getItem('imi-p0-deep-analysis') || 'null');
     if (deepAnalysis) {
         y += 5;
         addSubtitle("AI MASTER STRATEGY SUMMARY", 16, [41, 121, 255]);
@@ -189,22 +190,7 @@ export const generateMasterReport = () => {
         addText("Data from Conversation Guide not found.");
     }
 
-    // --- SECTION 6: ASSET AI - VISUAL CONCEPT ---
-    const assetData = JSON.parse(localStorage.getItem('imi-p0-imi-asset-ai-results') || 'null');
-    if (assetData) {
-        checkPage(60);
-        addSeparator();
-        addTitle("6. Visual Marketing Asset Concept");
-        y += 5;
-        addSubtitle(`Asset Type: ${assetData.assetType}`);
-        addSubtitle("Hero Messaging", 12);
-        addText(`Headline: ${assetData.headline}`);
-        addText(`Subheadline: ${assetData.subheadline}`);
-        addText(`CTA: ${assetData.ctaText}`);
-        y += 5;
-        addSubtitle("Strategic Statement", 12);
-        addText(assetData.exampleStatement);
-    }
+
 
     // Footer
     doc.setFontSize(8);

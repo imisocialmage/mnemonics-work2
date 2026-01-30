@@ -8,9 +8,11 @@
 .solocorp-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 2rem 1rem;
+    /* Reduced horizontal padding */
     color: #FAFAFA;
     font-family: 'Poppins', sans-serif;
+    overflow-x: hidden;
 }
 
 /* Header & Progress Area */
@@ -21,6 +23,7 @@
     padding: 2rem;
     margin-bottom: 2rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    width: 100%;
 }
 
 @media (max-width: 768px) {
@@ -34,6 +37,8 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1.5rem;
 }
 
 .title-area {
@@ -63,7 +68,10 @@
     background: rgba(0, 0, 0, 0.3);
     padding: 1.25rem 2rem;
     border-radius: 16px;
-    width: 300px;
+    width: 100%;
+    /* Stretch on mobile */
+    max-width: 350px;
+    /* Limit on desktop */
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -284,6 +292,8 @@
 .solocorp-tabs {
     display: flex;
     gap: 1rem;
+    flex-wrap: wrap;
+    /* Stack on small screens */
 }
 
 .solocorp-tabs button {
@@ -314,6 +324,15 @@
     box-shadow: 0 0 15px rgba(255, 193, 7, 0.1);
 }
 
+@media (max-width: 640px) {
+    .solocorp-tabs button {
+        flex: 1 1 calc(50% - 0.5rem);
+        padding: 0.75rem;
+        font-size: 0.85rem;
+        gap: 0.5rem;
+    }
+}
+
 /* Coach Pane Styles (matching existing theme) */
 .chat-interface {
     height: 600px;
@@ -327,7 +346,9 @@
 
 @media (max-width: 768px) {
     .chat-interface {
-        height: 500px;
+        height: calc(100vh - 300px);
+        /* Fill screen better on mobile */
+        min-height: 400px;
     }
 }
 
@@ -406,6 +427,33 @@
 
 .chat-input-row input:focus {
     border-color: var(--electric-blue);
+}
+
+@media (max-width: 640px) {
+    .chat-messages {
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .msg.bubble {
+        max-width: 90%;
+        font-size: 0.9rem;
+    }
+
+    .chat-input-row {
+        padding: 1rem;
+        gap: 0.5rem;
+    }
+
+    .choice-container {
+        padding: 0 1rem 1rem;
+        gap: 0.5rem;
+    }
+
+    .choice-bubble {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+    }
 }
 
 .choice-container {
