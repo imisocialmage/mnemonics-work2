@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Sparkles, MessageSquare, Send, Award, Copy, CheckCircle, Bot, Eraser } from 'lucide-react';
+import { Sparkles, MessageSquare, Send, Award, Copy, CheckCircle, Bot, Eraser, Coins } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
     classifyIntent,
@@ -15,10 +15,13 @@ import {
     generateGeminiPrompt
 } from '../../utils/aiEngine';
 import { getGeminiResponse } from '../../utils/geminiClient';
+import { useAuth } from '../Auth/AuthProvider';
+import AIFeatureGate from '../Auth/AIFeatureGate';
 import './StrategicAdvisor.css';
 
 const StrategicAdvisor = ({ profileIndex }) => {
     const { t } = useTranslation();
+    const { isAuthenticated, credits, refreshCredits } = useAuth();
     const getProfileKey = useCallback((key) => `imi-p${profileIndex}-${key}`, [profileIndex]);
 
     const [activeTab, setActiveTab] = useState('pitches');
@@ -89,15 +92,14 @@ const StrategicAdvisor = ({ profileIndex }) => {
     }, []);
 
     useEffect(() => {
+        // Scroll to bottom when messages change
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
+    useEffect(() => {
         localStorage.setItem(getProfileKey('imi-advisor-chat'), JSON.stringify(messages));
         localStorage.setItem(getProfileKey('imi-advisor-context'), JSON.stringify(conversationContext));
     }, [messages, conversationContext, getProfileKey]);
-
-    /* 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
-    */
 
     const handleCopy = (text, id) => {
         navigator.clipboard.writeText(text);
@@ -189,10 +191,11 @@ const StrategicAdvisor = ({ profileIndex }) => {
     // Enhanced AI Engine Logic with Intent Classification
     const generateAIResponse = (input) => {
         // --- GLOBAL DATA SYNTHESIS ---
-        const bData = JSON.parse(localStorage.getItem('imi-brand-data') || '{}');
-        const pData = JSON.parse(localStorage.getItem('imi-prospect-data') || '{}');
-        const cData = JSON.parse(localStorage.getItem('imi-compass-data') || '{}');
-        const eData = JSON.parse(localStorage.getItem('myProgressData') || '{}');
+        // Use the pre-loaded data from props/state which already respects the profileIndex
+        const bData = data.brand || {};
+        const pData = data.prospect || {};
+        const cData = data.compass || {};
+        const eData = data.eliteData || {};
 
         const availableData = {
             brandName: bData.brandName,
@@ -419,6 +422,44 @@ const StrategicAdvisor = ({ profileIndex }) => {
         handleSendMessage(null, choice);
     };
 
+    const handleLocalFallback = (finalInput, error = null) => {
+        if (error) {
+            console.log('Gemini API failed or skipped, using local engine fallback:', error);
+        }
+
+        setTimeout(() => {
+            let fullResponse = generateAIResponse(finalInput);
+
+            // Only append error message if it was a real API failure, not just a deliberate skip
+            if (error) {
+                // Log error but don't show to user for a seamless experience
+                console.warn("Falling back to local engine due to API error:", error);
+            }
+
+            // Always add calibration link
+            fullResponse += `\n\nI recommend booking a one-on-one calibration meeting with a coach if you need further assistance: https://calendly.com/imi-socialmediaimage/30min`;
+
+            setIsTyping(false);
+
+            const aiMsgId = Date.now() + 1;
+            const newAiMsg = { role: 'assistant', content: '', id: aiMsgId, isStreaming: true };
+            setMessages(prev => [...prev, newAiMsg]);
+
+            let currentText = '';
+            let index = 0;
+            const streamInterval = setInterval(() => {
+                if (index < fullResponse.length) {
+                    currentText += fullResponse[index];
+                    setMessages(prev => prev.map(m => m.id === aiMsgId ? { ...m, content: currentText } : m));
+                    index++;
+                } else {
+                    clearInterval(streamInterval);
+                    setMessages(prev => prev.map(m => m.id === aiMsgId ? { ...m, isStreaming: false } : m));
+                }
+            }, 10);
+        }, 600);
+    };
+
     const handleSendMessage = async (e, overrideInput) => {
         if (e) e.preventDefault();
         const finalInput = overrideInput || chatInput;
@@ -431,6 +472,12 @@ const StrategicAdvisor = ({ profileIndex }) => {
         setChatInput('');
         setIsTyping(true);
         setQuickChoices([]);
+
+        // If NOT authenticated, skip API entirely and use local engine
+        if (!isAuthenticated) {
+            handleLocalFallback(finalInput);
+            return;
+        }
 
         const currentIdx = parseInt(localStorage.getItem('imi-active-profile') || '0');
         const prefix = `imi-p${currentIdx}-`;
@@ -492,6 +539,7 @@ const StrategicAdvisor = ({ profileIndex }) => {
                 } else {
                     clearInterval(streamInterval);
                     setMessages(prev => prev.map(m => m.id === aiMsgId ? { ...m, content: aiText, isStreaming: false } : m));
+                    refreshCredits();
                 }
             }, 15);
 
@@ -500,35 +548,7 @@ const StrategicAdvisor = ({ profileIndex }) => {
             setConversationContext(prev => updateConversationContext(prev, finalInput, primaryIntent, extractEntities(finalInput)));
 
         } catch (error) {
-            console.log('Gemini API failed, using local engine fallback:', error);
-
-            // Fallback to Local Engine
-            setTimeout(() => {
-                let fullResponse = generateAIResponse(finalInput);
-
-                // DIAGNOSTIC INFO: Append error to response so we can see why it failed
-                fullResponse += `\n\n[System Note: Gemini API Connection Failed. Error: ${error.message}. Switched to offline backup.]`;
-                fullResponse += `\n\nI recommend booking a one-on-one calibration meeting with a coach if you need further assistance: https://calendly.com/imi-socialmediaimage/30min`;
-
-                setIsTyping(false);
-
-                const aiMsgId = Date.now() + 1;
-                const newAiMsg = { role: 'assistant', content: '', id: aiMsgId, isStreaming: true };
-                setMessages(prev => [...prev, newAiMsg]);
-
-                let currentText = '';
-                let index = 0;
-                const streamInterval = setInterval(() => {
-                    if (index < fullResponse.length) {
-                        currentText += fullResponse[index];
-                        setMessages(prev => prev.map(m => m.id === aiMsgId ? { ...m, content: currentText } : m));
-                        index++;
-                    } else {
-                        clearInterval(streamInterval);
-                        setMessages(prev => prev.map(m => m.id === aiMsgId ? { ...m, isStreaming: false } : m));
-                    }
-                }, 10);
-            }, 600);
+            handleLocalFallback(finalInput, error);
         }
     };
 
@@ -634,127 +654,141 @@ const StrategicAdvisor = ({ profileIndex }) => {
                 )}
 
                 {activeTab === 'advisor' && (
-                    <div className="tool-panel ai-advisor-panel">
-                        <div className="chat-header">
-                            <div className="header-info">
-                                <Bot size={20} color="var(--electric-blue)" />
-                                <div>
-                                    <h3>{t('advisor.ai_header')}</h3>
-                                    <p className="section-subtitle">{t('advisor.ai_version')}</p>
-                                </div>
-                            </div>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                                <button className="clear-btn" onClick={handleGeminiSync} title={t('advisor.ai.gemini_sync')} style={{ width: 'auto', padding: '0 8px', gap: '5px' }}>
-                                    <Sparkles size={16} /> {syncStatus === 'copied' ? t('advisor.ai.gemini_copied') : t('advisor.ai.gemini_sync')}
-                                </button>
-                                <button className="clear-btn" onClick={clearChat} title={t('advisor.ai.clear')}>
-                                    <Eraser size={16} />
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="chat-container">
-                            <div className="msg bubble assistant-message">
-                                <div className="bubble-content">
-                                    {t('advisor.ai.welcome')}
-                                    <p style={{ marginTop: '10px', fontSize: '0.9em', opacity: 0.9 }}>
-                                        {t('advisor.ai.book_call_instruction')}
-                                    </p>
-                                    <a
-                                        href="https://calendly.com/imi-socialmediaimage/30min"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="booking-btn"
-                                        style={{
-                                            display: 'inline-block',
-                                            marginTop: '8px',
-                                            padding: '8px 16px',
-                                            backgroundColor: 'var(--amber-gold)',
-                                            color: '#000',
-                                            borderRadius: '20px',
-                                            textDecoration: 'none',
-                                            fontWeight: '600',
-                                            fontSize: '0.9em',
-                                            border: 'none',
-                                            cursor: 'pointer',
-                                            transition: 'transform 0.2s'
-                                        }}
-                                    >
-                                        {t('advisor.ai.book_calibration')}
-                                    </a>
-                                </div>
-                            </div>
-
-                            {messages.map((m, i) => {
-                                const hasBookingLink = typeof m.content === 'string' && m.content.includes('calendly.com/imi-socialmediaimage/30min');
-                                return (
-                                    <div key={m.id || i} className={`msg bubble ${m.role === 'user' ? 'user-message' : 'assistant-message'}`}>
-                                        <div className="bubble-content">
-                                            {m.content}
-                                            {m.isStreaming && <span className="streaming-cursor">|</span>}
-                                            {hasBookingLink && !m.isStreaming && (
-                                                <a
-                                                    href="https://calendly.com/imi-socialmediaimage/30min"
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="booking-btn"
-                                                    style={{
-                                                        display: 'inline-block',
-                                                        marginTop: '10px',
-                                                        padding: '8px 16px',
-                                                        backgroundColor: 'var(--amber-gold)',
-                                                        color: '#000',
-                                                        borderRadius: '20px',
-                                                        textDecoration: 'none',
-                                                        fontWeight: '600',
-                                                        fontSize: '0.9em',
-                                                        border: 'none',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                >
-                                                    {t('advisor.ai.book_calibration')}
-                                                </a>
-                                            )}
-                                        </div>
+                    <AIFeatureGate
+                        featureName={t('advisor.ai_header')}
+                        onProceedWithoutAuth={() => { }}
+                    >
+                        <div className="tool-panel ai-advisor-panel">
+                            <div className="chat-header">
+                                <div className="header-info">
+                                    <Bot size={20} color="var(--electric-blue)" />
+                                    <div>
+                                        <h3>{t('advisor.ai_header')}</h3>
+                                        <p className="section-subtitle">{t('advisor.ai_version')}</p>
                                     </div>
-                                );
-                            })}
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                    {credits !== null && (
+                                        <div className="credit-badge" title="Remaining AI Credits" style={{
+                                            display: 'flex', alignItems: 'center', gap: '5px',
+                                            background: 'rgba(255,255,255,0.1)', padding: '4px 8px', borderRadius: '12px',
+                                            marginRight: '8px'
+                                        }}>
+                                            <Coins size={16} color="var(--amber-gold)" />
+                                            <span style={{ fontWeight: 'bold', color: 'var(--amber-gold)' }}>{credits}</span>
+                                        </div>
+                                    )}
+                                    <button className="clear-btn" onClick={handleGeminiSync} title={t('advisor.ai.gemini_sync')} style={{ width: 'auto', padding: '0 8px', gap: '5px' }}>
+                                        <Sparkles size={16} /> {syncStatus === 'copied' ? t('advisor.ai.gemini_copied') : t('advisor.ai.gemini_sync')}
+                                    </button>
+                                    <button className="clear-btn" onClick={clearChat} title={t('advisor.ai.clear')}>
+                                        <Eraser size={16} />
+                                    </button>
+                                </div>
+                            </div>
 
-                            {isTyping && (
-                                <div className="msg bubble assistant-message typing">
-                                    <div className="bubble-content">{t('advisor.ai.thinking')}</div>
+                            <div className="chat-container">
+                                <div className="msg bubble assistant-message">
+                                    <div className="bubble-content">
+                                        {t('advisor.ai.welcome')}
+                                        <p style={{ marginTop: '10px', fontSize: '0.9em', opacity: 0.9 }}>
+                                            {t('advisor.ai.book_call_instruction')}
+                                        </p>
+                                        <a
+                                            href="https://calendly.com/imi-socialmediaimage/30min"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="booking-btn"
+                                            style={{
+                                                display: 'inline-block',
+                                                marginTop: '8px',
+                                                padding: '8px 16px',
+                                                backgroundColor: 'var(--amber-gold)',
+                                                color: '#000',
+                                                borderRadius: '20px',
+                                                textDecoration: 'none',
+                                                fontWeight: '600',
+                                                fontSize: '0.9em',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                transition: 'transform 0.2s'
+                                            }}
+                                        >
+                                            {t('advisor.ai.book_calibration')}
+                                        </a>
+                                    </div>
+                                </div>
+
+                                {messages.map((m, i) => {
+                                    const hasBookingLink = typeof m.content === 'string' && m.content.includes('calendly.com/imi-socialmediaimage/30min');
+                                    return (
+                                        <div key={m.id || i} className={`msg bubble ${m.role === 'user' ? 'user-message' : 'assistant-message'}`}>
+                                            <div className="bubble-content">
+                                                {m.content}
+                                                {m.isStreaming && <span className="streaming-cursor">|</span>}
+                                                {hasBookingLink && !m.isStreaming && (
+                                                    <a
+                                                        href="https://calendly.com/imi-socialmediaimage/30min"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="booking-btn"
+                                                        style={{
+                                                            display: 'inline-block',
+                                                            marginTop: '10px',
+                                                            padding: '8px 16px',
+                                                            backgroundColor: 'var(--amber-gold)',
+                                                            color: '#000',
+                                                            borderRadius: '20px',
+                                                            textDecoration: 'none',
+                                                            fontWeight: '600',
+                                                            fontSize: '0.9em',
+                                                            border: 'none',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                    >
+                                                        {t('advisor.ai.book_calibration')}
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>);
+                                })}
+
+                                {isTyping && (
+                                    <div className="msg bubble assistant-message typing">
+                                        <div className="bubble-content">{t('advisor.ai.thinking')}</div>
+                                    </div>
+                                )}
+                                <div ref={messagesEndRef} />
+                            </div>
+
+                            {/* Choice Bubbles */}
+                            {quickChoices.length > 0 && (
+                                <div className="choice-container">
+                                    {quickChoices.map((choice, idx) => (
+                                        <button
+                                            key={idx}
+                                            className="choice-bubble"
+                                            onClick={() => handleChoiceClick(choice)}
+                                        >
+                                            {choice}
+                                        </button>
+                                    ))}
                                 </div>
                             )}
-                            <div ref={messagesEndRef} />
+
+                            <form onSubmit={handleSendMessage} className="chat-input-area">
+                                <input
+                                    type="text"
+                                    value={chatInput}
+                                    onChange={(e) => setChatInput(e.target.value)}
+                                    placeholder={t('advisor.ai.placeholder')}
+                                />
+                                <button type="submit" className="send-btn" disabled={!chatInput.trim()}>
+                                    <Send size={18} />
+                                </button>
+                            </form>
                         </div>
-
-                        {/* Choice Bubbles */}
-                        {quickChoices.length > 0 && (
-                            <div className="choice-container">
-                                {quickChoices.map((choice, idx) => (
-                                    <button
-                                        key={idx}
-                                        className="choice-bubble"
-                                        onClick={() => handleChoiceClick(choice)}
-                                    >
-                                        {choice}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-
-                        <form onSubmit={handleSendMessage} className="chat-input-area">
-                            <input
-                                type="text"
-                                value={chatInput}
-                                onChange={(e) => setChatInput(e.target.value)}
-                                placeholder={t('advisor.ai.placeholder')}
-                            />
-                            <button type="submit" className="send-btn" disabled={!chatInput.trim()}>
-                                <Send size={18} />
-                            </button>
-                        </form>
-                    </div>
+                    </AIFeatureGate>
                 )}
             </div>
         </div >

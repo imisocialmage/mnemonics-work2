@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../Auth/AuthProvider';
 import { analyzeToolData } from '../../utils/analysisService';
 import './BrandEvaluator.css';
 
 const BrandEvaluator = ({ profileIndex }) => {
     const { t } = useTranslation();
+    const { isAuthenticated } = useAuth();
     const getProfileKey = useCallback((key) => `imi-p${profileIndex}-${key}`, [profileIndex]);
 
     const [currentStep, setCurrentStep] = useState(1);
@@ -73,6 +75,26 @@ const BrandEvaluator = ({ profileIndex }) => {
     const generateEvaluation = async () => {
         if (validateCurrentStep()) {
             setIsLoading(true);
+
+            if (!isAuthenticated) {
+                // Fallback to local logic if unauthenticated
+                const scores = calculateScores();
+                const overallScore = calculateOverallScore(scores);
+                setBrandData(prev => ({
+                    ...prev,
+                    scores,
+                    overallScore,
+                    analysis: "AI Analysis currently unavailable. Using local evaluation engine.",
+                    recommendations: []
+                }));
+                setCurrentStep(4);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                // Mark tool as completed
+                window.dispatchEvent(new CustomEvent('tool-completed', { detail: 'brandEvaluator' }));
+                setIsLoading(false);
+                return;
+            }
+
             try {
                 const results = await analyzeToolData('brandEvaluator', {
                     whatOffer: brandData.whatOffer,
@@ -585,7 +607,7 @@ ${recommendations.map(rec => `
 <div class="promo-section">
 <h2 style="color: white; border: none; margin-bottom: 20px;">Ready to Transform Your Brand?</h2>
 <p style="font-size: 1.2rem; margin-bottom: 25px;">Get personalized guidance to take your brand to the next level</p>
-<a href="https://imicoretribe.com/assessment_" class="cta-button" target="_blank">Book Your Strategic Assessment</a>
+<a href="https://imicoretribe.com/assessment" class="cta-button" target="_blank">Book Your Strategic Assessment</a>
 <a href="https://imicoretribe.com" class="cta-button" target="_blank">Join IMI CORE TRIBE</a>
 </div>
 

@@ -539,7 +539,8 @@
         "leadership_role": "leadership role",
         "operational_challenges": "operational challenges",
         "common_challenges": "common challenges",
-        "this_solution": "this solution"
+        "this_solution": "this solution",
+        "lang_code": "en"
     },
     "member": {
         "title": "Elite Access Required",
@@ -891,7 +892,12 @@
                 "data_driven": "Recent data from 300+ {{industry}} companies shows a surprising trend affecting {{role}} leaders.",
                 "connection": "I noticed your innovative approach at [Company] in {{industry}}.",
                 "pain_point": "While researching {{industry}} challenges, one issue keeps surfacing: {{painPoint}}.",
-                "credibility": "This approach has helped clients achieve 35% efficiency improvement in 8 weeks.",
+                "authority_b2c": "Having helped hundreds of {{role}} enthusiasts in the {{industry}} space, I've seen exactly what works.",
+                "curiosity_b2c": "Most people in the {{industry}} community are missing one simple thing that changes everything.",
+                "data_driven_b2c": "I've analyzed the results from over 500 {{role}} individuals, and the data is clear.",
+                "connection_b2c": "I saw your passion for {{role}} and wanted to share something relevant to {{industry}}.",
+                "pain_point_b2c": "I know how frustrating {{painPoint}} can be for anyone in the {{industry}} world.",
+                "credibility": "This approach has helped clients achieve 35% improvement in just 8 weeks.",
                 "cta": "Would you be open to a 15-minute conversation about applying this to your situation?",
                 "regards": "Best regards,",
                 "name_placeholder": "[Your Name]",
@@ -1070,5 +1076,37 @@
             "status_logged": "LOGGED",
             "status_pending": "PENDING"
         }
+    },
+    "auth": {
+        "unlock_title": "Unlock AI-Powered Features",
+        "unlock_subtitle": "Sign up to access premium AI insights and unlimited analysis",
+        "benefit_1_title": "AI-Powered Insights",
+        "benefit_1_desc": "Get personalized strategic advice powered by Gemini AI",
+        "benefit_2_title": "Unlimited Analysis",
+        "benefit_2_desc": "Analyze your brand, products, and prospects with no limits",
+        "benefit_3_title": "Advanced Coaching",
+        "benefit_3_desc": "Access the Strategic Pitch Master and Solo Corp 101 AI coach",
+        "get_started": "Get Started Free",
+        "already_have_account": "Already have an account?",
+        "continue_without": "Continue without AI features",
+        "create_account": "Create Your Account",
+        "welcome_back": "Welcome Back",
+        "signup_subtitle": "Start with 100 free AI credits",
+        "login_subtitle": "Continue your strategic journey",
+        "email": "Email",
+        "email_placeholder": "your@email.com",
+        "password": "Password",
+        "password_placeholder": "Enter your password",
+        "sign_up": "Sign Up",
+        "sign_in": "Sign In",
+        "no_account": "Don't have an account?",
+        "loading": "Loading...",
+        "error_generic": "An error occurred. Please try again.",
+        "signup_success": "Account created! Check your email to verify.",
+        "ai_locked_title": "{{feature}} requires authentication",
+        "ai_locked_desc": "Sign up for free to unlock AI-powered features and get 100 free credits",
+        "unlock_ai": "Unlock AI Features",
+        "use_basic_mode": "Use Basic Mode",
+        "free_credits_note": "🎁 New users get 100 free AI credits"
     }
 }

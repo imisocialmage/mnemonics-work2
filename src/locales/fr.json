@@ -479,7 +479,8 @@
         "leadership_role": "rôle de leadership",
         "operational_challenges": "défis opérationnels",
         "common_challenges": "défis courants",
-        "this_solution": "cette solution"
+        "this_solution": "cette solution",
+        "lang_code": "fr"
     },
     "member": {
         "title": "Accès Élite Requis",
@@ -828,7 +829,12 @@
                 "data_driven": "Des données récentes provenant de plus de 300 entreprises de {{industry}} montrent une tendance surprenante affectant les leaders {{role}}.",
                 "connection": "J'ai remarqué votre approche innovante chez [Company] dans {{industry}}.",
                 "pain_point": "En recherchant les défis de {{industry}}, un problème revient sans cesse : {{painPoint}}.",
-                "credibility": "Cette approche a aidé nos clients à obtenir une amélioration de l'efficacité de 35 % en 8 semaines.",
+                "authority_b2c": "Après avoir aidé des centaines de passionnés de {{role}} dans le secteur {{industry}}, j'ai vu exactement ce qui fonctionne.",
+                "curiosity_b2c": "La plupart des gens dans la communauté {{industry}} passent à côté d'une chose simple qui change tout.",
+                "data_driven_b2c": "J'ai analysé les résultats de plus de 500 individus {{role}}, et les données sont claires.",
+                "connection_b2c": "J'ai vu votre passion pour {{role}} et je voulais partager quelque chose de pertinent pour {{industry}}.",
+                "pain_point_b2c": "Je sais à quel point {{painPoint}} peut être frustrant pour quiconque dans le monde de {{industry}}.",
+                "credibility": "Cette approche a aidé nos clients à obtenir une amélioration significative en seulement 8 semaines.",
                 "cta": "Seriez-vous ouvert à une conversation de 15 minutes pour appliquer cela à votre situation ?",
                 "regards": "Cordialement,",
                 "name_placeholder": "[Votre Nom]",

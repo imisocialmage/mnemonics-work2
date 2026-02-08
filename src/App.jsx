@@ -19,6 +19,7 @@ import { Compass, Award, Package, Users, MessageCircle, Sparkles, Lock, Clipboar
 import { generateMasterReport } from './components/Report/MasterReportGenerator';
 import { CENTER_ADVICE } from './data/centerAdviceData'; // Import Center Advice Data
 import CenterAdviceModal from './components/Compass/CenterAdviceModal'; // Import Center Advice Modal
+import { AuthProvider } from './components/Auth/AuthProvider'; // Import Auth Provider
 import './index.css';
 
 const ProfileSwitcher = ({ currentIndex, onSwitch, t, onExport, onImport, onShowInfo }) => {
@@ -419,7 +420,17 @@ function App() {
           <div className="brand-section">
             <Compass size={40} color="var(--electric-blue)" />
             <div>
-              <h1 className="brand-title">{t('header.title')}</h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <h1 className="brand-title">{t('header.title')}</h1>
+                <span style={{
+                  fontSize: '0.7rem',
+                  color: 'var(--slate-gray)',
+                  opacity: 0.7,
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  padding: '2px 6px',
+                  borderRadius: '12px'
+                }}>v0.0.4</span>
+              </div>
               <p className="brand-subtitle">{t('header.subtitle')}</p>
             </div>
           </div>
@@ -461,7 +472,7 @@ function App() {
                 title={t('nav.brand')}
               >
                 <Award size={20} />
-                <span>{t('nav.brand')}</span>
+                <span>{t('nav.brand')} <span className="ai-badge">AI</span></span>
               </button>
               <button
                 className={`nav-btn ${currentView === 'product-profiler' ? 'active' : ''}`}
@@ -469,7 +480,7 @@ function App() {
                 title={t('nav.product')}
               >
                 <Package size={20} />
-                <span>{t('nav.product')}</span>
+                <span>{t('nav.product')} <span className="ai-badge">AI</span></span>
               </button>
               <button
                 className={`nav-btn ${currentView === 'prospect-profiler' ? 'active' : ''}`}
@@ -477,7 +488,7 @@ function App() {
                 title={t('nav.prospect')}
               >
                 <Users size={20} />
-                <span>{t('nav.prospect')}</span>
+                <span>{t('nav.prospect')} <span className="ai-badge">AI</span></span>
               </button>
               <button
                 className={`nav-btn ${currentView === 'conversation-guide' ? 'active' : ''}`}
@@ -540,7 +551,7 @@ function App() {
               >
                 <div className="btn-inner">
                   <Flame size={20} color="var(--amber-gold)" />
-                  <span>Solo Corp</span>
+                  <span>Solo Corp <span className="ai-badge">AI</span></span>
                 </div>
               </button>
             </nav>

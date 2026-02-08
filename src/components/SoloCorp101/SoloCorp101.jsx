@@ -18,10 +18,13 @@ import {
     Layout,
     ExternalLink,
     Lock,
-    Image as ImageIcon
+    Image as ImageIcon,
+    Coins
 } from 'lucide-react';
 import { SOLO_CORP_KNOWLEDGE } from '../../data/soloCorpData';
 import { getLocalizedStrategicAdvice } from '../../data/compassData';
+import AIFeatureGate from '../Auth/AIFeatureGate';
+import { useAuth } from '../Auth/AuthProvider';
 import {
     classifyIntent,
     extractEntities,
@@ -37,6 +40,7 @@ import './SoloCorp101.css';
 
 const SoloCorp101 = ({ profileIndex }) => {
     const { t, i18n } = useTranslation();
+    const { credits, refreshCredits } = useAuth();
     const getProfileKey = useCallback((key) => `imi-p${profileIndex}-${key}`, [profileIndex]);
 
     const [currentTab, setCurrentTab] = useState('coach');
@@ -364,6 +368,9 @@ const SoloCorp101 = ({ profileIndex }) => {
             // Attempt Gemini API
             const aiText = await getGeminiResponse(history, geminiContext, 'solocorp');
 
+            // Refresh credits after successful call
+            refreshCredits();
+
             setIsSoloTyping(false);
 
             // Create empty message for streaming effect
@@ -405,8 +412,8 @@ const SoloCorp101 = ({ profileIndex }) => {
             setTimeout(() => {
                 let response = generateSoloResponse(finalInput);
 
-                // DIAGNOSTIC INFO
-                response += `\n\n[System Note: Gemini API Connection Failed. Error: ${error.message}. Switched to offline backup.]`;
+                // DIAGNOSTIC INFO - Logged to console instead of user UI
+                console.warn("Falling back to local engine due to API error:", error);
                 response += `\n\nI recommend booking a one-on-one calibration meeting with a coach if you need further assistance: https://calendly.com/imi-socialmediaimage/30min`;
 
                 setIsSoloTyping(false);
@@ -545,123 +552,131 @@ const SoloCorp101 = ({ profileIndex }) => {
             <div className="solocorp-content">
                 {currentTab === 'coach' && (
                     <div className="coach-pane">
-                        <div className="chat-interface">
-                            <div className="chat-header">
-                                <div className="header-info">
-                                    <Sparkles size={20} color="var(--electric-blue)" />
-                                    <div>
-                                        <h3>{t('solocorp.chat.engine_title')}</h3>
-                                        <p className="subtitle">{t('solocorp.chat.playbook_subtitle')}</p>
-                                    </div>
-                                </div>
-                                <div className="header-actions">
-                                    <button className="icon-btn" title={t('advisor.ai.gemini_sync')} onClick={handleSoloSync} style={{ width: 'auto', gap: '5px', padding: '0 8px' }}>
-                                        <Sparkles size={18} /> {syncStatus === 'copied' ? t('advisor.ai.gemini_copied') : t('advisor.ai.gemini_sync')}
-                                    </button>
-                                    <button className="icon-btn" title={t('solocorp.chat.ai_guide')} onClick={() => setIsAIGuideOpen(true)}><HelpCircle size={18} /></button>
-                                    <button className="icon-btn" title={t('solocorp.chat.reset_engine')} onClick={resetEngine}><Eraser size={18} /></button>
-                                </div>
-                            </div>
-                            <div className="chat-messages">
-                                <div className="msg bubble assistant-message">
-                                    <div className="bubble-content">
-                                        {t('advisor.solocorp.welcome')}
-                                        <p style={{ marginTop: '10px', fontSize: '0.9em', opacity: 0.9 }}>
-                                            {t('advisor.solocorp.book_call_instruction')}
-                                        </p>
-                                        <a
-                                            href="https://calendly.com/imi-socialmediaimage/30min"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="booking-btn"
-                                            style={{
-                                                display: 'inline-block',
-                                                marginTop: '8px',
-                                                padding: '8px 16px',
-                                                backgroundColor: 'var(--amber-gold)',
-                                                color: '#000',
-                                                borderRadius: '20px',
-                                                textDecoration: 'none',
-                                                fontWeight: '600',
-                                                fontSize: '0.9em',
-                                                border: 'none',
-                                                cursor: 'pointer',
-                                                transition: 'transform 0.2s'
-                                            }}
-                                        >
-                                            {t('solocorp.chat.book_calibration')}
-                                        </a>
-                                    </div>
-                                </div>
-                                {soloMessages.map((m, i) => {
-                                    const hasBookingLink = typeof m.content === 'string' && m.content.includes('calendly.com/imi-socialmediaimage/30min');
-                                    return (
-                                        <div key={m.id || i} className={`msg bubble ${m.role === 'user' ? 'user-message' : 'assistant-message'}`}>
-                                            <div className="bubble-content">
-                                                {m.content}
-                                                {m.isStreaming && <span className="streaming-cursor">|</span>}
-                                                {hasBookingLink && !m.isStreaming && (
-                                                    <a
-                                                        href="https://calendly.com/imi-socialmediaimage/30min"
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="booking-btn"
-                                                        style={{
-                                                            display: 'inline-block',
-                                                            marginTop: '10px',
-                                                            padding: '8px 16px',
-                                                            backgroundColor: 'var(--amber-gold)',
-                                                            color: '#000',
-                                                            borderRadius: '20px',
-                                                            textDecoration: 'none',
-                                                            fontWeight: '600',
-                                                            fontSize: '0.9em',
-                                                            border: 'none',
-                                                            cursor: 'pointer'
-                                                        }}
-                                                    >
-                                                        {t('solocorp.chat.book_calibration')}
-                                                    </a>
-                                                )}
-                                            </div>
+                        <AIFeatureGate featureName={t('solocorp.chat.engine_title')} onProceedWithoutAuth={() => { }}>
+                            <div className="chat-interface">
+                                <div className="chat-header">
+                                    <div className="header-info">
+                                        <Sparkles size={20} color="var(--electric-blue)" />
+                                        <div>
+                                            <h3>{t('solocorp.chat.engine_title')}</h3>
+                                            <p className="subtitle">{t('solocorp.chat.playbook_subtitle')}</p>
                                         </div>
-                                    );
-                                })}
-                                {isSoloTyping && (
-                                    <div className="msg bubble assistant-message typing">
-                                        <div className="bubble-content">{t('solocorp.chat.thinking')}</div>
+                                    </div>
+                                    <div className="header-actions">
+                                        {credits !== null && (
+                                            <div className="credit-badge" title="Remaining AI Credits">
+                                                <Coins size={16} />
+                                                <span>{credits}</span>
+                                            </div>
+                                        )}
+                                        <button className="icon-btn" title={t('advisor.ai.gemini_sync')} onClick={handleSoloSync} style={{ width: 'auto', gap: '5px', padding: '0 8px' }}>
+                                            <Sparkles size={18} /> {syncStatus === 'copied' ? t('advisor.ai.gemini_copied') : t('advisor.ai.gemini_sync')}
+                                        </button>
+                                        <button className="icon-btn" title={t('solocorp.chat.ai_guide')} onClick={() => setIsAIGuideOpen(true)}><HelpCircle size={18} /></button>
+                                        <button className="icon-btn" title={t('solocorp.chat.reset_engine')} onClick={resetEngine}><Eraser size={18} /></button>
+                                    </div>
+                                </div>
+                                <div className="chat-messages">
+                                    <div className="msg bubble assistant-message">
+                                        <div className="bubble-content">
+                                            {t('advisor.solocorp.welcome')}
+                                            <p style={{ marginTop: '10px', fontSize: '0.9em', opacity: 0.9 }}>
+                                                {t('advisor.solocorp.book_call_instruction')}
+                                            </p>
+                                            <a
+                                                href="https://calendly.com/imi-socialmediaimage/30min"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="booking-btn"
+                                                style={{
+                                                    display: 'inline-block',
+                                                    marginTop: '8px',
+                                                    padding: '8px 16px',
+                                                    backgroundColor: 'var(--amber-gold)',
+                                                    color: '#000',
+                                                    borderRadius: '20px',
+                                                    textDecoration: 'none',
+                                                    fontWeight: '600',
+                                                    fontSize: '0.9em',
+                                                    border: 'none',
+                                                    cursor: 'pointer',
+                                                    transition: 'transform 0.2s'
+                                                }}
+                                            >
+                                                {t('solocorp.chat.book_calibration')}
+                                            </a>
+                                        </div>
+                                    </div>
+                                    {soloMessages.map((m, i) => {
+                                        const hasBookingLink = typeof m.content === 'string' && m.content.includes('calendly.com/imi-socialmediaimage/30min');
+                                        return (
+                                            <div key={m.id || i} className={`msg bubble ${m.role === 'user' ? 'user-message' : 'assistant-message'}`}>
+                                                <div className="bubble-content">
+                                                    {m.content}
+                                                    {m.isStreaming && <span className="streaming-cursor">|</span>}
+                                                    {hasBookingLink && !m.isStreaming && (
+                                                        <a
+                                                            href="https://calendly.com/imi-socialmediaimage/30min"
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="booking-btn"
+                                                            style={{
+                                                                display: 'inline-block',
+                                                                marginTop: '10px',
+                                                                padding: '8px 16px',
+                                                                backgroundColor: 'var(--amber-gold)',
+                                                                color: '#000',
+                                                                borderRadius: '20px',
+                                                                textDecoration: 'none',
+                                                                fontWeight: '600',
+                                                                fontSize: '0.9em',
+                                                                border: 'none',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                        >
+                                                            {t('solocorp.chat.book_calibration')}
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                    {isSoloTyping && (
+                                        <div className="msg bubble assistant-message typing">
+                                            <div className="bubble-content">{t('solocorp.chat.thinking')}</div>
+                                        </div>
+                                    )}
+                                    <div ref={soloMessagesEndRef} />
+                                </div>
+
+                                {/* Choice Bubbles */}
+                                {quickChoices.length > 0 && (
+                                    <div className="choice-container">
+                                        {quickChoices.map((choice, idx) => (
+                                            <button
+                                                key={idx}
+                                                className="choice-bubble"
+                                                onClick={() => handleChoiceClick(choice)}
+                                            >
+                                                {choice}
+                                            </button>
+                                        ))}
                                     </div>
                                 )}
-                                <div ref={soloMessagesEndRef} />
+
+                                <form onSubmit={handleSendSoloMessage} className="chat-input-row">
+                                    <input
+                                        type="text"
+                                        value={soloInput}
+                                        onChange={(e) => setSoloInput(e.target.value)}
+                                        placeholder={t('solocorp.chat.placeholder')}
+                                    />
+                                    <button type="submit" className="send-btn" disabled={!soloInput.trim()}>
+                                        <Send size={18} />
+                                    </button>
+                                </form>
                             </div>
-
-                            {/* Choice Bubbles */}
-                            {quickChoices.length > 0 && (
-                                <div className="choice-container">
-                                    {quickChoices.map((choice, idx) => (
-                                        <button
-                                            key={idx}
-                                            className="choice-bubble"
-                                            onClick={() => handleChoiceClick(choice)}
-                                        >
-                                            {choice}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-
-                            <form onSubmit={handleSendSoloMessage} className="chat-input-row">
-                                <input
-                                    type="text"
-                                    value={soloInput}
-                                    onChange={(e) => setSoloInput(e.target.value)}
-                                    placeholder={t('solocorp.chat.placeholder')}
-                                />
-                                <button type="submit" className="send-btn" disabled={!soloInput.trim()}>
-                                    <Send size={18} />
-                                </button>
-                            </form>
-                        </div>
+                        </AIFeatureGate>
                     </div>
                 )}
 

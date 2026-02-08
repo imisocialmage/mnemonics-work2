@@ -20,7 +20,7 @@ CREATE OR REPLACE FUNCTION public.handle_new_user_credits()
 RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO public.user_credits (user_id, credits_remaining)
-    VALUES (NEW.id, 50);
+    VALUES (NEW.id, 100);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

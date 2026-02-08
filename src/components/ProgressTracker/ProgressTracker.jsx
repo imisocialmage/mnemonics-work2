@@ -248,7 +248,6 @@ const ProgressTracker = ({ profileIndex }) => {
         localStorage.removeItem(getProfileKey('entrepreneur_activities'));
         localStorage.removeItem(getProfileKey('entrepreneur_portfolio'));
         localStorage.removeItem(getProfileKey('entrepreneurUserId'));
-        localStorage.removeItem(getProfileKey('imi-asset-ai-results'));
         window.location.reload();
     };
 

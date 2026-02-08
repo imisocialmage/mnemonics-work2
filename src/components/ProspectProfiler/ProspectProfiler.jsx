@@ -1,11 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../Auth/AuthProvider';
 import { analyzeToolData } from '../../utils/analysisService';
+import {
+    generateIntelligentMessage,
+    determinePersonalityType,
+    generateStrategicAngle
+} from '../../utils/prospectIntelligence';
 import '../shared-tool-styles.css';
 
 const ProspectProfiler = ({ profileIndex }) => {
     const { t } = useTranslation();
+    const { isAuthenticated } = useAuth();
     const getProfileKey = useCallback((key) => `imi-p${profileIndex}-${key}`, [profileIndex]);
 
     const [currentStep, setCurrentStep] = useState(1);
@@ -78,6 +85,17 @@ const ProspectProfiler = ({ profileIndex }) => {
     const generateAnalysis = async () => {
         if (validateStep()) {
             setIsLoading(true);
+
+            if (!isAuthenticated) {
+                // Skip API for guests and use local fallback immediately
+                generateMessages();
+                setCurrentStep(5);
+                setIsLoading(false);
+                // Mark tool as completed
+                window.dispatchEvent(new CustomEvent('tool-completed', { detail: 'prospectProfiler' }));
+                return;
+            }
+
             try {
                 // Get product and brand context for better personalization
                 const product = JSON.parse(localStorage.getItem(getProfileKey('imi-product-data')) || '{}');
@@ -131,21 +149,22 @@ const ProspectProfiler = ({ profileIndex }) => {
     };
 
     const generateDynamicMessage = (type) => {
-        const industry = prospectData.industry || t('common.your_industry');
-        const role = prospectData.jobTitle || t('common.leadership_role');
-        const painPoint = prospectData.painPoints?.split('.')[0] || t('common.operational_challenges');
+        // Get product context for better personalization
+        const product = JSON.parse(localStorage.getItem(getProfileKey('imi-product-data')) || '{}');
 
-        const content = t(`prospect_profiler.analysis.messages.${type}`, { industry, role, painPoint });
-        const credibility = t('prospect_profiler.analysis.messages.credibility');
-        const cta = t('prospect_profiler.analysis.messages.cta');
-        const regards = t('prospect_profiler.analysis.messages.regards');
-        const yourName = t('prospect_profiler.analysis.messages.name_placeholder');
+        // Use intelligent message generation
+        const intelligentContent = generateIntelligentMessage(type, prospectData, product);
+
+        // Wrap in email format
         const firstName = t('prospect_profiler.analysis.messages.first_name_placeholder');
+        const yourName = t('prospect_profiler.analysis.messages.name_placeholder');
+        const regards = t('prospect_profiler.analysis.messages.regards');
 
-        return `Hi ${firstName},<br><br>${content}<br><br>${credibility}<br><br>${cta}<br><br>${regards}<br>${yourName}`;
+        return `Hi ${firstName},<br><br>${intelligentContent}<br><br>${regards}<br>${yourName}`;
     };
 
     const calculateDynamicRatings = (type) => {
+        // Enhanced ratings based on prospect psychographics
         const baseRatings = {
             authority: { clarity: 8, relevance: 8, distinctiveness: 9, memorability: 8, scalability: 7 },
             curiosity: { clarity: 7, relevance: 9, distinctiveness: 9, memorability: 9, scalability: 8 },
@@ -153,7 +172,22 @@ const ProspectProfiler = ({ profileIndex }) => {
             connection: { clarity: 8, relevance: 9, distinctiveness: 8, memorability: 8, scalability: 6 },
             pain_point: { clarity: 9, relevance: 9, distinctiveness: 8, memorability: 8, scalability: 8 }
         };
-        return baseRatings[type];
+
+        // Adjust ratings based on prospect data
+        const ratings = { ...baseRatings[type] };
+
+        // Boost relevance if we have strong psychographic data
+        if (prospectData.emotionalDrivers?.length > 2 || prospectData.purchaseMotivations?.length > 2) {
+            ratings.relevance = Math.min(10, ratings.relevance + 1);
+            ratings.distinctiveness = Math.min(10, ratings.distinctiveness + 1);
+        }
+
+        // Boost clarity if decision style is defined
+        if (prospectData.decisionStyle) {
+            ratings.clarity = Math.min(10, ratings.clarity + 1);
+        }
+
+        return ratings;
     };
 
     const calculateOverallScore = (ratings) => {
@@ -163,13 +197,8 @@ const ProspectProfiler = ({ profileIndex }) => {
     };
 
     const getPersonalityType = () => {
-        const triggers = prospectData.triggers || [];
-        if (triggers.includes('roi') && triggers.includes('efficiency')) {
-            return t('prospect_profiler.analysis.personality_types.analytical');
-        } else if (triggers.includes('growth') && triggers.includes('innovation')) {
-            return t('prospect_profiler.analysis.personality_types.visionary');
-        }
-        return t('prospect_profiler.analysis.personality_types.balanced');
+        // Use intelligent personality determination
+        return determinePersonalityType(prospectData);
     };
 
     const startNewAnalysis = () => {
@@ -384,6 +413,44 @@ const ProspectProfiler = ({ profileIndex }) => {
                             />
                         </div>
 
+                        {/* B2C: Purchase Motivations */}
+                        {prospectData.prospectType === 'b2c' && (
+                            <div className="form-group">
+                                <label>Purchase Motivations</label>
+                                <div className="checkbox-group">
+                                    {['quality', 'status', 'convenience', 'ethical', 'innovation', 'emotional'].map(motivation => (
+                                        <div key={motivation} className="checkbox-item">
+                                            <input
+                                                type="checkbox"
+                                                checked={(prospectData.purchaseMotivations || []).includes(motivation)}
+                                                onChange={() => toggleCheckbox('purchaseMotivations', motivation)}
+                                            />
+                                            <label>{motivation.charAt(0).toUpperCase() + motivation.slice(1)}</label>
+                                        </div>
+                                    ))}
+                                </div>
+                                <small style={{ display: 'block', marginTop: '0.5rem', color: '#666' }}>
+                                    What drives their buying decisions?
+                                </small>
+                            </div>
+                        )}
+
+                        {/* B2C: Decision-Making Style */}
+                        {prospectData.prospectType === 'b2c' && (
+                            <div className="form-group">
+                                <label>Decision-Making Style</label>
+                                <select value={prospectData.decisionStyle || ''} onChange={(e) => updateField('decisionStyle', e.target.value)}>
+                                    <option value="">Select style...</option>
+                                    <option value="impulsive">Impulsive - Quick decisions, acts on emotion</option>
+                                    <option value="research_heavy">Research-Heavy - Reads reviews, compares options</option>
+                                    <option value="brand_loyal">Brand Loyal - Sticks with trusted brands</option>
+                                    <option value="deal_seeker">Deal Seeker - Looks for best value</option>
+                                    <option value="influencer_driven">Influencer-Driven - Follows recommendations</option>
+                                    <option value="community_oriented">Community-Oriented - Values shared experiences</option>
+                                </select>
+                            </div>
+                        )}
+
                         <div className="navigation-buttons">
                             <button className="btn btn-secondary" onClick={previousStep}>{t('common.back')}</button>
                             <button className="btn" onClick={nextStep}>{t('common.next')}: {t('prospect_profiler.steps.values')}</button>
@@ -428,6 +495,35 @@ const ProspectProfiler = ({ profileIndex }) => {
                                     : 'What personal values are important to them? (e.g., Sustainability, quality, self-expression, family, health, convenience)'}
                             />
                         </div>
+
+                        {/* B2C: Emotional Drivers */}
+                        {prospectData.prospectType === 'b2c' && (
+                            <div className="form-group">
+                                <label>Emotional Drivers</label>
+                                <div className="checkbox-group">
+                                    {[
+                                        { value: 'fomo', label: 'Fear of Missing Out (FOMO)' },
+                                        { value: 'belonging', label: 'Desire for Belonging' },
+                                        { value: 'achievement', label: 'Need for Achievement' },
+                                        { value: 'security', label: 'Security/Safety' },
+                                        { value: 'self_expression', label: 'Self-Expression' },
+                                        { value: 'excitement', label: 'Adventure/Excitement' }
+                                    ].map(driver => (
+                                        <div key={driver.value} className="checkbox-item">
+                                            <input
+                                                type="checkbox"
+                                                checked={(prospectData.emotionalDrivers || []).includes(driver.value)}
+                                                onChange={() => toggleCheckbox('emotionalDrivers', driver.value)}
+                                            />
+                                            <label>{driver.label}</label>
+                                        </div>
+                                    ))}
+                                </div>
+                                <small style={{ display: 'block', marginTop: '0.5rem', color: '#666' }}>
+                                    What emotions influence their decisions?
+                                </small>
+                            </div>
+                        )}
 
                         <div className="navigation-buttons">
                             <button className="btn btn-secondary" onClick={previousStep}>{t('common.back')}</button>
@@ -502,11 +598,9 @@ const ProspectProfiler = ({ profileIndex }) => {
                             <div className="analysis-card">
                                 <h4>Personality Type & Angle</h4>
                                 <p><strong>{prospectData.aiResults?.personalityType || getPersonalityType()}</strong></p>
-                                {prospectData.aiResults?.strategicAngle && (
-                                    <p style={{ marginTop: '10px', fontStyle: 'italic', opacity: 0.8 }}>
-                                        Strategy: {prospectData.aiResults.strategicAngle}
-                                    </p>
-                                )}
+                                <p style={{ marginTop: '10px', fontStyle: 'italic', opacity: 0.8 }}>
+                                    Strategy: {prospectData.aiResults?.strategicAngle || generateStrategicAngle(prospectData)}
+                                </p>
                             </div>
                         </div>
 

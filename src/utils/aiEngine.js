@@ -571,23 +571,29 @@ export const getProactiveSuggestions = (context, progressData) => {
  * @param {string} mode - 'strategic' or 'solocorp'
  */
 export const generateGeminiPrompt = (context, history, mode = 'strategic') => {
-    let prompt = `You are acting as an expert ${mode === 'strategic' ? 'Strategic Business Advisor' : 'Solo Corp Consultant'}.\n\n`;
+    let prompt = `You are acting as an expert ${mode === 'strategic' ? 'IMI Strategic Advisor' : 'IMI Solo Corp Coach'}.\n\n`;
+    prompt += `**CORE PHILOSOPHY**\n`;
+    prompt += `- Navigate Strategy Through Conversation, Not Coercion.\n`;
+    prompt += `- Focus on High-Trust interactions and authentic value demonstration.\n`;
+    prompt += `- Avoid generic "salesy" language or manipulative tactics.\n\n`;
 
     prompt += `**CURRENT PROJECT CONTEXT**\n`;
     if (context.brand) prompt += `- Brand Name: ${context.brand}\n`;
     if (context.industry) prompt += `- Industry: ${context.industry}\n`;
-    if (context.objective) prompt += `- Goal: ${context.objective}\n`;
-    if (context.topics) prompt += `- Recent Topics: ${context.topics.join(', ')}\n`;
+    if (context.objective) prompt += `- Main Goal: ${context.objective}\n`;
+    if (context.targetAudience) prompt += `- Ideal Prospect: ${context.targetAudience}\n`;
+    if (context.prospectType) prompt += `- Offer Nature: ${context.prospectType.toUpperCase()} (B2B = Focus on ROI/Trust, B2C = Focus on Lifestyle/Emotion)\n`;
+    if (context.topics) prompt += `- Recent Strategic Topics: ${context.topics.join(', ')}\n`;
 
     prompt += `\n**CONVERSATION HISTORY**\n`;
-    history.slice(-10).forEach(msg => { // Limit to last 10 messages for conciseness
+    history.slice(-10).forEach(msg => {
         const role = msg.role === 'user' ? 'User' : 'Assistant';
         const content = msg.content;
         prompt += `[${role}]: ${content}\n`;
     });
 
     prompt += `\n**INSTRUCTIONS**\n`;
-    prompt += `Please continue the conversation from here, maintaining the established context and advice style. Provide specific, actionable next steps based on the user's last message.`;
+    prompt += `Please provide a deep strategic synthesis based on this context. Ensure your advice is SPECIFIC to the user's industry and offering. If they are B2B, focus on efficiency, trust, and business results. If they are B2C, focus on personal transformation and emotional resonance. Always lead toward the next milestone in their growth roadmap.`;
 
     return prompt;
 };

@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../Auth/AuthProvider';
 import { analyzeToolData } from '../../utils/analysisService';
 import '../shared-tool-styles.css';
 
 const ProductProfiler = ({ profileIndex }) => {
     const { t } = useTranslation();
+    const { isAuthenticated } = useAuth();
     const getProfileKey = useCallback((key) => `imi-p${profileIndex}-${key}`, [profileIndex]);
 
     const [currentStep, setCurrentStep] = useState(1);
@@ -67,6 +69,16 @@ const ProductProfiler = ({ profileIndex }) => {
     const generateAnalysis = async () => {
         if (validateStep()) {
             setIsLoading(true);
+
+            if (!isAuthenticated) {
+                // Skip API for guests - fallback helper functions are already there for the results view
+                setCurrentStep(5);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.dispatchEvent(new CustomEvent('tool-completed', { detail: 'productProfiler' }));
+                setIsLoading(false);
+                return;
+            }
+
             try {
                 const results = await analyzeToolData('productProfiler', productData, t('common.lang_code'));
                 console.log("ProductProfiler AI Results:", results);
@@ -112,18 +124,26 @@ const ProductProfiler = ({ profileIndex }) => {
     const identifyNiches = () => {
         const niches = [];
         const users = productData.typicalUsers?.toLowerCase() || '';
+        const industry = productData.industry || '';
 
         // Only add specific niches if they're explicitly mentioned
         if (users.includes('coach')) niches.push(t('product_profiler.analysis.niches.coaches'));
         if (users.includes('freelancer')) niches.push(t('product_profiler.analysis.niches.freelance'));
         if (users.includes('small business')) niches.push(t('product_profiler.analysis.niches.smb'));
+        if (users.includes('owner')) niches.push(t('product_profiler.analysis.niches.owners'));
+
+        // Industry-based dynamic niches
+        if (industry) {
+            niches.push(`${industry.charAt(0).toUpperCase() + industry.slice(1)} enthusiasts and professionals`);
+            niches.push(`Growth-oriented ${industry} service providers`);
+        }
 
         // Generic fallback that doesn't assume entrepreneurship
         if (niches.length === 0) {
             niches.push(t('product_profiler.analysis.niches.pro'));
         }
 
-        return niches.slice(0, 4);
+        return [...new Set(niches)].slice(0, 4);
     };
 
     const generateDemographics = () => {

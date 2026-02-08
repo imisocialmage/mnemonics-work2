@@ -176,6 +176,63 @@
         width: 100%;
         justify-content: center;
     }
+
+    /* Mobile Chat Improvements */
+    .ai-advisor-panel {
+        height: calc(100vh - 200px);
+        /* Account for header and tabs */
+        max-height: 700px;
+    }
+
+    .chat-container {
+        padding: 15px;
+        gap: 15px;
+    }
+
+    .msg.bubble {
+        max-width: 90%;
+        /* Wider on mobile */
+        font-size: 0.9rem;
+    }
+
+    .chat-input-area {
+        padding: 15px;
+        position: sticky;
+        bottom: 0;
+        background: white;
+        border-top: 2px solid #e2e8f0;
+    }
+
+    .chat-input-area input {
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+        padding: 14px 16px;
+    }
+
+    .choice-container {
+        padding: 0 15px 15px;
+    }
+
+    .choice-bubble {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    .tool-panel {
+        padding: 20px 15px;
+    }
+
+    .output-card {
+        padding: 20px 15px;
+    }
+
+    .msg.bubble {
+        max-width: 95%;
+        padding: 10px 14px;
+    }
 }
 
 /* AI Advisor Chat Styles */
@@ -380,5 +437,28 @@
 
     to {
         opacity: 1;
+    }
+}
+
+/* Streaming Cursor */
+.streaming-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: var(--electric-blue);
+    margin-left: 2px;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    49% {
+        opacity: 1;
+    }
+
+    50%,
+    100% {
+        opacity: 0;
     }
 }

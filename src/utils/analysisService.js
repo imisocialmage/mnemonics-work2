@@ -7,12 +7,12 @@ import { getGeminiResponse } from './geminiClient';
 
 const TOOL_SCHEMAS = {
     brandEvaluator: {
-        systemPrompt: "You are a Brand Strategist. Analyze the following brand foundation data and provide a structured review in JSON format. CRITICAL: Use the user's ACTUAL industry, product type, and audience from the data provided. Do NOT default to tech/SaaS/entrepreneur language unless explicitly present in the data.",
+        systemPrompt: "You are a Brand Strategist. Analyze the following brand foundation data and provide a structured review in JSON format. CRITICAL: Use the user's ACTUAL industry, product type, and audience from the data provided. If they are B2B, focus on trust, efficiency, and ROI. If they are B2C, focus on lifestyle, emotion, and personal transformation. Do NOT use generic tech/SaaS templates unless explicitly specified.",
         jsonStructure: {
             overallScore: "A single float from 0-5 representing the overall brand strength.",
-            analysis: "A concise paragraph (2-3 sentences) evaluating the brand's clarity and uniqueness.",
+            analysis: "A concise paragraph (2-3 sentences) evaluating the brand's clarity and uniqueness, tailored to their specific industry.",
             recommendations: [
-                { title: "Recommendation Title", description: "Detailed actionable advice." }
+                { title: "Recommendation Title", description: "Actionable advice grounded in their industry context." }
             ],
             scores: {
                 clarity: 0 - 5,
@@ -28,7 +28,7 @@ const TOOL_SCHEMAS = {
     },
 
     strategicRoadmap: {
-        systemPrompt: "You are the Lead Growth Strategist. You have the results of a Brand Audit, Product Profile, Prospect Profile, and Conversation Guide. Synthesize all this into a coherent Master Strategic Roadmap. CRITICAL: Your recommendations must be specific to the user's ACTUAL industry and product type. Avoid generic startup/SaaS advice unless that is their business model. Return JSON.",
+        systemPrompt: "You are the Lead Growth Strategist. Synthesize results from Brand Audit, Product Profile, Prospect Profile, and Conversation Guide into a coherent Master Strategic Roadmap. CRITICAL: Recommendations must be deeply industry-specific. If they sell physical goods (B2C), focus on logistics, branding, and repeat purchases. If they offer high-ticket B2B services, focus on lead quality, authority building, and long sales cycles. Avoid generic advice. Return JSON.",
         jsonStructure: {
             executiveSummary: "A high-level overview of the strategic direction.",
             primaryCompetitiveAdvantage: "What truly sets them apart after analyzing everything.",
@@ -55,9 +55,9 @@ const TOOL_SCHEMAS = {
                 }
             ],
             marketing: {
-                interestHooks: ["Hook that mentions the ACTUAL product name and problem it solves", "Hook that uses industry-specific language from the user's data"],
-                intentSignals: ["Behavioral signal specific to the target audience described", "Another signal based on the actual customer profile"],
-                ctas: ["CTA mentioning the actual product/service name", "Action-oriented CTA relevant to the industry"]
+                interestHooks: ["Hook mentioning the ACTUAL product name and industry-specific pain point", "A hook using the specific vocabulary of their audience (e.g., professional, social, or technical)"],
+                intentSignals: ["A behavioral signal specific to their market (e.g., 'looking for bulk pricing' for B2B or 'checking reviews for style' for B2C)", "Another signal based on the actual customer profile"],
+                ctas: ["CTA mentioning the actual product/service and the specific benefit", "Action-oriented CTA relevant to their sales cycle (e.g., 'Book a Demo' vs 'Buy Now')"]
             }
         }
     },
