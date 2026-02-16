@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://imi-mnemonics.vercel.app/sitemap.xml

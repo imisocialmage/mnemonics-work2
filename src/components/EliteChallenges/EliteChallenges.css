@@ -1,0 +1,584 @@
+.elite-container {
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    color: #FAFAFA;
+}
+
+/* Welcome Screen */
+.welcome-screen {
+    max-width: 700px;
+    margin: 4rem auto;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(16px);
+    padding: 4rem;
+    border-radius: 24px;
+    border: 2px solid rgba(41, 121, 255, 0.4);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
+    text-align: center;
+}
+
+.welcome-screen h1 {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, #2979FF, #FF5C57);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1.5rem;
+}
+
+.welcome-screen p {
+    color: #94A3B8;
+    font-size: 1.2rem;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+}
+
+/* Header */
+.elite-header {
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(12px);
+    padding: 2rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.elite-profile {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.elite-pic {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2979FF, #FF5C57);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+    border: 3px solid #2979FF;
+    overflow: hidden;
+}
+
+.elite-pic img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.elite-info h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.25rem;
+}
+
+.elite-level-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #2979FF;
+    font-weight: 600;
+}
+
+.elite-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.elite-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.2s;
+    cursor: pointer;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-settings {
+    background: rgba(255, 255, 255, 0.05);
+    color: #FAFAFA;
+}
+
+.btn-export {
+    background: rgba(76, 175, 80, 0.1);
+    color: #4CAF50;
+    border-color: rgba(76, 175, 80, 0.2);
+}
+
+.btn-add {
+    background: #2979FF;
+    color: white;
+    border: none;
+}
+
+.elite-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.2);
+}
+
+/* Tabs */
+.elite-tabs-card {
+    background: rgba(15, 23, 42, 0.95);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+}
+
+.elite-tabs-nav {
+    display: flex;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.tab-nav-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.25rem;
+    background: none;
+    border: none;
+    color: #94A3B8;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-nav-item.active {
+    color: #2979FF;
+    background: rgba(41, 121, 255, 0.05);
+    border-bottom-color: #2979FF;
+}
+
+.elite-tab-content {
+    padding: 2.5rem;
+    min-height: 400px;
+}
+
+/* Overview */
+.elite-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.elite-stat-card {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 2rem;
+    border-radius: 16px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.stat-val {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2979FF;
+    margin-bottom: 0.5rem;
+}
+
+/* Coach Pane & Chat Interface */
+.coach-pane {
+    padding: 20px;
+}
+
+.chat-interface {
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+    background: #141414;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.solocorp-theme {
+    border: 1px solid var(--amber-gold);
+    box-shadow: 0 0 20px rgba(255, 193, 7, 0.1);
+}
+
+.chat-interface .chat-header {
+    background: #1a1a1a;
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-interface .header-info h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--amber-gold);
+}
+
+.chat-interface .header-info .subtitle {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.chat-interface .header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.icon-btn:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.msg {
+    max-width: 80%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.msg.assistant {
+    align-self: flex-start;
+    background: #1e1e1e;
+    color: #e2e8f0;
+    border-left: 3px solid var(--amber-gold);
+}
+
+.msg.user {
+    align-self: flex-end;
+    background: var(--blue-accent);
+    color: white;
+}
+
+.msg.system {
+    align-self: center;
+    background: rgba(255, 193, 7, 0.1);
+    color: var(--amber-gold);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+.elite-challenges-panel .chat-input-row {
+    background: #1a1a1a;
+    padding: 15px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    gap: 15px;
+}
+
+.elite-challenges-panel .chat-input-row input {
+    flex: 1;
+    background: #262626;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 10px 15px;
+    color: white;
+    outline: none;
+}
+
+.elite-challenges-panel .chat-input-row input:focus {
+    border-color: var(--amber-gold);
+}
+
+.elite-challenges-panel .chat-input-row .send-btn {
+    background: var(--amber-gold);
+    color: black;
+    border: none;
+    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.elite-challenges-panel .chat-input-row .send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Guide Modal */
+.guide-modal {
+    max-width: 500px !important;
+}
+
+.guide-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.guide-section h3 {
+    color: var(--amber-gold);
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.guide-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.guide-section li {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.9rem;
+    color: #ccc;
+    display: flex;
+    gap: 10px;
+}
+
+.guide-section li::before {
+    content: "•";
+    color: var(--amber-gold);
+}
+
+/* Color Variables */
+:root {
+    --amber-gold: #FFC107;
+    --blue-accent: #2979FF;
+}
+
+.stat-lab {
+    color: #94A3B8;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.elite-xp-section h3 {
+    margin-bottom: 1.5rem;
+}
+
+.xp-bar-wrapper {
+    height: 24px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.xp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2979FF, #FF5C57);
+    box-shadow: 0 0 20px rgba(41, 121, 255, 0.4);
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.xp-label {
+    text-align: right;
+    color: #94A3B8;
+    font-weight: 600;
+}
+
+/* Table */
+.elite-table-wrapper {
+    overflow-x: auto;
+}
+
+.elite-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.elite-table th {
+    padding: 1rem;
+    color: #94A3B8;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.elite-table td {
+    padding: 1.2rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.xp-txt {
+    color: #2979FF;
+    font-weight: 700;
+}
+
+.row-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.row-btn {
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.row-btn.edit {
+    background: rgba(41, 121, 255, 0.1);
+    color: #2979FF;
+}
+
+.row-btn.delete {
+    background: rgba(255, 92, 87, 0.1);
+    color: #FF5C57;
+}
+
+/* Milestones */
+.milestone-item {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.milestone-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(41, 121, 255, 0.2);
+}
+
+.milestone-item.complete {
+    background: rgba(41, 121, 255, 0.05);
+    opacity: 0.8;
+}
+
+.milestone-item.complete span {
+    text-decoration: line-through;
+    color: #94A3B8;
+}
+
+/* Growth */
+.chart-box {
+    height: 400px;
+    width: 100%;
+}
+
+/* Modal */
+.elite-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.elite-modal {
+    background: #0F172A;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 24px;
+    padding: 2.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.modal-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.elite-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-row label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #94A3B8;
+    font-size: 0.9rem;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+    width: 100%;
+    padding: 0.8rem;
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(41, 121, 255, 0.3);
+    border-radius: 10px;
+    color: white;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.form-row select option {
+    background-color: #0F172A;
+    color: white;
+    padding: 10px;
+}
+
+@media (max-width: 768px) {
+    .elite-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .elite-actions {
+        width: 100%;
+    }
+
+    .elite-btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .elite-tabs-nav {
+        overflow-x: auto;
+    }
+}

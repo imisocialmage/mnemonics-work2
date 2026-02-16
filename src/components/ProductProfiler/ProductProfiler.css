@@ -1,0 +1,129 @@
+/* Product Profiler Styles - Shared with Brand Evaluator base */
+.product-profiler {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, var(--digital-white) 0%, #f0f0f0 100%);
+    color: var(--midnight-black);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 40px 20px;
+}
+
+.product-profiler .container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Reuse most styles from BrandEvaluator.css */
+.product-profiler header,
+.product-profiler .header-content,
+.product-profiler .brand-section,
+.product-profiler .logo-container,
+.product-profiler .brand-text,
+.product-profiler .brand-name,
+.product-profiler .brand-tagline,
+.product-profiler h1,
+.product-profiler .progress-bar,
+.product-profiler .progress-fill,
+.product-profiler .step-indicator,
+.product-profiler .step,
+.product-profiler .step-number,
+.product-profiler .step.active .step-number,
+.product-profiler .step.completed .step-number,
+.product-profiler .step-label,
+.product-profiler .form-section,
+.product-profiler .section-title,
+.product-profiler .section-subtitle,
+.product-profiler .form-group,
+.product-profiler .form-group label,
+.product-profiler .form-group input,
+.product-profiler .form-group textarea,
+.product-profiler .form-group select,
+.product-profiler .btn,
+.product-profiler .btn-secondary,
+.product-profiler .navigation-buttons,
+.product-profiler .results-section,
+.product-profiler .analysis-card,
+.product-profiler .ai-badge,
+.product-profiler .success-message {
+    /* Inherit from BrandEvaluator - same styling */
+}
+
+/* Product-specific additions */
+.product-profiler .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.product-profiler .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.product-profiler .uvp-box {
+    background: linear-gradient(135deg, #f8f9fa, #e3f2fd);
+    border: 3px solid var(--electric-blue);
+    padding: 30px;
+    border-radius: 15px;
+    margin: 20px 0;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 500;
+    line-height: 1.8;
+}
+
+.product-profiler .avatar-profile {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.product-profiler .avatar-section {
+    background: white;
+    border: 2px solid var(--electric-blue);
+    border-radius: 15px;
+    padding: 20px;
+}
+
+.product-profiler .avatar-section h4 {
+    color: var(--electric-blue);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.product-profiler .avatar-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.product-profiler .avatar-section li {
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.product-profiler .avatar-section li:last-child {
+    border-bottom: none;
+}
+
+.product-profiler .messaging-box {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 15px 0;
+    border-left: 4px solid var(--coral-red);
+}
+
+.product-profiler .messaging-box h4 {
+    color: var(--coral-red);
+    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+
+    .product-profiler .grid-2,
+    .product-profiler .grid-3 {
+        grid-template-columns: 1fr;
+    }
+}
