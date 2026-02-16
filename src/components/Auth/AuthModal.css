@@ -5,7 +5,9 @@
     padding: 40px;
     max-width: 500px;
     width: 90vw;
-    max-height: 90vh;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    max-height: calc(100vh - 4rem);
     overflow-y: auto;
     position: relative;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);

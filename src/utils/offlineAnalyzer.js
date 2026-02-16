@@ -16,6 +16,7 @@
 const INDUSTRY_MAP = {
     // TECHNOLOGY & SAAS
     enterprise_software: {
+        name: 'Enterprise Software',
         keywords: ['enterprise', 'erp', 'crm', 'infrastructure', 'cybersecurity', 'cloud infrastructure', 'b2b saas', 'scalability', 'integration', 'deployment', 'systems'],
         mode: 'B2B', scale: 'High-Ticket',
         fonts: { headers: 'Inter', body: 'Source Sans Pro' },
@@ -24,6 +25,7 @@ const INDUSTRY_MAP = {
         contentPillar: 'Technical Whitepapers & Security Standards'
     },
     consumer_app: {
+        name: 'Consumer App',
         keywords: ['mobile app', 'ios', 'android', 'consumer tech', 'social media', 'dating', 'utility', 'productivity app', 'gamified', 'user-friendly', 'ux'],
         mode: 'B2C', scale: 'Mass Market',
         fonts: { headers: 'Outfit', body: 'Inter' },
@@ -65,6 +67,15 @@ const INDUSTRY_MAP = {
         contentPillar: 'Transformation Stories & Educational Clips'
     },
     // RETAIL & COMMERCE
+    street_apparel: {
+        name: 'Streetwear & Apparel',
+        keywords: ['streetwear', 'apparel', 'clothing', 'fashion', 'urban', 'boutique', 'style', 'wear', 'hoodie', 'sneakers', 'drops', 'culture', 'vibe'],
+        mode: 'B2C', scale: 'Mass Market',
+        fonts: { headers: 'Unbounded', body: 'Inter' },
+        colors: { primary: '#000000', secondary: '#F3F4F6' },
+        channels: ['Instagram', 'TikTok', 'Discord'],
+        contentPillar: 'Culture, Drops & Community Vibe'
+    },
     luxury_fashion: {
         keywords: ['luxury', 'haute couture', 'designer', 'premium apparel', 'exclusive', 'handcrafted', 'heritage', 'craftsmanship', 'silk', 'bespoke'],
         mode: 'B2C', scale: 'High-Ticket',
@@ -82,7 +93,7 @@ const INDUSTRY_MAP = {
         contentPillar: 'Supply Chain Transparency & Earth Impact'
     },
     direct_to_consumer: {
-        keywords: ['dtc', 'e-commerce store', 'online shop', 'subscription box', 'shopify', 'shipping', 'packaging', 'unboxing'],
+        keywords: ['dtc', 'e-commerce store', 'online shop', 'subscription box', 'shopify', 'shipping', 'packaging', 'unboxing', 'retail'],
         mode: 'B2C', scale: 'Mid-Range',
         fonts: { headers: 'Manrope', body: 'Inter' },
         colors: { primary: '#F97316', secondary: '#FFF7ED' },
@@ -280,14 +291,15 @@ export function analyzeOffline({ name, description, language = 'en' }) {
     const lowerDesc = description.toLowerCase();
 
     // 1. Industry Heuristic
-    let industryKey = 'strategic_consulting';
+    let industryKey = 'direct_to_consumer'; // Safer default than Consulting
     let maxScore = -1;
     for (const [key, data] of Object.entries(INDUSTRY_MAP)) {
         let score = 0;
         data.keywords.forEach(kw => {
             if (lowerDesc.includes(kw)) score++;
         });
-        if (score > maxScore) {
+        // Increase sensitivity: Only switch if we actually match keywords
+        if (score > 0 && score > maxScore) {
             maxScore = score;
             industryKey = key;
         }
@@ -296,8 +308,8 @@ export function analyzeOffline({ name, description, language = 'en' }) {
 
     // 2. Mode Detection (B2B vs B2C)
     // Heuristic: Boost B2C if industry scale is retail-oriented
-    const b2bWeight = (description.match(/(enterprise|corporate|professional|business|team|b2b|roi|client|decision maker|procurement)/gi) || []).length;
-    const b2cWeight = (description.match(/(consumer|lifestyle|personal|home|fashion|b2c|user|customer|individual|family|pet|style|wear)/gi) || []).length + (industry.mode === 'B2C' ? 1 : 0);
+    const b2bWeight = (description.match(/(enterprise|corporate|professional|business|team|b2b|roi|client|decision maker|procurement|infrastructure|deployment)/gi) || []).length;
+    const b2cWeight = (description.match(/(consumer|lifestyle|personal|home|fashion|b2c|user|customer|individual|family|pet|style|wear|street|vibe|culture|drops)/gi) || []).length + (industry.mode === 'B2C' ? 2 : 0);
     const mode = b2bWeight >= b2cWeight ? 'B2B' : 'B2C';
 
     // 3. Archetype Detection
@@ -343,7 +355,9 @@ export function analyzeOffline({ name, description, language = 'en' }) {
             },
             offer: {
                 coreOffer: description.slice(0, 80) + (description.length > 80 ? '...' : ''),
-                uvp: `The only ${industryName} solution using a ${archetype.name} approach to solve ${mode} complexity.`
+                uvp: mode === 'B2B'
+                    ? `The premium ${industryName} partner using a ${archetype.name} framework to drive ${industry.scale} results.`
+                    : `The only ${industryName} brand using a ${archetype.name} approach to redefine ${industry.scale} lifestyle.`
             },
             audience: {
                 avatarName: mode === 'B2B' ? 'The Strategic Decision Maker' : 'The Value-Seeking Individual',
@@ -359,7 +373,7 @@ export function analyzeOffline({ name, description, language = 'en' }) {
         optimizationTips: generateTips(scores, description, mode),
         toolData: {
             brand: { brandName: name, industry: industryName, personality: archetype.name },
-            product: { productName: name, problemSolved: 'Complexity in ' + industryName },
+            product: { productName: name, problemSolved: mode === 'B2B' ? 'Inefficiency in ' + industryName : 'Lack of ' + industryName + ' identity' },
             prospect: { prospectType: mode.toLowerCase() }
         },
         _meta: {
@@ -383,7 +397,8 @@ function generateTips(scores, description, mode) {
 
 function generateSalesSystem(industryKey, archetype, mode, brandName, description) {
     const isB2B = mode === 'B2B';
-    const industryName = industryKey.split('_').join(' ');
+    const industryData = INDUSTRY_MAP[industryKey] || { name: 'Business' };
+    const industryName = industryData.name;
 
     return {
         product: isB2B

@@ -140,7 +140,7 @@ const TOOL_SCHEMAS = {
         }
     },
     compass_profiler: {
-        systemPrompt: "You are an expert Strategic Business Consultant. Analyze the business description to create a comprehensive 'Strategic Compass Profile'. Generate a 4-part profile (Identity, Offer, Audience, Execution), a detailed Brand & Sales System, and extract structured data to pre-fill other tools. Return JSON.",
+        systemPrompt: "You are an expert Strategic Business Consultant. Analyze the business description to create a comprehensive 'Strategic Compass Profile'. Generate a 4-part profile (Identity, Offer, Audience, Execution), a detailed Brand & Sales System, and extract structured data to pre-fill other tools. CRITICAL: Match the industry exactly. If they sell clothes, use fashion terms. If they sell tech, use tech terms. AVOID words like 'enterprise', 'solution', or 'B2B complexity' unless they are actually in that field. Return JSON.",
         jsonStructure: {
             brand: {
                 name: "The business name",

@@ -19,14 +19,14 @@ import CoreProfiler from './components/CoreProfiler/CoreProfiler'; // Added Core
 import AuthModal from './components/Auth/AuthModal'; // Added AuthModal import
 import { STRATEGIC_ADVICE, COMPASS_NODES, getHighlightedPositions, getLocalizedStrategicAdvice } from './data/compassData';
 import NodeAdviceModal from './components/Compass/NodeAdviceModal';
-import { Compass, Award, Package, Users, MessageCircle, Sparkles, Lock, ClipboardList, Crown, X, Flame, Download, Upload, HelpCircle, CheckCircle, Layout, Target } from 'lucide-react';
+import { Compass, Award, Package, Users, MessageCircle, Sparkles, Lock, ClipboardList, Crown, X, Flame, Download, Upload, HelpCircle, CheckCircle, Layout, Target, Trash2 } from 'lucide-react';
 import { generateMasterReport } from './components/Report/MasterReportGenerator';
 import { CENTER_ADVICE } from './data/centerAdviceData'; // Import Center Advice Data
 import CenterAdviceModal from './components/Compass/CenterAdviceModal'; // Import Center Advice Modal
 import { AuthProvider } from './components/Auth/AuthProvider'; // Import Auth Provider
 import './index.css';
 
-const ProfileSwitcher = ({ currentIndex, onSwitch, t, onExport, onImport, onShowInfo }) => {
+const ProfileSwitcher = ({ currentIndex, onSwitch, t, onExport, onImport, onShowInfo, onResetProfile, onResetAll }) => {
   return (
     <div className="profile-switcher-container">
       <div className="profile-switcher">
@@ -54,6 +54,12 @@ const ProfileSwitcher = ({ currentIndex, onSwitch, t, onExport, onImport, onShow
         </label>
         <button className="data-btn info-btn" onClick={onShowInfo} title={t('profiles.backup_info.title')}>
           <HelpCircle size={16} />
+        </button>
+        <button className="data-btn reset-btn" onClick={onResetProfile} title="Reset This Profile">
+          <Trash2 size={16} color="#f87171" />
+        </button>
+        <button className="data-btn reset-all-btn" onClick={onResetAll} title="MASTER RESET (ALL TOOLS)">
+          <Trash2 size={16} color="#ef4444" />
         </button>
       </div>
     </div>
@@ -354,6 +360,36 @@ function App() {
     }
   };
 
+  const handleResetProfile = () => {
+    if (window.confirm(`Are you sure you want to reset Profile ${currentProfileIndex + 1}? This will clear all analysis data specifically for this profile.`)) {
+      const keys = [];
+      const prefix = `imi-p${currentProfileIndex}-`;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith(prefix)) {
+          keys.push(key);
+        }
+      }
+      keys.forEach(k => localStorage.removeItem(k));
+      window.location.reload();
+    }
+  };
+
+  const handleResetAll = () => {
+    if (window.confirm('⚠️ MASTER RESET: This will clear ALL data for ALL 4 profiles and reset the entire application. This action cannot be undone. Proceed?')) {
+      const keys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('imi-') || key === 'myProgressData') {
+          keys.push(key);
+        }
+      }
+      keys.forEach(k => localStorage.removeItem(k));
+      alert('Application has been successfully reset.');
+      window.location.reload();
+    }
+  };
+
   // Handle closing Node Modal and potentially opening Center Modal
   const handleNodeModalClose = () => {
     setIsModalOpen(false);
@@ -470,6 +506,8 @@ function App() {
               onExport={handleExportAll}
               onImport={handleImportAll}
               onShowInfo={() => setShowBackupInfoModal(true)}
+              onResetProfile={handleResetProfile}
+              onResetAll={handleResetAll}
             />
             <nav className="tool-navigation">
               <button
