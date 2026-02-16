@@ -5,7 +5,7 @@ import { analyzeToolData } from '../../utils/analysisService';
 import { analyzeOffline } from '../../utils/offlineAnalyzer';
 import './CoreProfiler.css';
 
-const CoreProfiler = ({ profileIndex }) => {
+const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
     const { t, i18n } = useTranslation();
     const [showModal, setShowModal] = useState(true);
     const [loading, setLoading] = useState(false);
@@ -78,6 +78,8 @@ const CoreProfiler = ({ profileIndex }) => {
                 setAnalysisSource('ai');
                 localStorage.setItem(getProfileKey('imi-compass-data'), JSON.stringify(result));
                 setShowModal(false);
+                // Mark tool as completed
+                window.dispatchEvent(new CustomEvent('tool-completed', { detail: 'compassProfiler' }));
             }
         } catch (apiError) {
             console.warn('AI Analysis failed, falling back to offline engine:', apiError.message);
@@ -195,6 +197,12 @@ const CoreProfiler = ({ profileIndex }) => {
         setShowSaveSuccess(true);
         setTimeout(() => setShowSaveSuccess(false), 3000);
         window.dispatchEvent(new CustomEvent('compass-data-updated'));
+
+        // Mark these tools as completed since they are now pre-filled
+        const toolsToComplete = ['brandEvaluator', 'productProfiler', 'prospectProfiler'];
+        toolsToComplete.forEach(tool => {
+            window.dispatchEvent(new CustomEvent('tool-completed', { detail: tool }));
+        });
     };
 
     const handleDemoMode = () => {
@@ -208,6 +216,8 @@ const CoreProfiler = ({ profileIndex }) => {
         setAnalysisSource('demo');
         localStorage.setItem(getProfileKey('imi-compass-data'), JSON.stringify(demoResult));
         setShowModal(false);
+        // Mark tool as completed
+        window.dispatchEvent(new CustomEvent('tool-completed', { detail: 'compassProfiler' }));
     };
 
     const handleNavigate = (toolId) => {
@@ -461,15 +471,22 @@ const CoreProfiler = ({ profileIndex }) => {
                         </button>
 
                         <button
-                            className="roadmap-card card-amber"
-                            onClick={() => { applyToTools(); handleNavigate('pitch-master'); }}
+                            className={`roadmap-card card-amber ${!allToolsCompleted ? 'opacity-60 grayscale-[0.5]' : ''}`}
+                            onClick={() => {
+                                if (allToolsCompleted) {
+                                    applyToTools();
+                                    handleNavigate('pitch-master');
+                                } else {
+                                    alert(t('nav.locked_pitch_master') || "Complete the other tools in your foundation first to unlock the Pitch Master!");
+                                }
+                            }}
                         >
                             <div className="icon-wrapper">
                                 <Bot size={20} />
                             </div>
                             <div className="text-wrapper">
                                 <h4 className="card-title">Craft Messaging</h4>
-                                <p className="card-subtitle">Strategic Advisor</p>
+                                <p className="card-subtitle">{allToolsCompleted ? 'Pitch Master' : 'Locked'}</p>
                             </div>
                         </button>
                     </div>

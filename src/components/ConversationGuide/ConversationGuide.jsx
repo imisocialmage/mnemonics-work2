@@ -91,6 +91,7 @@ const ConversationGuide = ({ allToolsCompleted = false, profileIndex }) => {
                 // Fallback to local logic
                 calculateMatchScore();
                 setCurrentStep(4);
+                window.dispatchEvent(new CustomEvent('tool-completed', { detail: 'conversationGuide' }));
             } finally {
                 setIsLoading(false);
             }

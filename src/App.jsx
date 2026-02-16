@@ -208,8 +208,12 @@ function App() {
   const [showBackupInfoModal, setShowBackupInfoModal] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  // Check if all tools are completed
-  const allToolsCompleted = Object.values(toolCompletions).every(Boolean);
+  // Check if all tools are completed (Foundation + 3 Profilers + Guide)
+  const allToolsCompleted = (toolCompletions.compass || toolCompletions.compassProfiler) &&
+    toolCompletions.brandEvaluator &&
+    toolCompletions.productProfiler &&
+    toolCompletions.prospectProfiler &&
+    toolCompletions.conversationGuide;
 
   // Listen for tool completion events
   useEffect(() => {
@@ -569,7 +573,13 @@ function App() {
 
               <button
                 className={`nav-btn pitch-master-btn ${currentView === 'pitch-master' ? 'active' : ''} ${!allToolsCompleted ? 'locked' : ''}`}
-                onClick={() => allToolsCompleted && setCurrentView('pitch-master')}
+                onClick={() => {
+                  if (allToolsCompleted) {
+                    setCurrentView('pitch-master');
+                  } else {
+                    alert(t('nav.locked_pitch_master') || "Complete the foundation tools (Compass, Brand, Product, Prospect, and Conversation Guide) to unlock the Pitch Master!");
+                  }
+                }}
                 title={allToolsCompleted ? t('nav.pitch') : t('nav.locked')}
               >
                 <div className="btn-inner">
@@ -630,7 +640,7 @@ function App() {
       <main className="main-content w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-10" style={{ margin: '0 auto' }}>
         <div key={currentProfileIndex}>
           {currentView === 'core-profiler' ? (
-            <CoreProfiler profileIndex={currentProfileIndex} />
+            <CoreProfiler profileIndex={currentProfileIndex} allToolsCompleted={allToolsCompleted} />
           ) : currentView === 'compass' ? (
             <>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
