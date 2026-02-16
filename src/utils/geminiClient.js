@@ -1,9 +1,9 @@
 import { supabase } from './supabaseClient';
 
-const MODEL_NAME = 'gemini-2.0-flash'; // Edge function uses its own model config, but we keep this for reference
+const MODEL_NAME = 'gemini-2.0-flash';
 
 /**
- * Sends a message to the Gemini API via Supabase Edge Functions
+ * Sends a message to the Gemini API directly from the client (bypassing Edge Function)
  * @param {Array} history - Array of { role: 'user'|'model', content: string }
  * @param {Object} context - Context object (brand, industry, etc.) to build system prompt
  * @param {string} persona - 'strategic' | 'coach' or a custom system prompt string
@@ -15,45 +15,89 @@ export const getGeminiResponse = async (history, context, persona = 'strategic')
         ? persona
         : buildSystemPrompt(context, persona);
 
-    // Get the last user message
-    const lastMessage = history[history.length - 1]?.content;
+    // Format history for Gemini API
+    const contents = history.map(msg => {
+        const parts = [];
 
-    // Format history for Gemini API (if needed by Edge Function)
-    const contents = history.map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.content }]
-    }));
+        // Handle text content
+        if (msg.content) {
+            parts.push({ text: msg.content });
+        }
+
+        // Handle image data if present (multimodal)
+        if (msg.images && Array.isArray(msg.images)) {
+            msg.images.forEach(img => {
+                // If it's a base64 string, use inlineData
+                if (img.startsWith('data:')) {
+                    const [mimeType, base64Data] = img.split(';base64,');
+                    parts.push({
+                        inlineData: {
+                            mimeType: mimeType.replace('data:', ''),
+                            data: base64Data
+                        }
+                    });
+                } else if (img.startsWith('http')) {
+                    // For URLs, we might just append the URL to the text prompt 
+                    // since the Edge Function construction might be simpler that way
+                    // OR we let the edge function handle it.
+                    // For now, let's append it to the text prompt to ensure compatibility
+                    if (parts[0]) {
+                        parts[0].text += `\n[Reference Image: ${img}]`;
+                    } else {
+                        parts.push({ text: `[Reference Image: ${img}]` });
+                    }
+                }
+            });
+        }
+
+        return {
+            role: msg.role === 'user' ? 'user' : 'model',
+            parts: parts.length > 0 ? parts : [{ text: '' }]
+        };
+    });
 
     try {
-        console.log("Gemini Client: Calling Supabase Edge Function 'gemini'...");
+        console.log("Gemini Client: Calling Gemini API directly (Bypassing Edge Function)...");
 
-        const { data, error } = await supabase.functions.invoke('gemini', {
-            body: {
-                prompt: lastMessage,
-                history: contents,
-                systemInstruction: systemPrompt
+        // Use local API key directly to bypass Edge Function 401 errors
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+        if (!apiKey) throw new Error("Missing Gemini API Key in .env");
+
+        // Construct the payload for Gemini API
+        const payload = {
+            contents: contents,
+            systemInstruction: {
+                parts: [{ text: systemPrompt }]
+            },
+            generationConfig: {
+                temperature: 0.1,
+                maxOutputTokens: 2048,
             }
-        });
+        };
 
-        if (error) {
-            console.error("Supabase Edge Function Error:", error);
-            // Handle credit limit specifically
-            if (error.status === 402) {
-                throw new Error('Credit limit reached. Please upgrade your plan.');
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             }
-            throw new Error(error.message || 'Failed to connect to AI service');
+        );
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Gemini API Error:", errorData);
+            throw new Error(`Gemini API Failed: ${errorData.error?.message || response.statusText}`);
         }
 
-        if (!data?.text) {
-            throw new Error('No response from AI service.');
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (!text) {
+            throw new Error('No response text received from Gemini API.');
         }
 
-        // Update local credit display if we have a way to do that (can be done in components)
-        if (data.credits_remaining !== undefined) {
-            console.log(`Credits remaining: ${data.credits_remaining}`);
-        }
-
-        return data.text;
+        return text;
 
     } catch (error) {
         console.error('AI Service Error:', error);
@@ -114,4 +158,3 @@ const buildSystemPrompt = (context, persona) => {
         - **Out of Scope**: If they get stuck or ask for things you can't do, tell them to book a sync: https://calendly.com/imi-socialmediaimage/30min`;
     }
 };
-

@@ -11,6 +11,7 @@
         "guide": "Guide",
         "pitch": "Maître du Pitch",
         "tracker": "Suivi de Progrès",
+        "asset": "Asset AI",
         "elite": "Défis Élite",
         "locked": "Complétez toutes les étapes pour débloquer",
         "solocorp": "Solo Corp 101"
@@ -464,7 +465,8 @@
     },
     "common": {
         "search": "Rechercher",
-        "generate": "Générer le rapport",
+        "generate": "Générer le rapport maître",
+        "generating": "Génération en cours...",
         "download": "Télécharger le rapport maître",
         "back": "Retour",
         "next": "Suivant",
@@ -632,10 +634,23 @@
         "retention": "Rétention",
         "how": "Comment ?",
         "calltoact": "Appel à l'action",
+        "conversation": "Conversation Guide",
+        "strategic": "Master Roadmap",
+        "asset": "Asset AI",
+        "soloCorp": "SoloCorp 101",
         "intentions": "Intentions",
         "interest": "Intérêt",
         "what": "Quoi ?",
         "conversion": "Conversion"
+    },
+    "asset_ai": {
+        "title": "Maquette visuelle d'actif marketing",
+        "description": "Générez des concepts de pages de destination à haute conversion, des palettes de couleurs et des titres basés sur votre plan stratégique.",
+        "upload_title": "Contexte visuel de la marque",
+        "upload_desc": "Téléchargez jusqu'à 3 images (logos, site actuel ou inspiration) pour aligner la direction artistique de l'IA.",
+        "generate": "Générer la maquette",
+        "results_title": "Votre stratégie visuelle",
+        "mockup_preview": "Mise en page et filaire des composants"
     },
     "objectives": {
         "acquisition": "Acquisition - Attirer de nouveaux clients",

@@ -17,6 +17,7 @@ import {
 import { getGeminiResponse } from '../../utils/geminiClient';
 import { useAuth } from '../Auth/AuthProvider';
 import AIFeatureGate from '../Auth/AIFeatureGate';
+import { generateMasterReport } from '../Report/MasterReportGenerator';
 import './StrategicAdvisor.css';
 
 const StrategicAdvisor = ({ profileIndex }) => {
@@ -95,6 +96,14 @@ const StrategicAdvisor = ({ profileIndex }) => {
         // Scroll to bottom when messages change
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
+
+    useEffect(() => {
+        const savedMessages = localStorage.getItem(getProfileKey('imi-advisor-chat'));
+        setMessages(savedMessages ? JSON.parse(savedMessages) : []);
+
+        const savedContext = localStorage.getItem(getProfileKey('imi-advisor-context'));
+        setConversationContext(savedContext ? JSON.parse(savedContext) : initConversationContext());
+    }, [profileIndex, getProfileKey]);
 
     useEffect(() => {
         localStorage.setItem(getProfileKey('imi-advisor-chat'), JSON.stringify(messages));
@@ -658,7 +667,7 @@ const StrategicAdvisor = ({ profileIndex }) => {
                         featureName={t('advisor.ai_header')}
                         onProceedWithoutAuth={() => { }}
                     >
-                        <div className="tool-panel ai-advisor-panel">
+                        <div className="tool-panel ai-advisor-panel strategic-advisor-chat">
                             <div className="chat-header">
                                 <div className="header-info">
                                     <Bot size={20} color="var(--electric-blue)" />
@@ -667,22 +676,21 @@ const StrategicAdvisor = ({ profileIndex }) => {
                                         <p className="section-subtitle">{t('advisor.ai_version')}</p>
                                     </div>
                                 </div>
-                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <div className="header-actions">
                                     {credits !== null && (
-                                        <div className="credit-badge" title="Remaining AI Credits" style={{
-                                            display: 'flex', alignItems: 'center', gap: '5px',
-                                            background: 'rgba(255,255,255,0.1)', padding: '4px 8px', borderRadius: '12px',
-                                            marginRight: '8px'
-                                        }}>
+                                        <div className="credit-badge" title="Remaining AI Credits">
                                             <Coins size={16} color="var(--amber-gold)" />
-                                            <span style={{ fontWeight: 'bold', color: 'var(--amber-gold)' }}>{credits}</span>
+                                            <span>{credits}</span>
                                         </div>
                                     )}
-                                    <button className="clear-btn" onClick={handleGeminiSync} title={t('advisor.ai.gemini_sync')} style={{ width: 'auto', padding: '0 8px', gap: '5px' }}>
-                                        <Sparkles size={16} /> {syncStatus === 'copied' ? t('advisor.ai.gemini_copied') : t('advisor.ai.gemini_sync')}
+                                    <button className="clear-btn" onClick={() => generateMasterReport(profileIndex)} title="Download Blueprint">
+                                        <Copy size={16} /> <span className="mobile-label-hidden">Blueprint</span>
+                                    </button>
+                                    <button className="clear-btn" onClick={handleGeminiSync} title={t('advisor.ai_responses.gemini_sync')}>
+                                        <Sparkles size={16} /> <span className="mobile-label-hidden">{syncStatus === 'copied' ? t('advisor.ai_responses.gemini_copied') : t('advisor.ai_responses.gemini_sync')}</span>
                                     </button>
                                     <button className="clear-btn" onClick={clearChat} title={t('advisor.ai.clear')}>
-                                        <Eraser size={16} />
+                                        <Eraser size={16} /> <span className="mobile-label-hidden">{t('advisor.ai.clear')}</span>
                                     </button>
                                 </div>
                             </div>
@@ -763,7 +771,7 @@ const StrategicAdvisor = ({ profileIndex }) => {
 
                             {/* Choice Bubbles */}
                             {quickChoices.length > 0 && (
-                                <div className="choice-container">
+                                <div className="choice-container no-scrollbar">
                                     {quickChoices.map((choice, idx) => (
                                         <button
                                             key={idx}

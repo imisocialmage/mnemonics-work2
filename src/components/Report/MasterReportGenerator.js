@@ -189,6 +189,43 @@ export const generateMasterReport = (profileIndex = 0) => {
     } else {
         addText("Data from Conversation Guide not found.");
     }
+    addSeparator();
+
+    // --- SECTION 6: ASSET AI (VISUAL CONCEPTS) ---
+    checkPage(50);
+    const assetAiResults = JSON.parse(localStorage.getItem(`${prefix}imi-asset-ai-results`) || 'null');
+    addTitle("6. Visual Marketing Asset Concepts");
+    y += 5;
+    if (assetAiResults) {
+        addSubtitle("Asset Type: " + assetAiResults.assetType);
+        addText("Headline: " + assetAiResults.headline);
+        addText("Subheadline: " + assetAiResults.subheadline);
+        addText("CTA: " + assetAiResults.ctaText);
+
+        y += 5;
+        addSubtitle("Design Specifications");
+        addText(`• Typography: ${assetAiResults.typography}`);
+        addText(`• Primary Color: ${assetAiResults.colorPalette?.primary}`);
+        addText(`• Secondary Color: ${assetAiResults.colorPalette?.secondary}`);
+        addText(`• Accent Color: ${assetAiResults.colorPalette?.accent}`);
+
+        if (assetAiResults.sections) {
+            y += 5;
+            addSubtitle("Strategic Layout Sections");
+            assetAiResults.sections.forEach(s => {
+                checkPage(20);
+                addText(`• ${s.title}: ${s.content}`);
+            });
+        }
+
+        if (assetAiResults.visualAdvice) {
+            y += 5;
+            addSubtitle("Visual Strategy Advice");
+            addText(assetAiResults.visualAdvice);
+        }
+    } else {
+        addText("Data from Asset AI not found.");
+    }
 
 
 

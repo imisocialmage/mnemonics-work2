@@ -10,9 +10,11 @@ import ProspectProfiler from './components/ProspectProfiler/ProspectProfiler';
 import ConversationGuide from './components/ConversationGuide/ConversationGuide';
 
 import StrategicAdvisor from './components/StrategicAdvisor/StrategicAdvisor';
-import ProgressTracker from './components/ProgressTracker/ProgressTracker';
+import AssetAI from './components/AssetAI/AssetAI';
 import EliteChallenges from './components/EliteChallenges/EliteChallenges';
 import SoloCorp101 from './components/SoloCorp101/SoloCorp101';
+import ProgressTracker from './components/ProgressTracker/ProgressTracker';
+import AuthModal from './components/Auth/AuthModal'; // Added AuthModal import
 import { STRATEGIC_ADVICE, COMPASS_NODES, getHighlightedPositions, getLocalizedStrategicAdvice } from './data/compassData';
 import NodeAdviceModal from './components/Compass/NodeAdviceModal';
 import { Compass, Award, Package, Users, MessageCircle, Sparkles, Lock, ClipboardList, Crown, X, Flame, Download, Upload, HelpCircle, CheckCircle, Layout } from 'lucide-react';
@@ -194,6 +196,7 @@ function App() {
   const [memberCode, setMemberCode] = useState('');
   const [memberError, setMemberError] = useState(false);
   const [showBackupInfoModal, setShowBackupInfoModal] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Check if all tools are completed
   const allToolsCompleted = Object.values(toolCompletions).every(Boolean);
@@ -209,15 +212,22 @@ function App() {
     return () => window.removeEventListener('tool-completed', handleToolComplete);
   }, []);
 
-  // Listen for cross-tool navigation events
+  // Listen for cross-tool navigation events and auth modal events
   useEffect(() => {
     const handleNavigate = (event) => {
       setCurrentView(event.detail);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+    const handleShowAuth = () => {
+      setIsAuthModalOpen(true);
+    };
 
     window.addEventListener('navigate-to-tool', handleNavigate);
-    return () => window.removeEventListener('navigate-to-tool', handleNavigate);
+    window.addEventListener('show-auth-modal', handleShowAuth); // Added event listener for AuthModal
+    return () => {
+      window.removeEventListener('navigate-to-tool', handleNavigate);
+      window.removeEventListener('show-auth-modal', handleShowAuth); // Clean up AuthModal listener
+    };
   }, []);
 
   // Listen for master report download event
@@ -429,7 +439,7 @@ function App() {
                   border: '1px solid rgba(255,255,255,0.1)',
                   padding: '2px 6px',
                   borderRadius: '12px'
-                }}>v0.0.4</span>
+                }}>v0.0.8</span>
               </div>
               <p className="brand-subtitle">{t('header.subtitle')}</p>
             </div>
@@ -498,6 +508,14 @@ function App() {
                 <MessageCircle size={20} />
                 <span>{t('nav.guide')}</span>
               </button>
+              <button
+                className={`nav-btn ${currentView === 'asset-ai' ? 'active' : ''}`}
+                onClick={() => setCurrentView('asset-ai')}
+                title={t('nav.asset')}
+              >
+                <Layout size={20} />
+                <span>{t('nav.asset')} <span className="ai-badge">AI</span></span>
+              </button>
 
               <button
                 className={`nav-btn pitch-master-btn ${currentView === 'pitch-master' ? 'active' : ''} ${!allToolsCompleted ? 'locked' : ''}`}
@@ -547,11 +565,11 @@ function App() {
               <button
                 className={`nav-btn solocorp-btn ${currentView === 'solocorp' ? 'active' : ''}`}
                 onClick={() => setCurrentView('solocorp')}
-                title="Solo Corp 101"
+                title={t('nav.soloCorp')}
               >
                 <div className="btn-inner">
                   <Flame size={20} color="var(--amber-gold)" />
-                  <span>Solo Corp <span className="ai-badge">AI</span></span>
+                  <span>{t('nav.soloCorp')} <span className="ai-badge">AI</span></span>
                 </div>
               </button>
             </nav>
@@ -603,7 +621,8 @@ function App() {
             <ProspectProfiler profileIndex={currentProfileIndex} />
           ) : currentView === 'conversation-guide' ? (
             <ConversationGuide allToolsCompleted={allToolsCompleted} profileIndex={currentProfileIndex} />
-
+          ) : currentView === 'asset-ai' ? (
+            <AssetAI profileIndex={currentProfileIndex} />
           ) : currentView === 'pitch-master' ? (
             <StrategicAdvisor profileIndex={currentProfileIndex} />
           ) : currentView === 'progress-tracker' ? (
@@ -745,6 +764,11 @@ function App() {
         onClose={() => setShowCenterModal(false)}
         advice={currentCenterAdvice}
         type={(formData.focus || 'who').toLowerCase()}
+      />
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
     </div>
   );

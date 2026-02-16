@@ -1,0 +1,137 @@
+/* AssetAI Tool Header - Premium Design */
+
+.asset-ai-container .tool-header {
+    background: linear-gradient(135deg, #E91E63 0%, #FF4081 50%, #F06292 100%);
+    padding: 32px;
+    border-radius: 20px 20px 0 0;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        0 8px 32px rgba(233, 30, 99, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Animated gradient overlay */
+.asset-ai-container .tool-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.1),
+            transparent);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(50%);
+    }
+}
+
+.asset-ai-container .tool-icon-label {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.asset-ai-container .tool-icon-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.asset-ai-container .tool-label {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    letter-spacing: 0.5px;
+}
+
+.asset-ai-container .header-actions {
+    position: relative;
+    z-index: 1;
+}
+
+.asset-ai-container .tool-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 12px;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    line-height: 1.3;
+}
+
+.asset-ai-container .tool-description {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.95);
+    line-height: 1.6;
+    max-width: 800px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    position: relative;
+    z-index: 1;
+}
+
+/* History/Gallery Toggle Button */
+.asset-ai-container .gallery-toggle {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.asset-ai-container .gallery-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .asset-ai-container .tool-header {
+        padding: 24px 20px;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .asset-ai-container .tool-title {
+        font-size: 1.4rem;
+    }
+
+    .asset-ai-container .tool-icon-circle {
+        width: 48px;
+        height: 48px;
+    }
+
+    .asset-ai-container .tool-label {
+        font-size: 1.25rem;
+    }
+}

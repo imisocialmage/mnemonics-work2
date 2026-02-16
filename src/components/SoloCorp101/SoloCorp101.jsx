@@ -97,14 +97,34 @@ const SoloCorp101 = ({ profileIndex }) => {
     });
 
     useEffect(() => {
+        const savedData = localStorage.getItem(getProfileKey('imi-solocorp-data'));
+        const parsed = savedData ? JSON.parse(savedData) : {};
+        setSoloData({
+            startDate: parsed.startDate || new Date().toISOString().split('T')[0],
+            activities: parsed.activities || [],
+            completedDays: parsed.completedDays || [],
+            exercises: parsed.exercises || []
+        });
+
+        const savedMessages = localStorage.getItem(getProfileKey('imi-solocorp-chat-standalone'));
+        setSoloMessages(savedMessages ? JSON.parse(savedMessages) : []);
+
+        const savedContext = localStorage.getItem(getProfileKey('imi-solocorp-context'));
+        setConversationContext(savedContext ? JSON.parse(savedContext) : initConversationContext());
+    }, [profileIndex, getProfileKey]);
+
+    useEffect(() => {
         localStorage.setItem(getProfileKey('imi-solocorp-data'), JSON.stringify(soloData));
     }, [soloData, profileIndex, getProfileKey]);
 
     useEffect(() => {
         localStorage.setItem(getProfileKey('imi-solocorp-chat-standalone'), JSON.stringify(soloMessages));
         localStorage.setItem(getProfileKey('imi-solocorp-context'), JSON.stringify(conversationContext));
-        soloMessagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [soloMessages, conversationContext, profileIndex, getProfileKey]);
+        // Only scroll if there are messages
+        if (soloMessages.length > 0) {
+            soloMessagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [soloMessages, conversationContext, getProfileKey]);
 
     const getCurrentDay = () => {
         const start = new Date(soloData.startDate);
@@ -551,7 +571,7 @@ const SoloCorp101 = ({ profileIndex }) => {
 
             <div className="solocorp-content">
                 {currentTab === 'coach' && (
-                    <div className="coach-pane">
+                    <div className="coach-pane solocorp-chat-area">
                         <AIFeatureGate featureName={t('solocorp.chat.engine_title')} onProceedWithoutAuth={() => { }}>
                             <div className="chat-interface">
                                 <div className="chat-header">
@@ -569,11 +589,11 @@ const SoloCorp101 = ({ profileIndex }) => {
                                                 <span>{credits}</span>
                                             </div>
                                         )}
-                                        <button className="icon-btn" title={t('advisor.ai.gemini_sync')} onClick={handleSoloSync} style={{ width: 'auto', gap: '5px', padding: '0 8px' }}>
-                                            <Sparkles size={18} /> {syncStatus === 'copied' ? t('advisor.ai.gemini_copied') : t('advisor.ai.gemini_sync')}
+                                        <button className="icon-btn" title={t('advisor.ai_responses.gemini_sync')} onClick={handleSoloSync} style={{ width: 'auto', gap: '5px', padding: '0 8px' }}>
+                                            <Sparkles size={18} /> <span className="mobile-label-hidden">{syncStatus === 'copied' ? t('advisor.ai_responses.gemini_copied') : t('advisor.ai_responses.gemini_sync')}</span>
                                         </button>
-                                        <button className="icon-btn" title={t('solocorp.chat.ai_guide')} onClick={() => setIsAIGuideOpen(true)}><HelpCircle size={18} /></button>
-                                        <button className="icon-btn" title={t('solocorp.chat.reset_engine')} onClick={resetEngine}><Eraser size={18} /></button>
+                                        <button className="icon-btn" title={t('solocorp.chat.ai_guide')} onClick={() => setIsAIGuideOpen(true)}><HelpCircle size={18} /><span className="mobile-label-hidden"> {t('solocorp.chat.ai_guide')}</span></button>
+                                        <button className="icon-btn" title={t('solocorp.chat.reset_engine')} onClick={resetEngine}><Eraser size={18} /><span className="mobile-label-hidden"> {t('solocorp.chat.reset_engine')}</span></button>
                                     </div>
                                 </div>
                                 <div className="chat-messages">
@@ -651,7 +671,7 @@ const SoloCorp101 = ({ profileIndex }) => {
 
                                 {/* Choice Bubbles */}
                                 {quickChoices.length > 0 && (
-                                    <div className="choice-container">
+                                    <div className="choice-container no-scrollbar">
                                         {quickChoices.map((choice, idx) => (
                                             <button
                                                 key={idx}

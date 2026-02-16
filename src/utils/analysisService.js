@@ -1,4 +1,5 @@
 import { getGeminiResponse } from './geminiClient';
+import { getTemplate, getAssetBatch } from './AssetTemplates';
 
 /**
  * Analysis Service
@@ -92,6 +93,26 @@ const TOOL_SCHEMAS = {
                 { phase: "Opening", goal: "Establish rapport.", talkPoints: ["Point 1"] }
             ]
         }
+    },
+    assetAI: {
+        systemPrompt: "You are a World-Class Visual Designer and Conversion Rate Optimizer. Based on the brand strategy, product positioning, and visual context provided (if any), generate a high-converting website/asset concept. CRITICAL: Analyze any uploaded images for brand colors, vibe, and audience demographics. If no images are provided, use the text context to infer the design direction. Return JSON.",
+        jsonStructure: {
+            assetType: "e.g. High-Conversion Landing Page",
+            headline: "A punchy, benefit-driven headline.",
+            subheadline: "A supporting sentence that clarifies the value.",
+            ctaText: "A high-friction/low-friction CTA button text.",
+            exampleStatement: "A consolidated 'elevator pitch' that summarizes the strategy.",
+            colorPalette: {
+                primary: "#HEX",
+                secondary: "#HEX",
+                accent: "#HEX"
+            },
+            typography: "Suggested font pairings (e.g., 'Inter for body, Playfair Display for headers')",
+            sections: [
+                { title: "Section Name", content: "Brief description of what goes in this section and why." }
+            ],
+            visualAdvice: "Strategic advice on what kind of photography or illustration to use based on the context."
+        }
     }
 };
 
@@ -102,9 +123,81 @@ const TOOL_SCHEMAS = {
  * @param {string} language - 'en' or 'fr'
  * @returns {Promise<Object>} The parsed structured analysis
  */
+
 export const analyzeToolData = async (toolId, data, language = 'en') => {
+    // TEMPORARY BYPASS: Use templates for AssetAI to avoid API limits
+    if (toolId === 'assetAI') {
+        console.log("Using Template Mode for AssetAI due to API Limits");
+        return new Promise(resolve => {
+            setTimeout(() => {
+                // meaningful context extraction
+                const compass = data.compass || {};
+                const product = data.product || {};
+                const brand = data.brand || {};
+                const prospect = data.prospect || {};
+
+                const industry = brand.industry || product.industry || "Growth";
+                const productName = brand.brandName || product.productName || "Your Brand";
+                const audience = prospect.targetAudience || product.typicalUsers || "Customers";
+
+                // Detect B2B vs B2C
+                let type = prospect.types || "B2B";
+                const b2cKeywords = ['consumer', 'individual', 'families', 'students', 'women', 'men', 'kids', 'fashion', 'apparel', 'clothing', 'wear', 'lifestyle', 'beauty', 'health'];
+
+                const combinedContext = (audience + ' ' + industry + ' ' + productName).toLowerCase();
+
+                if (b2cKeywords.some(kw => combinedContext.includes(kw))) {
+                    type = "B2C";
+                }
+
+                // Extract visual context if available
+                const uploadedImages = (data.visuals && Array.isArray(data.visuals.all)) ? data.visuals.all : (data.visuals?.main ? [data.visuals.main] : []);
+                const mainImage = uploadedImages[0] || null;
+
+                const context = {
+                    industry,
+                    productName,
+                    targetAudience: audience,
+                    prospectType: type,
+                    // New enriched fields
+                    uvp: product.aiResults?.uvp || product.differentiator || compass.uvp,
+                    problemSolved: product.problemSolved || compass.challenge,
+                    differentiator: product.differentiator,
+                    emotionalBenefit: product.emotionalBenefit,
+                    brandColors: brand.brandColors,
+                    uploadedImage: mainImage,
+                    uploadedImages: uploadedImages
+                };
+
+                const batch = getAssetBatch(context);
+
+                // Ensure visuals are correctly mapped in the batch
+                const enrichVisuals = (asset) => {
+                    if (!asset) return asset;
+                    return {
+                        ...asset,
+                        visuals: {
+                            main: mainImage,
+                            all: uploadedImages,
+                            secondary: uploadedImages.slice(1)
+                        }
+                    };
+                };
+
+                batch.landingPage = enrichVisuals(batch.landingPage);
+                batch.socialPost = enrichVisuals(batch.socialPost);
+                batch.emailHeader = enrichVisuals(batch.emailHeader);
+
+                resolve(batch);
+            }, 1000); // Simulate "thinking" time
+        });
+    }
+
     const schema = TOOL_SCHEMAS[toolId];
     if (!schema) throw new Error(`Unsupported tool: ${toolId}`);
+
+    // Extract images if provided (specific to assetAI)
+    const images = data.visuals ? Object.values(data.visuals).filter(Boolean) : [];
 
     // Extract key context from data to emphasize in prompt
     const industryContext = data.industry || data.product?.industry || data.brand?.industry ||
@@ -125,6 +218,7 @@ export const analyzeToolData = async (toolId, data, language = 'en') => {
     - Industry/Product: ${industryContext}
     - Product/Service: ${productType}
     - Target Audience: ${targetAudience}
+    ${images.length > 0 ? `- Visual Context: Found ${images.length} uploaded reference images.` : ''}
     
     Use this EXACT context in your analysis. Do NOT substitute generic business terms.
     
@@ -140,7 +234,7 @@ export const analyzeToolData = async (toolId, data, language = 'en') => {
 
     try {
         const responseText = await getGeminiResponse(
-            [{ role: 'user', content: prompt }],
+            [{ role: 'user', content: prompt, images }],
             { objective: `Structured Analysis for ${toolId}` },
             schema.systemPrompt
         );

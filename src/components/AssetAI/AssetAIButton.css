@@ -1,0 +1,116 @@
+/* ============================================
+   PREMIUM GENERATE BUTTON DESIGN
+   ============================================ */
+
+.asset-ai-container .btn-primary.btn-large {
+    background: linear-gradient(135deg, #2979FF 0%, #0D47A1 100%);
+    border: none;
+    padding: 18px 40px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    border-radius: 16px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow:
+        0 8px 24px rgba(41, 121, 255, 0.4),
+        0 4px 12px rgba(13, 71, 161, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    margin-top: 24px;
+}
+
+/* Animated shine effect */
+.asset-ai-container .btn-primary.btn-large::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg,
+            transparent,
+            rgba(255, 255, 255, 0.1),
+            transparent);
+    transform: rotate(45deg);
+    animation: buttonShine 3s infinite;
+}
+
+@keyframes buttonShine {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+.asset-ai-container .btn-primary.btn-large:hover:not(:disabled) {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow:
+        0 12px 32px rgba(41, 121, 255, 0.5),
+        0 6px 16px rgba(13, 71, 161, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.asset-ai-container .btn-primary.btn-large:active:not(:disabled) {
+    transform: translateY(-2px) scale(0.98);
+}
+
+.asset-ai-container .btn-primary.btn-large:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Pulse glow animation when enabled */
+.asset-ai-container .btn-primary.btn-large:not(:disabled) {
+    animation: btnGlow 2s ease-in-out infinite;
+}
+
+@keyframes btnGlow {
+
+    0%,
+    100% {
+        box-shadow:
+            0 8px 24px rgba(41, 121, 255, 0.4),
+            0 4px 12px rgba(13, 71, 161, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    50% {
+        box-shadow:
+            0 8px 32px rgba(41, 121, 255, 0.6),
+            0 4px 16px rgba(13, 71, 161, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+}
+
+/* Help Button - positioned in header */
+.asset-ai-help-btn {
+    position: absolute;
+    top: 32px;
+    right: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.asset-ai-help-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1) rotate(15deg);
+}

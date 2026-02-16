@@ -162,7 +162,12 @@ const EliteChallenges = ({ profileIndex }) => {
         });
     }, [memberData]);
 
-    // Handle Data Persistence
+    // Handle Data Persistence & Profile Sync
+    useEffect(() => {
+        const saved = localStorage.getItem(getProfileKey('myProgressData'));
+        setMemberData(saved ? JSON.parse(saved) : null);
+    }, [profileIndex, getProfileKey]);
+
     useEffect(() => {
         if (memberData) {
             localStorage.setItem(getProfileKey('myProgressData'), JSON.stringify(memberData));

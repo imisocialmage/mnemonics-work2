@@ -46,7 +46,16 @@ serve(async (req) => {
         }
 
         // Parse request body
-        const { prompt, history, systemInstruction } = await req.json()
+        const { prompt, history, systemInstruction, apiKey } = await req.json()
+
+        const outputApiKey = GEMINI_API_KEY || apiKey;
+
+        if (!outputApiKey) {
+            return new Response(JSON.stringify({ error: 'Server configuration error: Missing API Key' }), {
+                status: 500,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            })
+        }
 
         // Call Gemini API
         const MODEL_NAME = 'gemini-2.0-flash'; // Using a stable model name
@@ -62,7 +71,7 @@ serve(async (req) => {
         };
 
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${GEMINI_API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${outputApiKey}`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

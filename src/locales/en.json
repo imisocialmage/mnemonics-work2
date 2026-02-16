@@ -12,8 +12,20 @@
         "pitch": "Pitch Master",
         "tracker": "Progress Tracker",
         "elite": "Elite Challenges",
-        "locked": "Complete all steps to unlock",
-        "solocorp": "Solo Corp 101"
+        "conversation": "Conversation Guide",
+        "strategic": "Master Roadmap",
+        "asset": "Asset AI",
+        "soloCorp": "SoloCorp 101",
+        "locked": "🔒 Locked"
+    },
+    "asset_ai": {
+        "title": "Visual Marketing Asset Mockup",
+        "description": "Generate high-converting landing page concepts, color palettes, and headlines based on your strategic blueprint.",
+        "upload_title": "Visual Brand Context",
+        "upload_desc": "Upload up to 3 images (logos, current site, or inspiration) to align the AI's design direction.",
+        "generate": "Generate Design Mockup",
+        "results_title": "Your Visual Strategy Blueprint",
+        "mockup_preview": "Component Layout & Wireframe"
     },
     "profiles": {
         "title": "Strategy Profiles",
@@ -523,7 +535,8 @@
     },
     "common": {
         "search": "Search",
-        "generate": "Generate Report",
+        "generate": "Generate Master Report",
+        "generating": "Generating...",
         "download": "Download Master Report",
         "back": "Back",
         "help": "Help",
