@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../../utils/supabaseClient';
+import { supabase, isSupabaseConfigured } from '../../utils/supabaseClient';
 
 const AuthContext = createContext({});
 
@@ -18,6 +18,11 @@ export const AuthProvider = ({ children }) => {
     const [credits, setCredits] = useState(null);
 
     useEffect(() => {
+        if (!isSupabaseConfigured) {
+            setLoading(false);
+            return;
+        }
+
         // Get initial session
         supabase.auth.getSession().then(({ data: { session } }) => {
             setSession(session);
@@ -26,6 +31,9 @@ export const AuthProvider = ({ children }) => {
             if (session?.user) {
                 fetchCredits(session.user.id);
             }
+        }).catch(err => {
+            console.error('Initial session fetch error:', err);
+            setLoading(false);
         });
 
         // Listen for auth changes
