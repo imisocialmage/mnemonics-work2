@@ -58,7 +58,7 @@ serve(async (req) => {
         }
 
         // Parse request body
-        const { prompt, history, systemInstruction } = await req.json()
+        const { prompt, history, systemInstruction, model } = await req.json()
         const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')
 
         if (!GEMINI_API_KEY) {
@@ -69,11 +69,21 @@ serve(async (req) => {
         }
 
         // Call Gemini API 
-        const finalContents = history || [{ role: 'user', parts: [{ text: prompt }] }];
+        // Robust history handling: check if history is provided and not empty
+        let finalContents = history && Array.isArray(history) && history.length > 0
+            ? history
+            : [{ role: 'user', parts: [{ text: prompt || '' }] }];
+
         // Ensure the prompt includes the system instructions in the first message for "High Compatibility"
-        if (finalContents.length > 0 && finalContents[0].parts && finalContents[0].parts[0]) {
-            finalContents[0].parts[0].text = `SYSTEM INSTRUCTIONS:\n${systemInstruction}\n\nUSER MESSAGE:\n${finalContents[0].parts[0].text}`;
+        // Only if it's the beginning of a conversation or if we want to force context
+        if (systemInstruction && finalContents.length > 0 && finalContents[0].parts && finalContents[0].parts[0]) {
+            const firstMsgText = finalContents[0].parts[0].text;
+            if (!firstMsgText.includes('SYSTEM INSTRUCTIONS:')) {
+                finalContents[0].parts[0].text = `SYSTEM INSTRUCTIONS:\n${systemInstruction}\n\nUSER MESSAGE:\n${firstMsgText}`;
+            }
         }
+
+        const selectedModel = model || 'gemini-1.5-flash';
 
         const payload = {
             contents: finalContents,
@@ -84,7 +94,7 @@ serve(async (req) => {
         };
 
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${GEMINI_API_KEY}`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
