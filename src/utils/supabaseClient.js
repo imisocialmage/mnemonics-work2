@@ -5,8 +5,15 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
 
+const getMissingConfig = () => {
+    const missing = [];
+    if (!supabaseUrl) missing.push('VITE_SUPABASE_URL');
+    if (!supabaseAnonKey) missing.push('VITE_SUPABASE_ANON_KEY');
+    return missing.join(' and ');
+};
+
 if (!isSupabaseConfigured) {
-    console.warn('Supabase credentials missing. Edge Function calls and Auth will be disabled.');
+    console.warn(`Supabase credentials missing (${getMissingConfig()}). Edge Function calls and Auth will be disabled.`);
 }
 
 // Only create the client if we have a URL, otherwise export a dummy/null-safe proxy or just null
@@ -17,8 +24,8 @@ export const supabase = isSupabaseConfigured
         auth: {
             getSession: () => Promise.resolve({ data: { session: null }, error: null }),
             onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => { } } } }),
-            signInWithPassword: () => Promise.reject(new Error('Supabase not configured')),
-            signUp: () => Promise.reject(new Error('Supabase not configured')),
+            signInWithPassword: () => Promise.reject(new Error(`Supabase not configured. Missing: ${getMissingConfig()}`)),
+            signUp: () => Promise.reject(new Error(`Supabase not configured. Missing: ${getMissingConfig()}`)),
             signOut: () => Promise.resolve({ error: null }),
         },
         from: () => ({
