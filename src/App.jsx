@@ -483,7 +483,7 @@ function App() {
                   border: '1px solid rgba(255,255,255,0.1)',
                   padding: '2px 6px',
                   borderRadius: '12px'
-                }}>v0.0.9</span>
+                }}>v0.1.3</span>
               </div>
               <p className="brand-subtitle">{t('header.subtitle')}</p>
             </div>
