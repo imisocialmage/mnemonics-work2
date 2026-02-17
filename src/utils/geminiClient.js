@@ -31,7 +31,7 @@ export const getGeminiResponse = async (history, context, persona = 'strategic')
         const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
         if (!apiKey) throw new Error("Missing Gemini API Key in .env");
 
-        console.log(`Gemini Protocol: v1 | Model: gemini-1.5-flash-latest | Key: ${apiKey.substring(0, 5)}...`);
+        console.log(`Gemini Protocol: v1beta | Model: gemini-1.5-flash | Key: ${apiKey.substring(0, 5)}...`);
 
         // Format history for Gemini API with "High Compatibility" - prepend system prompt to first message
         const highCompatContents = contents.map(m => ({
@@ -53,7 +53,7 @@ export const getGeminiResponse = async (history, context, persona = 'strategic')
         };
 
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
