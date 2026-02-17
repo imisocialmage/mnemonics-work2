@@ -14,6 +14,7 @@ import AssetAI from './components/AssetAI/AssetAI';
 import EliteChallenges from './components/EliteChallenges/EliteChallenges';
 import SoloCorp101 from './components/SoloCorp101/SoloCorp101';
 import ProgressTracker from './components/ProgressTracker/ProgressTracker';
+import CoreProfiler from './components/CoreProfiler/CoreProfiler'; // Added CoreProfiler import
 import AuthModal from './components/Auth/AuthModal'; // Added AuthModal import
 import { STRATEGIC_ADVICE, COMPASS_NODES, getHighlightedPositions, getLocalizedStrategicAdvice } from './data/compassData';
 import NodeAdviceModal from './components/Compass/NodeAdviceModal';
@@ -439,7 +440,7 @@ function App() {
                   border: '1px solid rgba(255,255,255,0.1)',
                   padding: '2px 6px',
                   borderRadius: '12px'
-                }}>v0.0.8</span>
+                }}>v0.0.9</span>
               </div>
               <p className="brand-subtitle">{t('header.subtitle')}</p>
             </div>
@@ -572,10 +573,20 @@ function App() {
                   <span>{t('nav.soloCorp')} <span className="ai-badge">AI</span></span>
                 </div>
               </button>
+              <button
+                className={`nav-btn core-profiler-btn ${currentView === 'core-profiler' ? 'active' : ''}`}
+                onClick={() => setCurrentView('core-profiler')}
+                title={t('core_profiler.title')}
+              >
+                <div className="btn-inner">
+                  <Sparkles size={20} color="var(--electric-blue)" />
+                  <span>{t('nav.core_profiler') || 'Core Profiler'} <span className="ai-badge">AI</span></span>
+                </div>
+              </button>
             </nav>
           </div>
         </div>
-      </header>
+      </header >
 
       <main className="main-content w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-10" style={{ margin: '0 auto' }}>
         <div key={currentProfileIndex}>
@@ -631,124 +642,132 @@ function App() {
             <EliteChallenges profileIndex={currentProfileIndex} />
           ) : currentView === 'solocorp' ? (
             <SoloCorp101 profileIndex={currentProfileIndex} />
+          ) : currentView === 'core-profiler' ? (
+            <CoreProfiler profileIndex={currentProfileIndex} />
           ) : null}
         </div>
       </main>
 
       {/* Unlock Modal */}
-      {showUnlockModal && (
-        <div className="modal-overlay" onClick={() => setShowUnlockModal(false)}>
-          <div className="node-advice-modal unlock-modal" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowUnlockModal(false)}><X /></button>
-            <div className="modal-content">
-              <h2 className="modal-title">{t('unlock.title')}</h2>
-              <p className="mt-4 mb-6 text-gray-400">{t('unlock.description')}</p>
-              <form onSubmit={handleUnlockSubmit} className="space-y-4">
-                <input
-                  type="password"
-                  value={unlockCode}
-                  onChange={(e) => setUnlockCode(e.target.value)}
-                  placeholder={t('unlock.placeholder')}
-                  className="w-full bg-black/30 border border-blue-500/30 rounded-lg p-3 text-white focus:border-blue-500 outline-none"
-                  autoFocus
-                />
-                {unlockError && <p className="text-red-500 text-sm">{t('unlock.error')}</p>}
-                <button type="submit" className="premium-btn w-full justify-center">
-                  {t('unlock.submit')}
-                </button>
-              </form>
+      {
+        showUnlockModal && (
+          <div className="modal-overlay" onClick={() => setShowUnlockModal(false)}>
+            <div className="node-advice-modal unlock-modal" onClick={e => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => setShowUnlockModal(false)}><X /></button>
+              <div className="modal-content">
+                <h2 className="modal-title">{t('unlock.title')}</h2>
+                <p className="mt-4 mb-6 text-gray-400">{t('unlock.description')}</p>
+                <form onSubmit={handleUnlockSubmit} className="space-y-4">
+                  <input
+                    type="password"
+                    value={unlockCode}
+                    onChange={(e) => setUnlockCode(e.target.value)}
+                    placeholder={t('unlock.placeholder')}
+                    className="w-full bg-black/30 border border-blue-500/30 rounded-lg p-3 text-white focus:border-blue-500 outline-none"
+                    autoFocus
+                  />
+                  {unlockError && <p className="text-red-500 text-sm">{t('unlock.error')}</p>}
+                  <button type="submit" className="premium-btn w-full justify-center">
+                    {t('unlock.submit')}
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Member Unlock Modal */}
-      {showMemberModal && (
-        <div className="modal-overlay" onClick={() => setShowMemberModal(false)}>
-          <div className="node-advice-modal unlock-modal" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowMemberModal(false)}><X /></button>
-            <div className="modal-content">
-              <h2 className="modal-title">{t('member.title')}</h2>
-              <p className="mt-4 mb-6 text-gray-400">{t('member.description')}</p>
-              <form onSubmit={handleMemberSubmit} className="space-y-4">
-                <input
-                  type="password"
-                  value={memberCode}
-                  onChange={(e) => setMemberCode(e.target.value)}
-                  placeholder={t('member.placeholder')}
-                  className="w-full bg-black/30 border border-blue-500/30 rounded-lg p-3 text-white focus:border-blue-500 outline-none"
-                  autoFocus
-                />
-                {memberError && <p className="text-red-500 text-sm">{t('member.error')}</p>}
-                <button type="submit" className="premium-btn w-full justify-center">
-                  {t('member.submit')}
-                </button>
-              </form>
+      {
+        showMemberModal && (
+          <div className="modal-overlay" onClick={() => setShowMemberModal(false)}>
+            <div className="node-advice-modal unlock-modal" onClick={e => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => setShowMemberModal(false)}><X /></button>
+              <div className="modal-content">
+                <h2 className="modal-title">{t('member.title')}</h2>
+                <p className="mt-4 mb-6 text-gray-400">{t('member.description')}</p>
+                <form onSubmit={handleMemberSubmit} className="space-y-4">
+                  <input
+                    type="password"
+                    value={memberCode}
+                    onChange={(e) => setMemberCode(e.target.value)}
+                    placeholder={t('member.placeholder')}
+                    className="w-full bg-black/30 border border-blue-500/30 rounded-lg p-3 text-white focus:border-blue-500 outline-none"
+                    autoFocus
+                  />
+                  {memberError && <p className="text-red-500 text-sm">{t('member.error')}</p>}
+                  <button type="submit" className="premium-btn w-full justify-center">
+                    {t('member.submit')}
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Backup Info Modal */}
-      {showBackupInfoModal && (
-        <div className="modal-overlay" onClick={() => setShowBackupInfoModal(false)}>
-          <div className="node-advice-modal backup-info-modal" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowBackupInfoModal(false)}><X /></button>
-            <div className="modal-content">
-              <div className="flex items-center gap-3 mb-4">
-                <HelpCircle size={28} className="text-blue-500" />
-                <h2 className="modal-title m-0">{t('profiles.backup_info.title')}</h2>
+      {
+        showBackupInfoModal && (
+          <div className="modal-overlay" onClick={() => setShowBackupInfoModal(false)}>
+            <div className="node-advice-modal backup-info-modal" onClick={e => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => setShowBackupInfoModal(false)}><X /></button>
+              <div className="modal-content">
+                <div className="flex items-center gap-3 mb-4">
+                  <HelpCircle size={28} className="text-blue-500" />
+                  <h2 className="modal-title m-0">{t('profiles.backup_info.title')}</h2>
+                </div>
+
+                <div className="space-y-6 text-gray-300">
+                  <div>
+                    <h3 className="text-white font-bold mb-2 flex items-center gap-2">
+                      <Sparkles size={16} className="text-yellow-500" />
+                      {t('profiles.backup_info.nature').split(':')[0]}
+                    </h3>
+                    <p className="text-sm leading-relaxed">{t('profiles.backup_info.nature').split(':')[1]}</p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-white font-bold mb-2 flex items-center gap-2">
+                      <Download size={16} className="text-blue-500" />
+                      {t('profiles.backup_info.storage').split(':')[0]}
+                    </h3>
+                    <p className="text-sm leading-relaxed">{t('profiles.backup_info.storage').split(':')[1]}</p>
+                  </div>
+
+                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+                    <h3 className="text-blue-400 font-bold mb-3 flex items-center gap-2">
+                      <CheckCircle size={16} />
+                      {t('profiles.backup_info.best_practices')}
+                    </h3>
+                    <ul className="space-y-3 text-sm">
+                      <li className="flex gap-2">
+                        <span className="text-blue-500">•</span>
+                        <span>{t('profiles.backup_info.tip1')}</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <span className="text-blue-500">•</span>
+                        <span>{t('profiles.backup_info.tip2')}</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <span className="text-blue-500">•</span>
+                        <span>{t('profiles.backup_info.tip3')}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <button
+                  className="premium-btn w-full justify-center mt-8"
+                  onClick={() => setShowBackupInfoModal(false)}
+                >
+                  {t('profiles.backup_info.close')}
+                </button>
               </div>
-
-              <div className="space-y-6 text-gray-300">
-                <div>
-                  <h3 className="text-white font-bold mb-2 flex items-center gap-2">
-                    <Sparkles size={16} className="text-yellow-500" />
-                    {t('profiles.backup_info.nature').split(':')[0]}
-                  </h3>
-                  <p className="text-sm leading-relaxed">{t('profiles.backup_info.nature').split(':')[1]}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-white font-bold mb-2 flex items-center gap-2">
-                    <Download size={16} className="text-blue-500" />
-                    {t('profiles.backup_info.storage').split(':')[0]}
-                  </h3>
-                  <p className="text-sm leading-relaxed">{t('profiles.backup_info.storage').split(':')[1]}</p>
-                </div>
-
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-                  <h3 className="text-blue-400 font-bold mb-3 flex items-center gap-2">
-                    <CheckCircle size={16} />
-                    {t('profiles.backup_info.best_practices')}
-                  </h3>
-                  <ul className="space-y-3 text-sm">
-                    <li className="flex gap-2">
-                      <span className="text-blue-500">•</span>
-                      <span>{t('profiles.backup_info.tip1')}</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <span className="text-blue-500">•</span>
-                      <span>{t('profiles.backup_info.tip2')}</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <span className="text-blue-500">•</span>
-                      <span>{t('profiles.backup_info.tip3')}</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <button
-                className="premium-btn w-full justify-center mt-8"
-                onClick={() => setShowBackupInfoModal(false)}
-              >
-                {t('profiles.backup_info.close')}
-              </button>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Strategic Advice Modal */}
       <NodeAdviceModal
@@ -770,7 +789,7 @@ function App() {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
       />
-    </div>
+    </div >
   );
 }
 

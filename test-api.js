@@ -2,14 +2,21 @@ const API_KEY = 'AIzaSyASZN7khEhiY9DC7Iu7faoLuCB5wf6Ovz4';
 const MODEL_NAME = 'gemini-2.0-flash';
 
 async function testGemini() {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
 
-    // Different payload structure sometimes for newer models or just standard
+    // High Compatibility Payload - Prepend system instructions
+    const systemInstruction = "You are a helpful assistant.";
+    const userMessage = "Hello, are you working?";
+
     const payload = {
         contents: [{
             role: 'user',
-            parts: [{ text: "Hello, are you working?" }]
-        }]
+            parts: [{ text: `SYSTEM INSTRUCTIONS:\n${systemInstruction}\n\nUSER MESSAGE:\n${userMessage}` }]
+        }],
+        generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens: 2048,
+        }
     };
 
     console.log(`Testing Model: ${MODEL_NAME}`);

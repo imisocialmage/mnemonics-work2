@@ -1,6 +1,6 @@
-import { supabase } from './supabaseClient';
+// Gemini Client Utility
 
-const MODEL_NAME = 'gemini-2.0-flash';
+const MODEL_NAME = 'gemini-1.5-flash'; // High compatibility model
 
 /**
  * Sends a message to the Gemini API directly from the client (bypassing Edge Function)
@@ -17,42 +17,10 @@ export const getGeminiResponse = async (history, context, persona = 'strategic')
 
     // Format history for Gemini API
     const contents = history.map(msg => {
-        const parts = [];
-
-        // Handle text content
-        if (msg.content) {
-            parts.push({ text: msg.content });
-        }
-
-        // Handle image data if present (multimodal)
-        if (msg.images && Array.isArray(msg.images)) {
-            msg.images.forEach(img => {
-                // If it's a base64 string, use inlineData
-                if (img.startsWith('data:')) {
-                    const [mimeType, base64Data] = img.split(';base64,');
-                    parts.push({
-                        inlineData: {
-                            mimeType: mimeType.replace('data:', ''),
-                            data: base64Data
-                        }
-                    });
-                } else if (img.startsWith('http')) {
-                    // For URLs, we might just append the URL to the text prompt 
-                    // since the Edge Function construction might be simpler that way
-                    // OR we let the edge function handle it.
-                    // For now, let's append it to the text prompt to ensure compatibility
-                    if (parts[0]) {
-                        parts[0].text += `\n[Reference Image: ${img}]`;
-                    } else {
-                        parts.push({ text: `[Reference Image: ${img}]` });
-                    }
-                }
-            });
-        }
-
+        const parts = [{ text: msg.content || '' }];
         return {
             role: msg.role === 'user' ? 'user' : 'model',
-            parts: parts.length > 0 ? parts : [{ text: '' }]
+            parts: parts
         };
     });
 
@@ -63,12 +31,21 @@ export const getGeminiResponse = async (history, context, persona = 'strategic')
         const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
         if (!apiKey) throw new Error("Missing Gemini API Key in .env");
 
+        console.log(`Gemini Protocol: v1 | Model: gemini-1.5-flash-latest | Key: ${apiKey.substring(0, 5)}...`);
+
+        // Format history for Gemini API with "High Compatibility" - prepend system prompt to first message
+        const highCompatContents = contents.map(m => ({
+            role: m.role,
+            parts: m.parts.map(p => ({ ...p }))
+        }));
+
+        if (highCompatContents.length > 0 && highCompatContents[0].parts[0]) {
+            highCompatContents[0].parts[0].text = `SYSTEM INSTRUCTIONS:\n${systemPrompt}\n\nUSER MESSAGE:\n${highCompatContents[0].parts[0].text}`;
+        }
+
         // Construct the payload for Gemini API
         const payload = {
-            contents: contents,
-            systemInstruction: {
-                parts: [{ text: systemPrompt }]
-            },
+            contents: highCompatContents,
             generationConfig: {
                 temperature: 0.1,
                 maxOutputTokens: 2048,
@@ -76,7 +53,7 @@ export const getGeminiResponse = async (history, context, persona = 'strategic')
         };
 
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

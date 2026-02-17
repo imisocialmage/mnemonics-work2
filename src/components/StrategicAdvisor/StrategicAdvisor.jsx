@@ -567,106 +567,103 @@ const StrategicAdvisor = ({ profileIndex }) => {
     };
 
     return (
-        <div className="strategic-advisor tool-wrapper">
-            <div className="advisor-hero">
-                <Sparkles size={48} className="locked-icon" style={{ color: 'var(--electric-blue)' }} />
-                <h2>{t('advisor.title')}</h2>
-                <p>{t('advisor.description')}</p>
-            </div>
-
-            <div className="container">
-                <div className="advisor-tabs">
-                    <button className={`tab-btn ${activeTab === 'pitches' ? 'active' : ''}`} onClick={() => setActiveTab('pitches')}>
-                        <Award size={18} /> {t('advisor.tabs.pitches')}
-                    </button>
-                    <button className={`tab-btn ${activeTab === 'outreach' ? 'active' : ''}`} onClick={() => setActiveTab('outreach')}>
-                        <Send size={18} /> {t('advisor.tabs.outreach')}
-                    </button>
-                    <button className={`tab-btn ${activeTab === 'qa' ? 'active' : ''}`} onClick={() => setActiveTab('qa')}>
-                        <MessageSquare size={18} /> {t('advisor.tabs.qa')}
-                    </button>
-                    <button className={`tab-btn ${activeTab === 'advisor' ? 'active' : ''}`} onClick={() => setActiveTab('advisor')}>
-                        <Bot size={18} /> {t('advisor.tabs.ai')}
-                    </button>
+        <AIFeatureGate featureName={t('nav.pitch')}>
+            <div className="strategic-advisor tool-wrapper">
+                <div className="advisor-hero">
+                    <Sparkles size={48} className="locked-icon" style={{ color: 'var(--electric-blue)' }} />
+                    <h2>{t('advisor.title')}</h2>
+                    <p>{t('advisor.description')}</p>
                 </div>
 
-                {activeTab === 'pitches' && (
-                    <div className="tool-panel">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <div>
-                                <h3>{t('advisor.pitches_header')}</h3>
-                                <p className="section-subtitle">{t('advisor.variation_indicator', { current: variationIndices.pitches + 1, total: 5 })}</p>
-                            </div>
-                            <button className="regenerate-btn" onClick={() => regenerate('pitches')}>
-                                <Sparkles size={16} /> {t('advisor.regenerate_pitches')}
-                            </button>
-                        </div>
-                        {getPitches().map(pitch => (
-                            <div key={pitch.id} className="output-card">
-                                <span className="output-tag">{pitch.tag}</span>
-                                <div className="output-content">{pitch.content}</div>
-                                <button className="copy-btn" onClick={() => handleCopy(pitch.content, pitch.id)}>
-                                    {copiedId === pitch.id ? <CheckCircle size={16} /> : <Copy size={16} />}
-                                    {copiedId === pitch.id ? t('advisor.copied') : t('advisor.copy_button')}
+                <div className="container">
+                    <div className="advisor-tabs">
+                        <button className={`tab-btn ${activeTab === 'pitches' ? 'active' : ''}`} onClick={() => setActiveTab('pitches')}>
+                            <Award size={18} /> {t('advisor.tabs.pitches')}
+                        </button>
+                        <button className={`tab-btn ${activeTab === 'outreach' ? 'active' : ''}`} onClick={() => setActiveTab('outreach')}>
+                            <Send size={18} /> {t('advisor.tabs.outreach')}
+                        </button>
+                        <button className={`tab-btn ${activeTab === 'qa' ? 'active' : ''}`} onClick={() => setActiveTab('qa')}>
+                            <MessageSquare size={18} /> {t('advisor.tabs.qa')}
+                        </button>
+                        <button className={`tab-btn ${activeTab === 'advisor' ? 'active' : ''}`} onClick={() => setActiveTab('advisor')}>
+                            <Bot size={18} /> {t('advisor.tabs.ai')}
+                        </button>
+                    </div>
+
+                    {activeTab === 'pitches' && (
+                        <div className="tool-panel">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                <div>
+                                    <h3>{t('advisor.pitches_header')}</h3>
+                                    <p className="section-subtitle">{t('advisor.variation_indicator', { current: variationIndices.pitches + 1, total: 5 })}</p>
+                                </div>
+                                <button className="regenerate-btn" onClick={() => regenerate('pitches')}>
+                                    <Sparkles size={16} /> {t('advisor.regenerate_pitches')}
                                 </button>
                             </div>
-                        ))}
-                    </div>
-                )}
-
-                {activeTab === 'outreach' && (
-                    <div className="tool-panel">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <div>
-                                <h3>{t('advisor.outreach_header')}</h3>
-                                <p className="section-subtitle">{t('advisor.variation_indicator', { current: variationIndices.outreach + 1, total: 5 })}</p>
-                            </div>
-                            <button className="regenerate-btn" onClick={() => regenerate('outreach')}>
-                                <Sparkles size={16} /> {t('advisor.regenerate_outreach')}
-                            </button>
-                        </div>
-                        {getOutreach().map(msg => (
-                            <div key={msg.id} className="output-card">
-                                <span className="output-tag">{msg.tag}</span>
-                                <div className="output-content">{msg.content}</div>
-                                <button className="copy-btn" onClick={() => handleCopy(msg.content, msg.id)}>
-                                    {copiedId === msg.id ? <CheckCircle size={16} /> : <Copy size={16} />}
-                                    {copiedId === msg.id ? t('advisor.copied') : t('advisor.copy_button')}
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {activeTab === 'qa' && (
-                    <div className="tool-panel">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <div>
-                                <h3>{t('advisor.qa_header')}</h3>
-                                <p className="section-subtitle">{t('advisor.variation_indicator', { current: variationIndices.qa + 1, total: 5 })}</p>
-                            </div>
-                            <button className="regenerate-btn" onClick={() => regenerate('qa')}>
-                                <Sparkles size={16} /> {t('advisor.regenerate_qa')}
-                            </button>
-                        </div>
-                        <div className="qa-container">
-                            {getQuestions().map((item, idx) => (
-                                <div key={idx} className="output-card" style={{ marginBottom: '20px' }}>
-                                    <h4 style={{ color: 'var(--electric-blue)', marginBottom: '10px' }}>Q: {item.q}</h4>
-                                    <div className="output-content" style={{ fontSize: '1rem', borderLeft: '3px solid var(--electric-blue)', paddingLeft: '15px' }}>
-                                        {item.a}
-                                    </div>
+                            {getPitches().map(pitch => (
+                                <div key={pitch.id} className="output-card">
+                                    <span className="output-tag">{pitch.tag}</span>
+                                    <div className="output-content">{pitch.content}</div>
+                                    <button className="copy-btn" onClick={() => handleCopy(pitch.content, pitch.id)}>
+                                        {copiedId === pitch.id ? <CheckCircle size={16} /> : <Copy size={16} />}
+                                        {copiedId === pitch.id ? t('advisor.copied') : t('advisor.copy_button')}
+                                    </button>
                                 </div>
                             ))}
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {activeTab === 'advisor' && (
-                    <AIFeatureGate
-                        featureName={t('advisor.ai_header')}
-                        onProceedWithoutAuth={() => { }}
-                    >
+                    {activeTab === 'outreach' && (
+                        <div className="tool-panel">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                <div>
+                                    <h3>{t('advisor.outreach_header')}</h3>
+                                    <p className="section-subtitle">{t('advisor.variation_indicator', { current: variationIndices.outreach + 1, total: 5 })}</p>
+                                </div>
+                                <button className="regenerate-btn" onClick={() => regenerate('outreach')}>
+                                    <Sparkles size={16} /> {t('advisor.regenerate_outreach')}
+                                </button>
+                            </div>
+                            {getOutreach().map(msg => (
+                                <div key={msg.id} className="output-card">
+                                    <span className="output-tag">{msg.tag}</span>
+                                    <div className="output-content">{msg.content}</div>
+                                    <button className="copy-btn" onClick={() => handleCopy(msg.content, msg.id)}>
+                                        {copiedId === msg.id ? <CheckCircle size={16} /> : <Copy size={16} />}
+                                        {copiedId === msg.id ? t('advisor.copied') : t('advisor.copy_button')}
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {activeTab === 'qa' && (
+                        <div className="tool-panel">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                <div>
+                                    <h3>{t('advisor.qa_header')}</h3>
+                                    <p className="section-subtitle">{t('advisor.variation_indicator', { current: variationIndices.qa + 1, total: 5 })}</p>
+                                </div>
+                                <button className="regenerate-btn" onClick={() => regenerate('qa')}>
+                                    <Sparkles size={16} /> {t('advisor.regenerate_qa')}
+                                </button>
+                            </div>
+                            <div className="qa-container">
+                                {getQuestions().map((item, idx) => (
+                                    <div key={idx} className="output-card" style={{ marginBottom: '20px' }}>
+                                        <h4 style={{ color: 'var(--electric-blue)', marginBottom: '10px' }}>Q: {item.q}</h4>
+                                        <div className="output-content" style={{ fontSize: '1rem', borderLeft: '3px solid var(--electric-blue)', paddingLeft: '15px' }}>
+                                            {item.a}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'advisor' && (
                         <div className="tool-panel ai-advisor-panel strategic-advisor-chat">
                             <div className="chat-header">
                                 <div className="header-info">
@@ -796,10 +793,10 @@ const StrategicAdvisor = ({ profileIndex }) => {
                                 </button>
                             </form>
                         </div>
-                    </AIFeatureGate>
-                )}
+                    )}
+                </div>
             </div>
-        </div >
+        </AIFeatureGate>
     );
 };
 

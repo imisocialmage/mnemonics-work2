@@ -597,11 +597,11 @@ const SoloCorp101 = ({ profileIndex }) => {
                                     </div>
                                 </div>
                                 <div className="chat-messages">
-                                    <div className="msg bubble assistant-message">
-                                        <div className="bubble-content">
-                                            {t('advisor.solocorp.welcome')}
-                                            <p style={{ marginTop: '10px', fontSize: '0.9em', opacity: 0.9 }}>
-                                                {t('advisor.solocorp.book_call_instruction')}
+                                    <div className="msg bubble assistant-message" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+                                        <div className="bubble-content" style={{ color: '#ffffff', opacity: 1 }}>
+                                            {t('advisor.solocorp.welcome') || "Welcome to the Strategy Engine. Consult the Playbook to map your 30-day transition."}
+                                            <p style={{ marginTop: '10px', fontSize: '0.9em', opacity: 1, color: '#ffffff' }}>
+                                                {t('advisor.solocorp.book_call_instruction') || "If you need further assistance, I recommend booking a one-on-one calibration meeting with a coach."}
                                             </p>
                                             <a
                                                 href="https://calendly.com/imi-socialmediaimage/30min"
@@ -630,8 +630,8 @@ const SoloCorp101 = ({ profileIndex }) => {
                                     {soloMessages.map((m, i) => {
                                         const hasBookingLink = typeof m.content === 'string' && m.content.includes('calendly.com/imi-socialmediaimage/30min');
                                         return (
-                                            <div key={m.id || i} className={`msg bubble ${m.role === 'user' ? 'user-message' : 'assistant-message'}`}>
-                                                <div className="bubble-content">
+                                            <div key={m.id || i} className={`msg bubble ${m.role === 'user' ? 'user-message' : 'assistant-message'}`} style={m.role === 'assistant' ? { backgroundColor: '#1e293b', border: '1px solid #475569' } : {}}>
+                                                <div className="bubble-content" style={{ color: '#ffffff', opacity: 1 }}>
                                                     {m.content}
                                                     {m.isStreaming && <span className="streaming-cursor">|</span>}
                                                     {hasBookingLink && !m.isStreaming && (

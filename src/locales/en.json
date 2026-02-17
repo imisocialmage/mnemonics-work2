@@ -1121,5 +1121,45 @@
         "unlock_ai": "Unlock AI Features",
         "use_basic_mode": "Use Basic Mode",
         "free_credits_note": "🎁 New users get 100 free AI credits"
+    },
+    "core_profiler": {
+        "title": "Core Profiler",
+        "subtitle": "Synthesize your complete brand identity and sales system from a single description.",
+        "ai_badge": "AI Brand Architect",
+        "modal": {
+            "title": "Core Profiler",
+            "language": "AI Language *",
+            "name": "Brand name *",
+            "description": "U.V.P description *",
+            "placeholder": "Describe what you do, who you serve, and the value you provide...",
+            "submit": "Analyze & Synthesize"
+        },
+        "brand": {
+            "title": "Brand",
+            "description_label": "Your AI brand description *",
+            "keywords_label": "Keywords *",
+            "fonts_label": "Brand Fonts",
+            "colors_label": "Brand Colors",
+            "headers": "Headers",
+            "body": "Body Text"
+        },
+        "sales_system": {
+            "title": "Sales System",
+            "tabs": {
+                "product": "Product",
+                "reorder": "Reorder",
+                "opportunity": "Opportunity",
+                "upsell": "Upsell",
+                "team": "Team"
+            },
+            "regenerate": "Regenerate"
+        },
+        "actions": {
+            "build_website": "Build Website",
+            "build_email": "Build Email",
+            "save": "Save",
+            "regenerate": "Regenerate",
+            "regenerate_top": "Regenerate Analysis"
+        }
     }
 }

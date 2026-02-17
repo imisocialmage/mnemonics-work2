@@ -113,6 +113,31 @@ const TOOL_SCHEMAS = {
             ],
             visualAdvice: "Strategic advice on what kind of photography or illustration to use based on the context."
         }
+    },
+    coreProfiler: {
+        systemPrompt: "You are an Expert Brand Architect and Systems Strategist. Based on a business description, synthesize a full brand identity and sales system. Provide colors, fonts, keywords, and a multi-tab sales strategy. Use your deep knowledge of psychology and marketing to make these entries punchy and effective. Return JSON.",
+        jsonStructure: {
+            brand: {
+                name: "The business name",
+                description: "A professional, expanded version of the user's description (3-4 sentences).",
+                fonts: {
+                    headers: "font-family name (e.g., Montserrat, Playfair Display, Roboto)",
+                    body: "font-family name (e.g., Lato, Open Sans, Inter)"
+                },
+                colors: {
+                    primary: "#HEX",
+                    secondary: "#HEX"
+                },
+                keywords: ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"]
+            },
+            salesSystem: {
+                product: "Detailed description of the new customer acquisition system.",
+                reorder: "Strategy for getting customers to reorder or stay loyal.",
+                opportunity: "How to identify and seize new market opportunities.",
+                upsell: "Concrete upsell strategies to increase average order value.",
+                team: "Strategy for building or managing the necessary team/talent."
+            }
+        }
     }
 };
 
@@ -185,8 +210,20 @@ export const analyzeToolData = async (toolId, data, language = 'en') => {
                 };
 
                 batch.landingPage = enrichVisuals(batch.landingPage);
-                batch.socialPost = enrichVisuals(batch.socialPost);
-                batch.emailHeader = enrichVisuals(batch.emailHeader);
+
+                // Enrich all social post platforms
+                if (batch.socialPosts) {
+                    Object.keys(batch.socialPosts).forEach(platform => {
+                        batch.socialPosts[platform] = enrichVisuals(batch.socialPosts[platform]);
+                    });
+                }
+
+                // Enrich all social cover formats
+                if (batch.socialCover) {
+                    Object.keys(batch.socialCover).forEach(coverType => {
+                        batch.socialCover[coverType] = enrichVisuals(batch.socialCover[coverType]);
+                    });
+                }
 
                 resolve(batch);
             }, 1000); // Simulate "thinking" time

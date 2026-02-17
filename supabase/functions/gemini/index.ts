@@ -58,12 +58,15 @@ serve(async (req) => {
         }
 
         // Call Gemini API
-        const MODEL_NAME = 'gemini-2.0-flash'; // Using a stable model name
+        const MODEL_NAME = 'gemini-1.5-flash'; // Standardizing model
+        // Call Gemini API with "High Compatibility" - prepend system prompt
+        const contents = history || [{ role: 'user', parts: [{ text: prompt }] }];
+        if (contents.length > 0 && contents[0].parts && contents[0].parts[0]) {
+            contents[0].parts[0].text = `SYSTEM INSTRUCTIONS:\n${systemInstruction}\n\nUSER MESSAGE:\n${contents[0].parts[0].text}`;
+        }
+
         const payload = {
-            contents: history || [{ role: 'user', parts: [{ text: prompt }] }],
-            system_instruction: {
-                parts: [{ text: systemInstruction }]
-            },
+            contents: contents,
             generationConfig: {
                 temperature: 0.1,
                 maxOutputTokens: 2048,
@@ -71,7 +74,7 @@ serve(async (req) => {
         };
 
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${outputApiKey}`,
+            `https://generativelanguage.googleapis.com/v1/models/${MODEL_NAME}:generateContent?key=${outputApiKey}`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

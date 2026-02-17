@@ -1,9 +1,12 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Layout, Sparkles, Palette, Type, CheckCircle, Zap, Upload, X, LogIn, ImageIcon, History, Lock, HelpCircle } from 'lucide-react';
+import { Layout, Sparkles, Palette, Type, CheckCircle, Zap, Upload, X, LogIn, ImageIcon, History, Lock, HelpCircle, Plus, RefreshCw, Maximize2, RectangleHorizontal, RectangleVertical, Square, Monitor, Smartphone, Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Send, ThumbsUp, Link as LinkIcon, AlertTriangle, Save } from 'lucide-react';
 import { useAuth } from '../Auth/AuthProvider';
 import { uploadAssetImage, saveAiAsset, fetchUserAssets } from '../../utils/assetUtils';
 import { analyzeToolData } from '../../utils/analysisService';
+import { analyzeImage } from '../../utils/ImageAnalysisService';
+import ImageValidationModal from './ImageValidationModal';
+import ImageCropper from './ImageCropper';
 import AssetAIHelpModal from './AssetAIHelpModal';
 import '../shared-tool-styles.css';
 import './AssetAI.css';
@@ -29,8 +32,24 @@ const AssetAI = ({ profileIndex }) => {
     });
     const [previousAssets, setPreviousAssets] = useState([]);
     const [showGallery, setShowGallery] = useState(false);
+    const [activePlatform, setActivePlatform] = useState('instagram');
+    const [activeCoverType, setActiveCoverType] = useState('facebook');
+    const [activeFormat, setActiveFormat] = useState(null);
+    const colorInputRef = useRef(null);
+    const [editingColorIdx, setEditingColorIdx] = useState(0);
+    const [showProspectWarning, setShowProspectWarning] = useState(false);
+    const [activeLinkIdx, setActiveLinkIdx] = useState(0);
+    const [brandProfile, setBrandProfile] = useState(null);
+
+    // Image Optimization State
+    const [analysisResult, setAnalysisResult] = useState(null);
+    const [showCropper, setShowCropper] = useState(false);
+    const [cropperImage, setCropperImage] = useState(null); // URL string defined
+    const [pendingFile, setPendingFile] = useState(null); // Store file while analyzing
 
     useEffect(() => {
+        const brandData = JSON.parse(localStorage.getItem(getProfileKey('imi-brand-data')) || '{}');
+        setBrandProfile(brandData);
         const saved = localStorage.getItem(getProfileKey('imi-asset-ai-results'));
         setAiResults(saved ? JSON.parse(saved) : null);
 
@@ -43,7 +62,20 @@ const AssetAI = ({ profileIndex }) => {
                 syncLatestAsset();
             }
         }
+
+        // Check for prospect data
+        const prospectData = JSON.parse(localStorage.getItem(getProfileKey('imi-prospect-data')) || '{}');
+        if (!prospectData.role && !prospectData.industry) {
+            setShowProspectWarning(true);
+        }
     }, [isAuthenticated, user, profileIndex, getProfileKey]);
+
+    // Autosave to LocalStorage on change
+    useEffect(() => {
+        if (aiResults) {
+            localStorage.setItem(getProfileKey('imi-asset-ai-results'), JSON.stringify(aiResults));
+        }
+    }, [aiResults, getProfileKey]);
 
     const syncLatestAsset = async () => {
         try {
@@ -67,23 +99,68 @@ const AssetAI = ({ profileIndex }) => {
         }
     };
 
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         const files = Array.from(e.target.files);
         if (files.length > 0) {
-            const validFiles = files.filter(file => {
-                if (file.size > 5 * 1024 * 1024) {
-                    setError(`Image ${file.name} is too large (>5MB).`);
-                    return false;
-                }
-                return true;
-            });
+            const file = files[0]; // Process one at a time for analysis
 
-            if (validFiles.length > 0) {
-                setVisualContext(prev => [...prev, ...validFiles].slice(0, 3)); // Limit to 3
-                const newPreviews = validFiles.map(f => URL.createObjectURL(f));
-                setUploadPreviews(prev => [...prev, ...newPreviews].slice(0, 3));
-                setError(null);
+            if (file.size > 5 * 1024 * 1024) {
+                setError(`Image ${file.name} is too large (>5MB).`);
+                return;
             }
+
+            // Analyze Image
+            try {
+                const result = await analyzeImage(file);
+                setAnalysisResult(result);
+                setPendingFile(file);
+                // Show validation modal
+            } catch (err) {
+                console.error("Image analysis failed", err);
+                // Fallback to normal add if analysis fails
+                addImagesToContext([file]);
+            }
+        }
+    };
+
+    const addImagesToContext = (files) => {
+        if (files.length > 0) {
+            setVisualContext(prev => [...prev, ...files].slice(0, 3));
+            const newPreviews = files.map(f => URL.createObjectURL(f));
+            setUploadPreviews(prev => [...prev, ...newPreviews].slice(0, 3));
+            setError(null);
+        }
+    };
+
+    const handleAnalysisDecision = (decision) => {
+        if (decision === 'use_original' && pendingFile) {
+            addImagesToContext([pendingFile]);
+            setAnalysisResult(null);
+            setPendingFile(null);
+        } else if (decision === 'crop' && pendingFile) {
+            setCropperImage(URL.createObjectURL(pendingFile));
+            setShowCropper(true);
+            setAnalysisResult(null);
+        } else {
+            // Cancel
+            setAnalysisResult(null);
+            setPendingFile(null);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
+    const handleCropComplete = async (blobUrl) => {
+        // Convert blob URL back to file object for consistency with context
+        try {
+            const response = await fetch(blobUrl);
+            const blob = await response.blob();
+            const file = new File([blob], "cropped_image.jpg", { type: "image/jpeg" });
+            addImagesToContext([file]);
+            setShowCropper(false);
+            setCropperImage(null);
+            setPendingFile(null);
+        } catch (e) {
+            console.error("Crop save failed", e);
         }
     };
 
@@ -124,6 +201,9 @@ const AssetAI = ({ profileIndex }) => {
                 imageUrls = await Promise.all(
                     visualContext.map(file => uploadAssetImage(file, user.id))
                 );
+            } else if (aiResults?.landingPage?.visuals?.all?.length > 0) {
+                // FALLBACK: Use existing visuals if regenerating without new uploads
+                imageUrls = aiResults.landingPage.visuals.all;
             }
 
             const allData = {
@@ -160,6 +240,27 @@ const AssetAI = ({ profileIndex }) => {
             setError(err.message || "Failed to generate design mockup. Please try again.");
         } finally {
             setIsLoading(false);
+            setIsSaving(false);
+        }
+    };
+
+    const saveCurrentAsset = async () => {
+        if (!aiResults || !user) return;
+        setIsSaving(true);
+        try {
+            const assetRecord = {
+                user_id: user.id,
+                profile_index: profileIndex,
+                type: aiResults.landingPage?.assetType || "Mixed Asset Bundle",
+                results: aiResults,
+                image_urls: aiResults.landingPage?.visuals || null
+            };
+            await saveAiAsset(assetRecord);
+            loadUserAssets(); // Refresh gallery
+        } catch (err) {
+            console.error("Manual save failed:", err);
+            setError("Failed to save changes.");
+        } finally {
             setIsSaving(false);
         }
     };
@@ -210,16 +311,26 @@ const AssetAI = ({ profileIndex }) => {
                 };
             };
 
-            if (prev.landingPage) {
-                return {
-                    ...prev,
-                    landingPage: updateMain(prev.landingPage),
-                    socialPost: updateMain(prev.socialPost),
-                    emailHeader: updateMain(prev.emailHeader)
-                };
-            } else {
-                return updateMain(prev);
+            const updated = { ...prev };
+            if (updated.landingPage) updated.landingPage = updateMain(updated.landingPage);
+
+            if (updated.socialPosts) {
+                Object.keys(updated.socialPosts).forEach(key => {
+                    updated.socialPosts[key] = updateMain(updated.socialPosts[key]);
+                });
+            } else if (updated.socialPost) {
+                updated.socialPost = updateMain(updated.socialPost);
             }
+
+            if (updated.socialCover) {
+                Object.keys(updated.socialCover).forEach(key => {
+                    updated.socialCover[key] = updateMain(updated.socialCover[key]);
+                });
+            } else if (updated.emailHeader) {
+                updated.emailHeader = updateMain(updated.emailHeader);
+            }
+
+            return updated;
         });
     };
 
@@ -228,13 +339,106 @@ const AssetAI = ({ profileIndex }) => {
         if (!aiResults.landingPage) return aiResults; // Legacy fallback
 
         switch (activeTab) {
-            case 'Social Post': return aiResults.socialPost;
-            case 'Email Header': return aiResults.emailHeader;
+            case 'Social Post': return aiResults.socialPosts?.[activePlatform] || aiResults.socialPost;
+            case 'Social Cover': return aiResults.socialCover?.[activeCoverType] || aiResults.emailHeader;
             default: return aiResults.landingPage;
         }
     };
 
     const activeAsset = getActiveAssetData();
+
+    // Platform format definitions
+    const PLATFORM_FORMATS = {
+        instagram: [
+            { key: 'square', label: 'Feed (1:1)', ratio: '1 / 1', maxWidth: '500px', icon: Square },
+            { key: 'portrait', label: 'Portrait (4:5)', ratio: '4 / 5', maxWidth: '500px', icon: RectangleVertical },
+            { key: 'story', label: 'Story (9:16)', ratio: '9 / 16', maxWidth: '400px', icon: Smartphone },
+        ],
+        facebook: [
+            { key: 'portrait', label: 'Feed (4:5)', ratio: '4 / 5', maxWidth: '500px', icon: RectangleVertical },
+            { key: 'square', label: 'Square (1:1)', ratio: '1 / 1', maxWidth: '500px', icon: Square },
+        ],
+        tiktok: [
+            { key: 'vertical', label: 'Vertical (9:16)', ratio: '9 / 16', maxWidth: '400px', icon: Smartphone },
+        ],
+        linkedin: [
+            { key: 'landscape', label: 'Landscape (1.91:1)', ratio: '1.91 / 1', maxWidth: '100%', icon: RectangleHorizontal },
+            { key: 'square', label: 'Square (1:1)', ratio: '1 / 1', maxWidth: '600px', icon: Square },
+        ],
+    };
+
+    const COVER_FORMATS = {
+        facebook: { label: 'Facebook Cover (820×312)', ratio: '820 / 312', maxWidth: '100%' },
+        youtube: { label: 'YouTube Banner (16:9)', ratio: '16 / 9', maxWidth: '100%' },
+    };
+
+    const getPreviewStyle = () => {
+        if (activeTab === 'Landing Page') {
+            return { maxWidth: activeFormat === 'mobile' ? '400px' : '100%', margin: activeFormat === 'mobile' ? '0 auto 32px' : '0 0 32px' };
+        }
+        if (activeTab === 'Social Post') {
+            const formats = PLATFORM_FORMATS[activePlatform] || [];
+            const fmt = formats.find(f => f.key === activeFormat) || formats[0];
+            return { maxWidth: fmt?.maxWidth || '500px', margin: '0 auto 32px' };
+        }
+        if (activeTab === 'Social Cover') {
+            const fmt = COVER_FORMATS[activeCoverType];
+            return { maxWidth: fmt?.maxWidth || '100%', margin: '0 0 32px' };
+        }
+        return {};
+    };
+
+    const getPreviewAspectRatio = () => {
+        if (activeTab === 'Social Post') {
+            const formats = PLATFORM_FORMATS[activePlatform] || [];
+            const fmt = formats.find(f => f.key === activeFormat) || formats[0];
+            return fmt?.ratio || '1 / 1';
+        }
+        if (activeTab === 'Social Cover') {
+            const fmt = COVER_FORMATS[activeCoverType];
+            return fmt?.ratio || '16 / 9';
+        }
+        return null; // Landing page uses min-height instead
+    };
+
+    const updateAssetColor = (colorIndex, newColor) => {
+        setAiResults(prev => {
+            if (!prev) return prev;
+            const updated = JSON.parse(JSON.stringify(prev));
+
+            const updatePalette = (asset) => {
+                if (asset?.colorPalette && Array.isArray(asset.colorPalette)) {
+                    asset.colorPalette[colorIndex] = newColor;
+                }
+            };
+
+            // Update the current active asset's palette
+            if (activeTab === 'Landing Page') updatePalette(updated.landingPage);
+            else if (activeTab === 'Social Post') updatePalette(updated.socialPosts?.[activePlatform]);
+            else if (activeTab === 'Social Cover') updatePalette(updated.socialCover?.[activeCoverType]);
+
+            return updated;
+        });
+    };
+
+    const updateAssetLink = (btnIndex, newLink) => {
+        setAiResults(prev => {
+            if (!prev) return prev;
+            const updated = JSON.parse(JSON.stringify(prev));
+
+            const updateButtons = (asset) => {
+                if (asset?.ctaButtons && asset.ctaButtons[btnIndex]) {
+                    asset.ctaButtons[btnIndex].link = newLink;
+                }
+            };
+
+            if (activeTab === 'Landing Page') updateButtons(updated.landingPage);
+            else if (activeTab === 'Social Post') updateButtons(updated.socialPosts?.[activePlatform]);
+            else if (activeTab === 'Social Cover') updateButtons(updated.socialCover?.[activeCoverType]);
+
+            return updated;
+        });
+    };
 
     if (!isAuthenticated) {
         return (
@@ -370,25 +574,41 @@ const AssetAI = ({ profileIndex }) => {
                     )
                 ) : (
                     <div className="asset-results-view">
-                        <div className="results-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
-                            <div>
-                                <span className="badge">{activeAsset?.assetType || 'Visual Asset'}</span>
-                                <h3 className="mt-2">Strategic Visual Concept</h3>
+                        <div className="results-header">
+                            <div className="results-header-info">
+                                <span className="asset-badge">{activeAsset?.assetType || 'Visual Asset'}</span>
+                                <h3 className="results-title">Strategic Visual Concept</h3>
+                                {showProspectWarning && (
+                                    <div className="prospect-warning" title="Complete Prospect Guide for better targeting">
+                                        <AlertTriangle size={14} color="#f59e0b" />
+                                        <span>Tip: Complete Prospect Guide for better targeting</span>
+                                        <button onClick={() => setShowProspectWarning(false)}><X size={12} /></button>
+                                    </div>
+                                )}
                             </div>
-                            <div className="flex gap-2">
-                                <button className="btn btn-outline" onClick={() => setAiResults(null)}>New</button>
-                                <button className="btn btn-secondary" onClick={runAssetAnalysis} disabled={isLoading}>
+                            <div className="results-header-actions">
+                                <button className="btn-new" onClick={() => setAiResults(null)}>
+                                    <Plus size={16} /> New
+                                </button>
+                                <button className="btn-regenerate" onClick={runAssetAnalysis} disabled={isLoading}>
+                                    <RefreshCw size={16} className={isLoading ? 'spin-icon' : ''} />
                                     {isLoading ? t('common.generating') : 'Regenerate'}
+                                </button>
+                                <button className="btn-save" onClick={saveCurrentAsset} disabled={isSaving}>
+                                    <Save size={16} /> {isSaving ? 'Saving...' : 'Save Changes'}
                                 </button>
                             </div>
                         </div>
 
                         {/* Asset Type Tabs */}
                         <div className="asset-tabs">
-                            {['Landing Page', 'Social Post', 'Email Header'].map((type) => (
+                            {['Landing Page', 'Social Post', 'Social Cover'].map((type) => (
                                 <button
                                     key={type}
-                                    onClick={() => setActiveTab(type)}
+                                    onClick={() => {
+                                        setActiveTab(type);
+                                        setActiveFormat(null);
+                                    }}
                                     className={`tab-btn ${activeTab === type ? 'active' : ''}`}
                                 >
                                     {type}
@@ -396,57 +616,343 @@ const AssetAI = ({ profileIndex }) => {
                             ))}
                         </div>
 
-                        <div className="asset-preview-frame" style={{
-                            maxWidth: activeTab === 'Social Post' ? '500px' : '100%',
-                            margin: activeTab === 'Social Post' ? '0 auto 32px' : '0 0 32px'
-                        }}>
-                            {activeTab !== 'Social Post' ? (
+                        {/* Platform Sub-Tabs for Social Post */}
+                        {activeTab === 'Social Post' && (
+                            <div className="platform-subtabs">
+                                {[
+                                    { key: 'instagram', label: '📸 Instagram' },
+                                    { key: 'facebook', label: '👍 Facebook' },
+                                    { key: 'tiktok', label: '🎵 TikTok' },
+                                    { key: 'linkedin', label: '💼 LinkedIn' },
+                                ].map(p => (
+                                    <button
+                                        key={p.key}
+                                        className={`platform-btn ${activePlatform === p.key ? 'active' : ''}`}
+                                        onClick={() => { setActivePlatform(p.key); setActiveFormat(null); }}
+                                    >
+                                        {p.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Cover Sub-Tabs for Social Cover */}
+                        {activeTab === 'Social Cover' && (
+                            <div className="platform-subtabs">
+                                {[
+                                    { key: 'facebook', label: '📘 Facebook Cover' },
+                                    { key: 'youtube', label: '▶️ YouTube Banner' },
+                                ].map(c => (
+                                    <button
+                                        key={c.key}
+                                        className={`platform-btn ${activeCoverType === c.key ? 'active' : ''}`}
+                                        onClick={() => setActiveCoverType(c.key)}
+                                    >
+                                        {c.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Interactive Controls Bar */}
+                        <div className="asset-controls-bar">
+                            {/* Color Palette Picker */}
+                            <div className="control-group">
+                                <label className="control-label"><Palette size={14} /> Colors</label>
+                                <div className="color-swatch-row">
+                                    {activeAsset?.colorPalette?.map((color, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="color-swatch-editable"
+                                            style={{ background: color }}
+                                            title={`Click to edit: ${color}`}
+                                            onClick={() => {
+                                                setEditingColorIdx(idx);
+                                                if (colorInputRef.current) {
+                                                    colorInputRef.current.value = color;
+                                                    colorInputRef.current.click();
+                                                }
+                                            }}
+                                        />
+                                    ))}
+                                    <input
+                                        ref={colorInputRef}
+                                        type="color"
+                                        className="hidden-color-input"
+                                        value={activeAsset?.colorPalette?.[editingColorIdx] || '#000000'}
+                                        onChange={(e) => {
+                                            if (editingColorIdx !== null) {
+                                                updateAssetColor(editingColorIdx, e.target.value);
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Image Upload Control */}
+                            <div className="control-group">
+                                <label className="control-label"><ImageIcon size={14} /> Image</label>
+                                <div className="image-control-wrapper" style={{ display: 'flex', gap: '8px' }}>
+                                    <button
+                                        className="btn-outline-sm"
+                                        style={{ padding: '4px 8px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+                                        onClick={() => document.getElementById('result-image-upload').click()}
+                                    >
+                                        <Upload size={12} className="mr-1" /> Replace
+                                    </button>
+                                    <input
+                                        id="result-image-upload"
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            if (e.target.files?.[0]) {
+                                                const url = URL.createObjectURL(e.target.files[0]);
+                                                selectMainImage(url);
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Image Optimization Modals */}
+                            {analysisResult && (
+                                <ImageValidationModal
+                                    analysis={analysisResult}
+                                    onCancel={() => handleAnalysisDecision('cancel')}
+                                    onUseOriginal={() => handleAnalysisDecision('use_original')}
+                                    onCrop={() => handleAnalysisDecision('crop')}
+                                />
+                            )}
+
+                            {showCropper && cropperImage && (
+                                <ImageCropper
+                                    imageSrc={cropperImage}
+                                    targetAspect={1} // Default square for now, could be dynamic
+                                    onCancel={() => setShowCropper(false)}
+                                    onCrop={handleCropComplete}
+                                />
+                            )}
+
+                            {/* Link Editor */}
+                            {activeAsset?.ctaButtons?.length > 0 && (
+                                <div className="control-group link-control">
+                                    <label className="control-label"><LinkIcon size={14} /> Links</label>
+                                    <div className="link-input-wrapper">
+                                        <select
+                                            className="link-btn-select"
+                                            value={activeLinkIdx}
+                                            onChange={(e) => setActiveLinkIdx(Number(e.target.value))}
+                                        >
+                                            {activeAsset.ctaButtons.map((btn, idx) => (
+                                                <option key={idx} value={idx}>{btn.text}</option>
+                                            ))}
+                                        </select>
+                                        <input
+                                            type="text"
+                                            className="link-input"
+                                            value={activeAsset.ctaButtons[activeLinkIdx]?.link || '#'}
+                                            onChange={(e) => updateAssetLink(activeLinkIdx, e.target.value)}
+                                            placeholder="https://"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+
+
+                            {/* Format Selector */}
+                            {activeTab === 'Social Post' && PLATFORM_FORMATS[activePlatform] && (
+                                <div className="control-group">
+                                    <label className="control-label"><Maximize2 size={14} /> Format</label>
+                                    <div className="format-pills">
+                                        {PLATFORM_FORMATS[activePlatform].map(fmt => {
+                                            const IconComp = fmt.icon;
+                                            return (
+                                                <button
+                                                    key={fmt.key}
+                                                    className={`format-pill ${(activeFormat || PLATFORM_FORMATS[activePlatform][0]?.key) === fmt.key ? 'active' : ''}`}
+                                                    onClick={() => setActiveFormat(fmt.key)}
+                                                >
+                                                    <IconComp size={14} /> {fmt.label}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'Landing Page' && (
+                                <div className="control-group">
+                                    <label className="control-label"><Maximize2 size={14} /> View</label>
+                                    <div className="format-pills">
+                                        <button className={`format-pill ${activeFormat !== 'mobile' ? 'active' : ''}`} onClick={() => setActiveFormat('desktop')}>
+                                            <Monitor size={14} /> Desktop
+                                        </button>
+                                        <button className={`format-pill ${activeFormat === 'mobile' ? 'active' : ''}`} onClick={() => setActiveFormat('mobile')}>
+                                            <Smartphone size={14} /> Mobile
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="asset-preview-frame" style={getPreviewStyle()}>
+                            {/* Preview Header — context-aware */}
+                            {activeTab === 'Landing Page' ? (
                                 <div className="browser-header">
                                     <div className="browser-dot red"></div>
                                     <div className="browser-dot yellow"></div>
                                     <div className="browser-dot green"></div>
-                                    <div className="browser-url">
-                                        {activeTab === 'Email Header' ? 'Inbox • Welcome Sequence' : 'your-strategy-in-action.com'}
-                                    </div>
+                                    <div className="browser-url">your-strategy-in-action.com</div>
+                                </div>
+                            ) : activeTab === 'Social Cover' ? (
+                                <div className="cover-preview-header">
+                                    <span className="cover-label">{activeCoverType === 'youtube' ? '▶️ YouTube Channel Art' : '📘 Facebook Page Cover'}</span>
                                 </div>
                             ) : (
-                                <div className="social-preview-header">
-                                    <div className="social-avatar"></div>
-                                    <div className="social-username">YourBrand_Official</div>
+                                <div className={`social-preview-header ${activePlatform}`}>
+                                    <div className="social-avatar">
+                                        {activeAsset?.visuals?.logo || brandProfile?.logo || user?.user_metadata?.avatar_url ? (
+                                            <img
+                                                src={activeAsset?.visuals?.logo || brandProfile?.logo || user?.user_metadata?.avatar_url}
+                                                alt="Profile"
+                                                style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                                            />
+                                        ) : (
+                                            <span style={{ color: 'white', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', fontSize: '1.2rem' }}>
+                                                {(activeAsset?.brandName || brandProfile?.brandName || 'B').charAt(0).toUpperCase()}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="social-username">
+                                        {activeAsset?.brandName || brandProfile?.brandName || 'Your Brand'}
+                                        {activePlatform === 'linkedin' ? ' • 1st' : activePlatform === 'tiktok' ? ` @${(activeAsset?.brandName || brandProfile?.brandName || 'brand').replace(/\s/g, '').toLowerCase()}` : '_Official'}
+                                        {activePlatform === 'facebook' && <span className="post-timestamp"> • 2h</span>}
+                                    </div>
+                                    <div className="social-header-actions">
+                                        {activePlatform === 'tiktok' ? <span className="tiktok-badge">🎵 Original Sound</span> : <MoreHorizontal size={16} color="white" />}
+                                    </div>
                                 </div>
                             )}
 
-                            <div className="hero-preview" style={{
-                                background: activeAsset?.visuals?.main
-                                    ? `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url(${activeAsset.visuals.main}) center/cover no-repeat`
-                                    : `linear-gradient(rgba(255,255,255,0.95), rgba(255,255,255,0.95)), ${activeAsset?.colorPalette?.[0] || '#2979ff'}10`,
-                                color: activeAsset?.visuals?.main ? 'white' : 'inherit',
-                                minHeight: activeTab === 'Social Post' ? '400px' : 'auto'
-                            }}>
-                                <h1 className="preview-headline" style={{
-                                    color: activeAsset?.visuals?.main ? 'white' : (activeAsset?.colorPalette?.[0] || '#2979ff'),
-                                    textShadow: activeAsset?.visuals?.main ? '0 2px 8px rgba(0,0,0,0.4)' : 'none'
-                                }}>
-                                    {activeAsset?.headline}
-                                </h1>
-                                <p className="preview-subheadline" style={{
-                                    color: activeAsset?.visuals?.main ? 'rgba(255,255,255,0.9)' : '#555',
-                                    textShadow: activeAsset?.visuals?.main ? '0 1px 4px rgba(0,0,0,0.3)' : 'none'
-                                }}>
-                                    {activeAsset?.subheadline}
-                                </p>
+                            {/* Social Post Content Container */}
+                            <div className={`preview-content-wrapper ${activeTab === 'Social Post' ? activePlatform : ''}`}>
 
-                                <div className="preview-ctas">
-                                    {activeAsset?.ctaButtons?.map((btn, idx) => (
-                                        <button key={idx} className={`btn ${btn.style === 'primary' ? 'btn-primary' : 'btn-outline'}`} style={{
-                                            background: btn.style === 'primary' ? (activeAsset.colorPalette?.[0] || '#2979ff') : 'transparent',
-                                            borderColor: btn.style === 'primary' ? 'transparent' : (activeAsset?.visuals?.main ? 'rgba(255,255,255,0.5)' : '#ddd'),
-                                            color: btn.style === 'primary' ? 'white' : (activeAsset?.visuals?.main ? 'white' : '#333')
-                                        }}>
-                                            {btn.text}
-                                        </button>
-                                    ))}
+                                {/* Text ABOVE Media (Facebook, LinkedIn) */}
+                                {activeTab === 'Social Post' && (activePlatform === 'facebook' || activePlatform === 'linkedin') && (
+                                    <div className="post-caption-top">
+                                        <p className="post-text">{activeAsset?.caption}</p>
+                                        <p className="post-hashtags">{activeAsset?.hashtags}</p>
+                                    </div>
+                                )}
+
+                                <div className="hero-preview" style={{
+                                    background: activeAsset?.visuals?.main
+                                        ? `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.2)), url(${activeAsset.visuals.main}) center/cover no-repeat`
+                                        : `linear-gradient(135deg, ${activeAsset?.colorPalette?.[0] || '#2979ff'} 0%, ${activeAsset?.colorPalette?.[1] || '#1565c0'} 100%)`,
+                                    color: activeAsset?.visuals?.main ? 'white' : 'white',
+                                    aspectRatio: getPreviewAspectRatio() || undefined,
+                                    minHeight: !getPreviewAspectRatio() ? (activeFormat === 'mobile' ? '600px' : '400px') : undefined,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    position: 'relative'
+                                }}>
+                                    {/* TikTok UI Overlay */}
+                                    {activePlatform === 'tiktok' && activeTab === 'Social Post' && (
+                                        <div className="tiktok-overlay">
+                                            <div className="tiktok-side-actions">
+                                                <div className="tiktok-a-btn"><Heart size={24} fill="rgba(255,255,255,0.9)" /><span>8.5k</span></div>
+                                                <div className="tiktok-a-btn"><MessageCircle size={24} fill="rgba(255,255,255,0.9)" /><span>243</span></div>
+                                                <div className="tiktok-a-btn"><Bookmark size={24} fill="rgba(255,255,255,0.9)" /><span>1.2k</span></div>
+                                                <div className="tiktok-a-btn"><Share2 size={24} fill="rgba(255,255,255,0.9)" /><span>Share</span></div>
+                                            </div>
+                                            <div className="tiktok-bottom-text">
+                                                <div className="tiktok-user">@yourbrand</div>
+                                                <p className="tiktok-caption">{activeAsset?.caption} {activeAsset?.hashtags}</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Main Headline Content (Unless it's just a raw image) */}
+                                    {(!activeAsset?.visuals?.main || activeTab === 'Landing Page' || activeTab === 'Social Cover') && (
+                                        <div className="preview-text-content">
+                                            <h1 className="preview-headline" style={{
+                                                fontSize: activeTab === 'Social Cover' ? '1.8rem' : undefined,
+                                                textShadow: '0 2px 10px rgba(0,0,0,0.3)'
+                                            }}>
+                                                {activeAsset?.headline}
+                                            </h1>
+                                            {activeAsset?.subheadline && (
+                                                <p className="preview-subheadline" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>
+                                                    {activeAsset?.subheadline}
+                                                </p>
+                                            )}
+
+                                            <div className="preview-ctas">
+                                                {activeAsset?.ctaButtons?.map((btn, idx) => (
+                                                    <a
+                                                        key={idx}
+                                                        href={btn.link || '#'}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className={`btn ${btn.style === 'primary' ? 'btn-primary' : 'btn-outline'}`}
+                                                        style={{
+                                                            background: btn.style === 'primary' ? (activeAsset.colorPalette?.[0] || '#2979ff') : 'transparent',
+                                                            borderColor: btn.style === 'primary' ? 'transparent' : (activeAsset?.visuals?.main ? 'rgba(255,255,255,0.5)' : '#ddd'),
+                                                            color: btn.style === 'primary' ? 'white' : (activeAsset?.visuals?.main ? 'white' : '#333'),
+                                                            textDecoration: 'none',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                        onClick={(e) => {
+                                                            if (!btn.link || btn.link === '#') e.preventDefault();
+                                                        }}
+                                                    >
+                                                        {btn.text}
+                                                    </a>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Platform Format Label */}
+                                    {activeAsset?.platformFormat && activeTab === 'Social Post' && (
+                                        <div className="format-label-badge inside">
+                                            {activeAsset.platformFormat.label}
+                                        </div>
+                                    )}
                                 </div>
+
+                                {/* Social Action Bar (Non-TikTok) */}
+                                {activeTab === 'Social Post' && activePlatform !== 'tiktok' && (
+                                    <div className="social-action-bar">
+                                        <div className="action-left">
+                                            {activePlatform === 'facebook' || activePlatform === 'linkedin' ? (
+                                                <><ThumbsUp size={20} /> <MessageCircle size={20} /> <Share2 size={20} /></>
+                                            ) : ( /* Instagram */
+                                                <><Heart size={24} /> <MessageCircle size={24} /> <Send size={24} /></>
+                                            )}
+                                        </div>
+                                        <div className="action-right">
+                                            {activePlatform !== 'facebook' && activePlatform !== 'linkedin' && <Bookmark size={24} />}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Text BELOW Media (Instagram) */}
+                                {activeTab === 'Social Post' && activePlatform === 'instagram' && (
+                                    <div className="post-caption-bottom">
+                                        <p className="post-likes">1,243 likes</p>
+                                        <p className="post-text">
+                                            <strong>yourbrand_official</strong> {activeAsset?.caption}
+                                        </p>
+                                        <p className="post-hashtags">{activeAsset?.hashtags}</p>
+                                        <p className="post-time">2 HOURS AGO</p>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Secondary Visuals Section (New) */}

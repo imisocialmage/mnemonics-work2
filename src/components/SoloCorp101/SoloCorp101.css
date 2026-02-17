@@ -383,8 +383,14 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    background: #0f172a;
-    /* Dark background */
+    background: #0f172a !important;
+    /* Dark background forced */
+    color: #ffffff !important;
+}
+
+.chat-messages * {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
 }
 
 .msg.bubble {
@@ -399,11 +405,19 @@
 
 .assistant-message {
     align-self: flex-start;
-    background: rgba(255, 255, 255, 0.05);
-    /* Semi-transparent white */
-    color: #f1f5f9;
-    /* Light text */
+    background: #1e293b !important;
+    /* Solid dark background for contrast */
+    color: #ffffff !important;
+    /* Pure white text forced */
     border-bottom-left-radius: 4px;
+    border: 1px solid #475569 !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.assistant-message * {
+    color: white !important;
+    /* Force all children to be white */
 }
 
 .user-message {
@@ -415,6 +429,8 @@
 
 .bubble-content {
     white-space: pre-line;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
 }
 
 .assistant-message.typing .bubble-content {
