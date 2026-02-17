@@ -1,10 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
-const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -17,56 +13,61 @@ serve(async (req) => {
     }
 
     try {
-        const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!)
+        // Create a Supabase client with the Auth context of the logged in user.
+        // This is the CRITICAL fix for 401s in Edge Functions.
+        const supabaseClient = createClient(
+            Deno.env.get('SUPABASE_URL') ?? '',
+            Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+            { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+        )
 
         // Get user from JWT
-        const authHeader = req.headers.get('Authorization')!
-        const token = authHeader.replace('Bearer ', '')
-        const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+        const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
 
         if (authError || !user) {
-            return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+            console.error('Auth Error:', authError)
+            return new Response(JSON.stringify({
+                error: 'Unauthorized',
+                detail: authError?.message || 'Check your login status.'
+            }), {
                 status: 401,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             })
         }
 
-        // Check credits
-        const { data: credits, error: creditError } = await supabase
+        // Check credits (using service role key for DB operations if necessary, but anon is fine if RLS is set)
+        const { data: credits, error: creditError } = await supabaseClient
             .from('user_credits')
             .select('credits_remaining')
             .eq('user_id', user.id)
             .single()
 
         if (creditError || !credits || credits.credits_remaining <= 0) {
-            return new Response(JSON.stringify({ error: 'Credit limit reached' }), {
+            return new Response(JSON.stringify({ error: 'Credit limit reached', detail: creditError }), {
                 status: 402,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             })
         }
 
         // Parse request body
-        const { prompt, history, systemInstruction, apiKey } = await req.json()
+        const { prompt, history, systemInstruction } = await req.json()
+        const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')
 
-        const outputApiKey = GEMINI_API_KEY || apiKey;
-
-        if (!outputApiKey) {
-            return new Response(JSON.stringify({ error: 'Server configuration error: Missing API Key' }), {
+        if (!GEMINI_API_KEY) {
+            return new Response(JSON.stringify({ error: 'Server configuration error: GEMINI_API_KEY not set in Supabase Secrets' }), {
                 status: 500,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             })
         }
 
-        // Call Gemini API
-        const MODEL_NAME = 'gemini-1.5-flash'; // Standardizing model
-        // Call Gemini API with "High Compatibility" - prepend system prompt
-        const contents = history || [{ role: 'user', parts: [{ text: prompt }] }];
-        if (contents.length > 0 && contents[0].parts && contents[0].parts[0]) {
-            contents[0].parts[0].text = `SYSTEM INSTRUCTIONS:\n${systemInstruction}\n\nUSER MESSAGE:\n${contents[0].parts[0].text}`;
+        // Call Gemini API with "High Compatibility"
+        const finalContents = history || [{ role: 'user', parts: [{ text: prompt }] }];
+        if (finalContents.length > 0 && finalContents[0].parts && finalContents[0].parts[0]) {
+            finalContents[0].parts[0].text = `SYSTEM INSTRUCTIONS:\n${systemInstruction}\n\nUSER MESSAGE:\n${finalContents[0].parts[0].text}`;
         }
 
         const payload = {
-            contents: contents,
+            contents: finalContents,
             generationConfig: {
                 temperature: 0.1,
                 maxOutputTokens: 2048,
@@ -74,7 +75,7 @@ serve(async (req) => {
         };
 
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${outputApiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -101,15 +102,10 @@ serve(async (req) => {
         }
 
         // Deduct credit
-        const { error: updateError } = await supabase
+        await supabaseClient
             .from('user_credits')
             .update({ credits_remaining: credits.credits_remaining - 1, updated_at: new Date().toISOString() })
             .eq('user_id', user.id)
-
-        if (updateError) {
-            console.error('Failed to deduct credit:', updateError)
-            // We still return the text because the AI call succeeded
-        }
 
         return new Response(JSON.stringify({ text, credits_remaining: credits.credits_remaining - 1 }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
