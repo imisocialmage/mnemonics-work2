@@ -26,21 +26,14 @@ export const getGeminiResponse = async (history, context, persona = 'strategic')
     });
 
     try {
-        // Format history for Gemini API with "High Compatibility" - prepend system prompt to first message
-        const highCompatContents = contents.map(m => ({
-            role: m.role,
-            parts: m.parts.map(p => ({ ...p }))
-        }));
-
-        if (highCompatContents.length > 0 && highCompatContents[0].parts[0]) {
-            highCompatContents[0].parts[0].text = `SYSTEM INSTRUCTIONS:\n${systemPrompt}\n\nUSER MESSAGE:\n${highCompatContents[0].parts[0].text}`;
-        }
-
         const { data: supabaseResponse, error: supabaseError } = await supabase.functions.invoke('gemini', {
             body: {
-                prompt: highCompatContents[0].parts[0].text, // The first message includes instructions
+                prompt: history.length > 0 ? history[0].content : '',
                 systemInstruction: systemPrompt,
-                history: highCompatContents // Send full high-compat history
+                history: history.slice(1).map(m => ({
+                    role: m.role === 'user' ? 'user' : 'model',
+                    parts: [{ text: m.content || '' }]
+                }))
             }
         });
 
