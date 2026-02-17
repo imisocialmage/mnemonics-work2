@@ -13,29 +13,37 @@ serve(async (req) => {
     }
 
     try {
-        // Create a Supabase client with the Auth context of the logged in user.
-        // This is the CRITICAL fix for 401s in Edge Functions.
+        const authHeader = req.headers.get('Authorization')
+
+        // Initialize client with authorization from the user
         const supabaseClient = createClient(
             Deno.env.get('SUPABASE_URL') ?? '',
             Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-            { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+            {
+                global: {
+                    headers: {
+                        Authorization: authHeader || '',
+                        apikey: Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+                    }
+                }
+            }
         )
 
-        // Get user from JWT
+        // Force a light credit check or user check to verify JWT
         const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
 
         if (authError || !user) {
-            console.error('Auth Error:', authError)
+            console.error('Edge Function Auth Error:', authError)
             return new Response(JSON.stringify({
-                error: 'Unauthorized',
-                detail: authError?.message || 'Check your login status.'
+                error: 'Authentication Required',
+                detail: authError?.message || 'No valid session found. Please log in.'
             }), {
                 status: 401,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             })
         }
 
-        // Check credits (using service role key for DB operations if necessary, but anon is fine if RLS is set)
+        // Check credits
         const { data: credits, error: creditError } = await supabaseClient
             .from('user_credits')
             .select('credits_remaining')
@@ -54,14 +62,15 @@ serve(async (req) => {
         const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')
 
         if (!GEMINI_API_KEY) {
-            return new Response(JSON.stringify({ error: 'Server configuration error: GEMINI_API_KEY not set in Supabase Secrets' }), {
+            return new Response(JSON.stringify({ error: 'Server configuration error: GEMINI_API_KEY missing' }), {
                 status: 500,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             })
         }
 
-        // Call Gemini API with "High Compatibility"
+        // Call Gemini API 
         const finalContents = history || [{ role: 'user', parts: [{ text: prompt }] }];
+        // Ensure the prompt includes the system instructions in the first message for "High Compatibility"
         if (finalContents.length > 0 && finalContents[0].parts && finalContents[0].parts[0]) {
             finalContents[0].parts[0].text = `SYSTEM INSTRUCTIONS:\n${systemInstruction}\n\nUSER MESSAGE:\n${finalContents[0].parts[0].text}`;
         }
@@ -85,7 +94,7 @@ serve(async (req) => {
 
         if (!response.ok) {
             const errorData = await response.json()
-            return new Response(JSON.stringify({ error: 'Gemini API error', detail: errorData }), {
+            return new Response(JSON.stringify({ error: 'Gemini API logic error', detail: errorData }), {
                 status: 500,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             })
@@ -95,7 +104,7 @@ serve(async (req) => {
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text
 
         if (!text) {
-            return new Response(JSON.stringify({ error: 'Empty response from Gemini' }), {
+            return new Response(JSON.stringify({ error: 'Empty AI response' }), {
                 status: 500,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             })

@@ -26,6 +26,13 @@ export const getGeminiResponse = async (history, context, persona = 'strategic')
     });
 
     try {
+        // 1. Check for valid session first to provide helpful error
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (!session) {
+            console.warn("Gemini Client: No active session found.");
+            throw new Error("AI Synthesis requires a free account. Please Sign Up or Log In to process your data with the Strategic Engine.");
+        }
         const { data: supabaseResponse, error: supabaseError } = await supabase.functions.invoke('gemini', {
             body: {
                 prompt: history.length > 0 ? history[0].content : '',
