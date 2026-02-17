@@ -1,4 +1,5 @@
 // Gemini Client Utility
+import { supabase } from './supabaseClient';
 
 const MODEL_NAME = 'gemini-1.5-flash'; // High compatibility model
 
@@ -25,14 +26,6 @@ export const getGeminiResponse = async (history, context, persona = 'strategic')
     });
 
     try {
-        console.log("Gemini Client: Calling Gemini API directly (Bypassing Edge Function)...");
-
-        // Use local API key directly to bypass Edge Function 401 errors
-        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-        if (!apiKey) throw new Error("Missing Gemini API Key in .env");
-
-        console.log(`Gemini Protocol: v1beta | Model: gemini-flash-latest | Key: ${apiKey.substring(0, 5)}...`);
-
         // Format history for Gemini API with "High Compatibility" - prepend system prompt to first message
         const highCompatContents = contents.map(m => ({
             role: m.role,
@@ -43,32 +36,20 @@ export const getGeminiResponse = async (history, context, persona = 'strategic')
             highCompatContents[0].parts[0].text = `SYSTEM INSTRUCTIONS:\n${systemPrompt}\n\nUSER MESSAGE:\n${highCompatContents[0].parts[0].text}`;
         }
 
-        // Construct the payload for Gemini API
-        const payload = {
-            contents: highCompatContents,
-            generationConfig: {
-                temperature: 0.1,
-                maxOutputTokens: 2048,
+        const { data: supabaseResponse, error: supabaseError } = await supabase.functions.invoke('gemini', {
+            body: {
+                prompt: highCompatContents[0].parts[0].text, // The first message includes instructions
+                systemInstruction: systemPrompt,
+                history: highCompatContents // Send full high-compat history
             }
-        };
+        });
 
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            }
-        );
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Gemini API Error:", errorData);
-            throw new Error(`Gemini API Failed: ${errorData.error?.message || response.statusText}`);
+        if (supabaseError) {
+            console.error("Supabase Edge Function Error:", supabaseError);
+            throw new Error(`AI Proxy Failed: ${supabaseError.message || 'Unknown Error'}`);
         }
 
-        const data = await response.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        const text = supabaseResponse.text;
 
         if (!text) {
             throw new Error('No response text received from Gemini API.');
