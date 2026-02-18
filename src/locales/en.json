@@ -4,21 +4,26 @@
         "subtitle": "Navigate Your Strategy Through Conversation, Not Coercion"
     },
     "nav": {
-        "compass": "Compass",
-        "brand": "Brand",
-        "product": "Product",
-        "prospect": "Prospect",
-        "guide": "Guide",
-        "pitch": "Pitch Master",
-        "tracker": "Progress Tracker",
-        "elite": "Elite Challenges",
-        "conversation": "Conversation Guide",
-        "strategic": "Master Roadmap",
+        "compass": "Strategic Compass",
+        "brand": "Brand Evaluator",
+        "product": "Product Profiler",
+        "prospect": "Prospect Intelligence",
+        "guide": "Conversation Guide",
         "asset": "Asset AI",
-        "soloCorp": "SoloCorp 101",
+        "pitch": "Pitch Master",
+        "tracker": "Plan & Launch",
+        "elite": "Elite Challenges",
+        "soloCorp": "Solo Corp 101",
         "core_profiler": "Core Profiler",
-        "compass_profiler": "Compass Profiler",
-        "locked": "🔒 Locked"
+        "locked": "Locked",
+        "locked_pitch_master": "Pitch Master is Locked"
+    },
+    "unlock_guide": {
+        "title": "Unlock Your Strategic Potential",
+        "description": "The Strategic Pitch Master AI requires your full business blueprint. Complete these foundations to activate your custom pitches.",
+        "go_to_tool": "Go to tool",
+        "launch_now": "Launch Pitch Master",
+        "remaining_msg": "{{count}} steps remaining to unlock"
     },
     "core_profiler": {
         "title": "Core Profiler",

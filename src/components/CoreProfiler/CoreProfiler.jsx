@@ -472,14 +472,7 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
 
                         <button
                             className={`roadmap-card card-amber ${!allToolsCompleted ? 'opacity-60 grayscale-[0.5]' : ''}`}
-                            onClick={() => {
-                                if (allToolsCompleted) {
-                                    applyToTools();
-                                    handleNavigate('pitch-master');
-                                } else {
-                                    alert(t('nav.locked_pitch_master') || "Complete the other tools in your foundation first to unlock the Pitch Master!");
-                                }
-                            }}
+                            onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-tool', { detail: 'pitch-master' }))}
                         >
                             <div className="icon-wrapper">
                                 <Bot size={20} />

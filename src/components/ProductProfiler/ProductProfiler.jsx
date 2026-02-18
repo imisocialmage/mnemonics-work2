@@ -15,13 +15,18 @@ const ProductProfiler = ({ profileIndex }) => {
         const saved = localStorage.getItem(getProfileKey('imi-product-data'));
         if (saved) return JSON.parse(saved);
 
-        // Fallback to compass or brand data
+        // Fallback to compass data
         const compass = JSON.parse(localStorage.getItem(getProfileKey('imi-compass-data')) || '{}');
         const brand = JSON.parse(localStorage.getItem(getProfileKey('imi-brand-data')) || '{}');
         return {
-            productName: compass.brandName || brand.brandName || '',
-            typicalUsers: compass.audience || brand.targetAudience || '',
-            problemSolved: compass.challenge || '',
+            productName: compass?.brandName || brand?.brandName || '',
+            problemSolved: compass?.challenge || '',
+            targetAudience: compass?.audience || '',
+            topFeatures: '',
+            differentiator: '',
+            tangibleBenefit: '',
+            emotionalBenefit: '',
+            typicalUsers: '',
             aiResults: null
         };
     });

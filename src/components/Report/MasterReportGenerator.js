@@ -4,11 +4,23 @@ import { STRATEGIC_ADVICE, COMPASS_NODES } from '../../data/compassData';
 export const generateMasterReport = (profileIndex = 0) => {
     const prefix = `imi-p${profileIndex}-`;
     // 1. Get all data from localStorage with profile-specific keys
-    const compassData = JSON.parse(localStorage.getItem(`${prefix}imi-compass-data`) || localStorage.getItem('imi-compass-data') || '{}');
-    const brandData = JSON.parse(localStorage.getItem(`${prefix}imi-brand-data`) || localStorage.getItem('imi-brand-data') || '{}');
-    const productData = JSON.parse(localStorage.getItem(`${prefix}imi-product-data`) || localStorage.getItem('imi-product-data') || '{}');
-    const prospectData = JSON.parse(localStorage.getItem(`${prefix}imi-prospect-data`) || localStorage.getItem('imi-prospect-data') || '{}');
-    const conversationData = JSON.parse(localStorage.getItem(`${prefix}imi-conversation-data`) || localStorage.getItem('imi-conversation-data') || '{}');
+    const getProfileData = (key) => {
+        try {
+            return JSON.parse(localStorage.getItem(`imi-p${profileIndex}-${key}`) || '{}');
+        } catch {
+            return {};
+        }
+    };
+
+    const compassData = getProfileData('imi-compass-data');
+    const brandData = getProfileData('imi-brand-evaluator-data');
+    const productData = getProfileData('imi-product-data');
+    const prospectData = getProfileData('imi-prospect-data');
+    const conversationData = getProfileData('imi-conversation-data');
+    const guideData = getProfileData('imi-guide-data');
+    const strategicData = getProfileData('imi-strategic-roadmap');
+
+    const brandName = compassData?.brandName || brandData?.brandName || 'Your Brand';
 
     const doc = new jsPDF();
     let y = 20;

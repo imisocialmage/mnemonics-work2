@@ -15,8 +15,8 @@ import EliteChallenges from './components/EliteChallenges/EliteChallenges';
 import SoloCorp101 from './components/SoloCorp101/SoloCorp101';
 import ProgressTracker from './components/ProgressTracker/ProgressTracker';
 import CoreProfiler from './components/CoreProfiler/CoreProfiler'; // Added CoreProfiler import
-// CompassProfiler import removed
 import AuthModal from './components/Auth/AuthModal'; // Added AuthModal import
+import UnlockGuideModal from './components/shared/UnlockGuideModal'; // Added UnlockGuideModal import
 import { STRATEGIC_ADVICE, COMPASS_NODES, getHighlightedPositions, getLocalizedStrategicAdvice } from './data/compassData';
 import NodeAdviceModal from './components/Compass/NodeAdviceModal';
 import { Compass, Award, Package, Users, MessageCircle, Sparkles, Lock, ClipboardList, Crown, X, Flame, Download, Upload, HelpCircle, CheckCircle, Layout, Target, Trash2 } from 'lucide-react';
@@ -194,19 +194,22 @@ function App() {
   }, [currentProfileIndex, getProfileKey]);
 
   useEffect(() => {
-    localStorage.setItem(getProfileKey('imi-compass-data'), JSON.stringify({
-      objective: formData.objective,
-      brandName: formData.brandName,
-      audience: formData.audience,
-      challenge: formData.challenge,
-      focus: formData.focus
-    }));
+    if (formData) {
+      localStorage.setItem(getProfileKey('imi-compass-data'), JSON.stringify({
+        objective: formData.objective || '',
+        brandName: formData.brandName || '',
+        audience: formData.audience || '',
+        challenge: formData.challenge || '',
+        focus: formData.focus || 'who'
+      }));
+    }
   }, [formData, getProfileKey]);
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [memberCode, setMemberCode] = useState('');
   const [memberError, setMemberError] = useState(false);
   const [showBackupInfoModal, setShowBackupInfoModal] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [showUnlockGuide, setShowUnlockGuide] = useState(false); // Added state for UnlockGuideModal
 
   // Check if all tools are completed (Foundation + 3 Profilers + Guide)
   const allToolsCompleted = (toolCompletions.compass || toolCompletions.compassProfiler) &&
@@ -229,7 +232,12 @@ function App() {
   // Listen for cross-tool navigation events and auth modal events
   useEffect(() => {
     const handleNavigate = (event) => {
-      setCurrentView(event.detail);
+      const targetTool = event.detail;
+      if (targetTool === 'pitch-master' && !allToolsCompleted) {
+        setShowUnlockGuide(true);
+        return;
+      }
+      setCurrentView(targetTool);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
     const handleShowAuth = () => {
@@ -577,7 +585,7 @@ function App() {
                   if (allToolsCompleted) {
                     setCurrentView('pitch-master');
                   } else {
-                    alert(t('nav.locked_pitch_master') || "Complete the foundation tools (Compass, Brand, Product, Prospect, and Conversation Guide) to unlock the Pitch Master!");
+                    setShowUnlockGuide(true);
                   }
                 }}
                 title={allToolsCompleted ? t('nav.pitch') : t('nav.locked')}
@@ -826,12 +834,22 @@ function App() {
         nodeNames={selectedNodeNames}
       />
 
-      {/* Center Advice Modal */}
+      <UnlockGuideModal
+        isOpen={showUnlockGuide}
+        onClose={() => setShowUnlockGuide(false)}
+        completions={toolCompletions}
+        onNavigate={(view) => {
+          setCurrentView(view);
+          setShowUnlockGuide(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
+
       <CenterAdviceModal
         isOpen={showCenterModal}
         onClose={() => setShowCenterModal(false)}
         advice={currentCenterAdvice}
-        type={(formData.focus || 'who').toLowerCase()}
+        type={(formData?.focus || 'who').toLowerCase()}
       />
 
       <AuthModal

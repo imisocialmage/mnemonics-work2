@@ -4,17 +4,26 @@
         "subtitle": "Naviguez dans votre stratégie par la conversation, pas la coercition"
     },
     "nav": {
-        "compass": "Boussole",
-        "brand": "Marque",
-        "product": "Produit",
-        "prospect": "Prospect",
-        "guide": "Guide",
-        "pitch": "Maître du Pitch",
-        "tracker": "Suivi de Progrès",
-        "asset": "Asset AI",
+        "compass": "Boussole Stratégique",
+        "brand": "Évaluateur de Marque",
+        "product": "Profilage Produit",
+        "prospect": "Intelligence Prospect",
+        "guide": "Guide de Conversation",
+        "asset": "IA d'Asset",
+        "pitch": "Pitch Master",
+        "tracker": "Planifier & Lancer",
         "elite": "Défis Élite",
-        "locked": "Complétez toutes les étapes pour débloquer",
-        "solocorp": "Solo Corp 101"
+        "soloCorp": "Solo Corp 101",
+        "core_profiler": "Profilage Central",
+        "locked": "Verrouillé",
+        "locked_pitch_master": "Pitch Master est Verrouillé"
+    },
+    "unlock_guide": {
+        "title": "Débloquez Votre Potentiel Stratégique",
+        "description": "Le Pitch Master IA nécessite votre plan d'affaires complet. Complétez ces bases pour activer vos pitchs personnalisés.",
+        "go_to_tool": "Aller à l'outil",
+        "launch_now": "Lancer le Pitch Master",
+        "remaining_msg": "Encore {{count}} étapes pour débloquer"
     },
     "profiles": {
         "title": "Profils Stratégiques",

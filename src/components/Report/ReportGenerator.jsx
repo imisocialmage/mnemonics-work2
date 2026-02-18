@@ -27,19 +27,20 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
         setIsLoading(true);
         try {
             const profileIndex = formData.profileIndex || 0;
-            const getProfileKey = (key) => `imi-p${profileIndex}-${key}`;
+            const brandData = JSON.parse(localStorage.getItem(`imi-p${profileIndex}-imi-compass-data`) || '{}');
+            const bEvalData = JSON.parse(localStorage.getItem(`imi-p${profileIndex}-imi-brand-evaluator-data`) || '{}');
+            const pProfData = JSON.parse(localStorage.getItem(`imi-p${profileIndex}-imi-product-data`) || '{}');
+            const prProfData = JSON.parse(localStorage.getItem(`imi-p${profileIndex}-imi-prospect-data`) || '{}');
+            const cGuideData = JSON.parse(localStorage.getItem(`imi-p${profileIndex}-imi-guide-data`) || '{}');
 
-            const brand = JSON.parse(localStorage.getItem(getProfileKey('imi-brand-data')) || '{}');
-            const product = JSON.parse(localStorage.getItem(getProfileKey('imi-product-data')) || '{}');
-            const prospect = JSON.parse(localStorage.getItem(getProfileKey('imi-prospect-data')) || '{}');
-            const conversation = JSON.parse(localStorage.getItem(getProfileKey('imi-conversation-data')) || '{}');
+            const brandName = brandData?.brandName || 'Your Brand';
 
             const allData = {
                 objective: t(`objectives.${selectedObjective.id}`),
-                brand: brand,
-                product: product,
-                prospect: prospect,
-                conversation: conversation
+                brand: bEvalData, // Using bEvalData for brand
+                product: pProfData, // Using pProfData for product
+                prospect: prProfData, // Using prProfData for prospect
+                conversation: cGuideData // Using cGuideData for conversation
             };
 
             const results = await analyzeToolData('strategicRoadmap', allData, i18n.language);

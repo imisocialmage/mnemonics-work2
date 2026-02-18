@@ -361,17 +361,28 @@ const SoloCorp101 = ({ profileIndex }) => {
         setIsSoloTyping(true);
         setQuickChoices([]);
 
-        // Setup Context for Gemini
-        const bData = JSON.parse(localStorage.getItem(getProfileKey('imi-brand-data')) || '{}');
-        const cData = JSON.parse(localStorage.getItem(getProfileKey('imi-compass-data')) || '{}');
-        const pData = JSON.parse(localStorage.getItem(getProfileKey('imi-prospect-data')) || '{}');
+        const compassData = JSON.parse(localStorage.getItem(getProfileKey('imi-compass-data')) || '{}');
+        const bEvalData = JSON.parse(localStorage.getItem(getProfileKey('imi-brand-data')) || '{}'); // Corrected from imi-brand-evaluator-data
+        const pProfData = JSON.parse(localStorage.getItem(getProfileKey('imi-product-data')) || '{}');
+        const prProfData = JSON.parse(localStorage.getItem(getProfileKey('imi-prospect-data')) || '{}');
+        const cGuideData = JSON.parse(localStorage.getItem(getProfileKey('imi-guide-data')) || '{}'); // Corrected from imi-conversation-guide-data
+
+        const brand = compassData?.brandName || bEvalData?.brandName || 'your business'; // Added bEvalData?.brandName
+        const industry = prProfData?.industry || 'your industry';
+        const product = pProfData?.productName || 'product';
+        const mission = bEvalData?.mission || 'excellence';
+        const values = prProfData?.values || 'core values';
 
         const geminiContext = {
             ...conversationContext,
-            brand: bData.brandName,
-            industry: pData.industry,
-            objective: cData.objective,
-            day: getCurrentDay()
+            brand: brand,
+            industry: industry,
+            objective: compassData?.objective,
+            day: getCurrentDay(),
+            product: product,
+            mission: mission,
+            values: values,
+            conversationGuide: cGuideData?.guideContent // Added conversationGuide
         };
 
         const history = [...soloMessages, userMsg].map(m => ({

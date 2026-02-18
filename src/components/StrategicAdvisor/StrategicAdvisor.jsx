@@ -125,18 +125,18 @@ const StrategicAdvisor = ({ profileIndex }) => {
 
     const getPitches = () => {
         const v = variationIndices.pitches;
-        const brand = data.brand.brandName || 'your brand';
-        const product = data.product.productName || 'our solution';
-        const role = data.prospect.jobTitle || 'business leaders';
-        const industry = data.prospect.industry || 'your industry';
-        const pain = data.prospect.painPoints?.split('.')[0] || 'efficiency gaps';
-        const benefit = data.product.tangibleBenefit || 'maximum results';
-        const diff = data.product.differentiator || 'unique methodology';
-        const values = data.prospect.values || 'core market values';
-        const objective = data.compass.objective || 'growth';
-        const adviceTextRaw = data.lastAdvice?.advice?.highlight || data.lastAdvice?.advice?.mission || '';
+        const brand = data?.brand?.brandName || 'your brand';
+        const product = data?.product?.productName || 'our solution';
+        const role = data?.prospect?.jobTitle || 'business leaders';
+        const industry = data?.prospect?.industry || 'your industry';
+        const pain = data?.prospect?.painPoints?.split('.')[0] || 'efficiency gaps';
+        const benefit = data?.product?.tangibleBenefit || 'maximum results';
+        const diff = data?.product?.differentiator || 'unique methodology';
+        const values = data?.prospect?.values || 'core market values';
+        const objective = data?.compass?.objective || 'growth';
+        const adviceTextRaw = data?.lastAdvice?.advice?.highlight || data?.lastAdvice?.advice?.mission || '';
         const adviceText = typeof adviceTextRaw === 'string' ? ` ${adviceTextRaw.split('.')[0]}.` : '';
-        const userLevel = data.eliteData?.skillLevel ? ` as an expert ${data.eliteData.skillLevel}` : '';
+        const userLevel = data?.eliteData?.skillLevel ? ` as an expert ${data.eliteData.skillLevel}` : '';
 
         const context = { brand, product, role, industry, pain, benefit, diff, values, objective, adviceText, userLevel };
         const templates = t('advisor.pitches', { returnObjects: true }) || [];
@@ -152,14 +152,14 @@ const StrategicAdvisor = ({ profileIndex }) => {
 
     const getOutreach = () => {
         const v = variationIndices.outreach;
-        const brand = data.brand.brandName || 'our team';
-        const product = data.product.productName || 'solution';
-        const role = data.prospect.jobTitle || 'leader';
-        const industry = data.prospect.industry || 'sector';
-        const pain = data.prospect.painPoints?.split('.')[0] || 'strategic gaps';
-        const benefit = data.product.tangibleBenefit || 'growth';
-        const objective = data.compass.objective || 'scaling';
-        const diff = data.product.differentiator || 'unique approach';
+        const brand = data?.brand?.brandName || 'our team';
+        const product = data?.product?.productName || 'solution';
+        const role = data?.prospect?.jobTitle || 'leader';
+        const industry = data?.prospect?.industry || 'sector';
+        const pain = data?.prospect?.painPoints?.split('.')[0] || 'strategic gaps';
+        const benefit = data?.product?.tangibleBenefit || 'growth';
+        const objective = data?.compass?.objective || 'scaling';
+        const diff = data?.product?.differentiator || 'unique approach';
 
         const context = { brand, product, role, industry, pain, benefit, objective, diff };
         const templates = t('advisor.outreach', { returnObjects: true }) || [];
@@ -175,16 +175,16 @@ const StrategicAdvisor = ({ profileIndex }) => {
 
     const getQuestions = () => {
         const v = variationIndices.qa;
-        const objective = data.compass.objective || 'growth';
-        const product = data.product.productName || 'product';
-        const brand = data.brand.brandName || 'brand';
-        const industry = data.prospect.industry || 'industry';
-        const role = data.prospect.jobTitle || 'prospect';
-        const voice = data.brand.brandVoice?.join(', ') || 'brand guidelines';
-        const diff = data.product.differentiator || 'uniqueness';
-        const values = data.prospect.values || 'core values';
-        const bottlenecks = data.prospect.painPoints?.split('.')[1] || 'current bottlenecks';
-        const channels = data.prospect.platforms?.join(', ') || 'communications';
+        const objective = data?.compass?.objective || 'growth';
+        const product = data?.product?.productName || 'product';
+        const brand = data?.brand?.brandName || 'brand';
+        const industry = data?.prospect?.industry || 'industry';
+        const role = data?.prospect?.jobTitle || 'prospect';
+        const voice = data?.brand?.brandVoice?.join(', ') || 'brand guidelines';
+        const diff = data?.product?.differentiator || 'uniqueness';
+        const values = data?.prospect?.values || 'core values';
+        const bottlenecks = data?.prospect?.painPoints?.split('.')[1] || 'current bottlenecks';
+        const channels = data?.prospect?.platforms?.join(', ') || 'communications';
 
         const context = { objective, product, brand, industry, role, voice, diff, values, bottlenecks, channels, variation: v };
         const templates = t('advisor.qa', { returnObjects: true }) || [];
@@ -207,16 +207,16 @@ const StrategicAdvisor = ({ profileIndex }) => {
         const eData = data.eliteData || {};
 
         const availableData = {
-            brandName: bData.brandName,
-            usp: bData.differentiator,
-            jobTitle: pData.jobTitle,
-            industry: pData.industry,
-            prospectType: pData.prospectType,
-            painPoints: pData.painPoints,
-            painPoint: pData.painPoints?.split('.')[0],
-            level: eData.skillLevel,
-            objective: cData.objective,
-            compassData: data.lastAdvice?.nodeId ? true : false
+            brandName: bData?.brandName,
+            usp: bData?.differentiator,
+            jobTitle: pData?.jobTitle,
+            industry: pData?.industry,
+            prospectType: pData?.prospectType,
+            painPoints: pData?.painPoints,
+            painPoint: pData?.painPoints?.split?.('.')[0],
+            level: eData?.skillLevel,
+            objective: cData?.objective,
+            compassData: data?.lastAdvice?.nodeId ? true : false
         };
 
         const brand = availableData.brandName || 'your brand';
