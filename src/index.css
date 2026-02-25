@@ -503,6 +503,8 @@ button {
     white-space: normal;
     text-align: left;
     line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .btn-inner {

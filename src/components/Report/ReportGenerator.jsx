@@ -645,9 +645,9 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
                 <div className="footer-links">
                     <h4>📚 {t('report.cta.resources')}</h4>
                     <div className="links-row">
-                        <span><Users size={14} /> {t('report.cta.team')}</span>
-                        <span><BookOpen size={14} /> {t('report.cta.support')}</span>
-                        <span><Video size={14} /> {t('report.cta.youtube')}</span>
+                        <a href="https://nowsite.team/47krhRZLzk" target="_blank" rel="noopener noreferrer" className="footer-link-item"><Users size={14} /> {t('report.cta.team')}</a>
+                        <a href="https://imicoretribe.com/contact_us" target="_blank" rel="noopener noreferrer" className="footer-link-item"><BookOpen size={14} /> {t('report.cta.support')}</a>
+                        <a href="https://www.youtube.com/@IMICreativeLabs" target="_blank" rel="noopener noreferrer" className="footer-link-item"><Video size={14} /> {t('report.cta.youtube')}</a>
                     </div>
                 </div>
 

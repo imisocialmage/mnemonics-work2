@@ -665,6 +665,18 @@
     margin-top: 1.5rem;
 }
 
+@media (max-width: 768px) {
+    .roadmap-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+
+    .roadmap-card {
+        padding: 1rem;
+    }
+}
+
+
 .roadmap-card {
     position: relative;
     display: flex;
