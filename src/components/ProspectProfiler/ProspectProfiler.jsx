@@ -191,8 +191,10 @@ const ProspectProfiler = ({ profileIndex }) => {
     };
 
     const calculateOverallScore = (ratings) => {
+        if (!ratings || typeof ratings !== 'object') return 0;
         const scores = Object.values(ratings);
-        const average = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+        if (scores.length === 0) return 0;
+        const average = scores.reduce((sum, score) => sum + Number(score || 0), 0) / scores.length;
         return Math.round(average * 10) / 10;
     };
 
@@ -606,19 +608,19 @@ const ProspectProfiler = ({ profileIndex }) => {
 
                         <div className="results-section">
                             <h3>AI-Generated Connection Messages</h3>
-                            {messages.map((msg, idx) => (
+                            {(messages || []).map((msg, idx) => (
                                 <div key={idx} className="analysis-card" style={{ marginBottom: '25px' }}>
-                                    <h4 style={{ color: 'var(--electric-blue)', marginBottom: '15px' }}>{msg.title}</h4>
-                                    <div style={{ background: '#f8f9fa', padding: '15px', borderRadius: '10px', marginBottom: '15px' }} dangerouslySetInnerHTML={{ __html: msg.content }} />
+                                    <h4 style={{ color: 'var(--electric-blue)', marginBottom: '15px' }}>{msg?.title || 'Connection Strategy'}</h4>
+                                    <div style={{ background: '#f8f9fa', padding: '15px', borderRadius: '10px', marginBottom: '15px' }} dangerouslySetInnerHTML={{ __html: msg?.content || 'Message context pending...' }} />
                                     <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-                                        {Object.entries(msg.ratings).map(([key, value]) => (
+                                        {msg?.ratings && Object.entries(msg.ratings).map(([key, value]) => (
                                             <div key={key} style={{ background: '#e3f2fd', padding: '8px 12px', borderRadius: '8px', textAlign: 'center', minWidth: '80px' }}>
-                                                <div style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--electric-blue)' }}>{value}/10</div>
+                                                <div style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--electric-blue)' }}>{(value || 0)}/10</div>
                                                 <div style={{ fontSize: '0.85rem', color: 'var(--slate-gray)' }}>{key}</div>
                                             </div>
                                         ))}
                                         <div style={{ background: '#ffe0b2', padding: '8px 12px', borderRadius: '8px', textAlign: 'center', minWidth: '80px' }}>
-                                            <div style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--coral-red)' }}>{calculateOverallScore(msg.ratings)}/10</div>
+                                            <div style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--coral-red)' }}>{calculateOverallScore(msg?.ratings)}/10</div>
                                             <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Overall</div>
                                         </div>
                                     </div>

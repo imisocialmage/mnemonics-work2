@@ -443,14 +443,14 @@ const ProductProfiler = ({ profileIndex }) => {
                                     <ul>
                                         {productData.aiResults?.avatars?.[0]?.description ? (
                                             <>
-                                                <li style={{ fontWeight: '500', marginBottom: '10px' }}>{productData.aiResults.avatars[0].role}</li>
+                                                <li style={{ fontWeight: '500', marginBottom: '10px' }}>{productData.aiResults.avatars[0].role || 'Target Persona'}</li>
                                                 <li>{productData.aiResults.avatars[0].description}</li>
-                                                {productData.aiResults.avatars[0].pains?.slice(0, 2).map((pain, pidx) => (
+                                                {(productData.aiResults.avatars[0].pains || []).slice(0, 2).map((pain, pidx) => (
                                                     <li key={`pain-${pidx}`} style={{ color: 'var(--coral-red)', fontSize: '0.9rem' }}>• {pain}</li>
                                                 ))}
                                             </>
                                         ) : (
-                                            generatePsychographics().map((item, idx) => (
+                                            (generatePsychographics() || []).map((item, idx) => (
                                                 <li key={idx}>{item}</li>
                                             ))
                                         )}

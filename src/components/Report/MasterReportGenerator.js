@@ -13,7 +13,7 @@ export const generateMasterReport = (profileIndex = 0) => {
     };
 
     const compassData = getProfileData('imi-compass-data');
-    const brandData = getProfileData('imi-brand-evaluator-data');
+    const brandData = getProfileData('imi-brand-data');
     const productData = getProfileData('imi-product-data');
     const prospectData = getProfileData('imi-prospect-data');
     const conversationData = getProfileData('imi-conversation-data');
@@ -111,7 +111,7 @@ export const generateMasterReport = (profileIndex = 0) => {
     addTitle("2. Brand Equity & Strength");
     y += 5;
     if (brandData.overallScore) {
-        addSubtitle("Overall Brand Score: " + (brandData.aiResults?.overallScore || (brandData.overallScore / 20).toFixed(1)) + "/5.0");
+        addSubtitle("Overall Brand Score: " + ((brandData.aiResults?.overallScore || brandData.overallScore || 0) / (brandData.aiResults?.overallScore ? 1 : 20)).toFixed(1) + "/5.0");
         if (brandData.aiResults?.analysis) {
             y += 2;
             addText(brandData.aiResults.analysis);
@@ -144,9 +144,9 @@ export const generateMasterReport = (profileIndex = 0) => {
             addSubtitle("Ideal Client Avatars");
             productData.aiResults.avatars.forEach(avatar => {
                 checkPage(30);
-                addText(`• ${avatar.role}: ${avatar.description}`);
-                addText(`  Pains: ${avatar.pains}`);
-                addText(`  Triggers: ${avatar.buyingTriggers}`);
+                addText(`• ${avatar.role || 'Persona'}: ${avatar.description || 'Profile pending'}`);
+                addText(`  Pains: ${Array.isArray(avatar.pains) ? avatar.pains.join(', ') : (avatar.pains || 'Not specified')}`);
+                addText(`  Triggers: ${Array.isArray(avatar.buyingTriggers) ? avatar.buyingTriggers.join(', ') : (avatar.buyingTriggers || 'Not specified')}`);
             });
         }
     } else {

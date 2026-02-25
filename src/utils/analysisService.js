@@ -307,7 +307,9 @@ const runAIAnalysis = async (toolId, data, language) => {
             .replace(/```/g, '')
             .trim();
 
-        return JSON.parse(cleanJSON);
+        const parsed = JSON.parse(cleanJSON);
+        // Sanitize the result based on the tool's schema structure
+        return sanitizeAnalysisResult(toolId, parsed);
     } catch (parseError) {
         console.error(`[analysisService] JSON Parse Error for ${toolId}:`, parseError);
         console.debug("Raw Response:", responseText);
@@ -318,7 +320,8 @@ const runAIAnalysis = async (toolId, data, language) => {
             const lastBrace = responseText.lastIndexOf('}');
             if (firstBrace !== -1 && lastBrace !== -1) {
                 const innerJSON = responseText.substring(firstBrace, lastBrace + 1);
-                return JSON.parse(innerJSON);
+                const parsed = JSON.parse(innerJSON);
+                return sanitizeAnalysisResult(toolId, parsed);
             }
         } catch (innerError) {
             console.error("[analysisService] Secondary parsing attempt failed.");
@@ -329,26 +332,69 @@ const runAIAnalysis = async (toolId, data, language) => {
 };
 
 /**
+ * Ensures AI results match the expected structure to prevent UI crashes.
+ */
+const sanitizeAnalysisResult = (toolId, result) => {
+    const schema = TOOL_SCHEMAS[toolId];
+    if (!schema || !schema.jsonStructure) return result;
+
+    const sanitize = (template, target) => {
+        if (target === null || target === undefined) return template;
+
+        if (Array.isArray(template)) {
+            if (!Array.isArray(target)) return template;
+            return target.map(item => {
+                if (typeof template[0] === 'object' && template[0] !== null) {
+                    return sanitize(template[0], item);
+                }
+                return item !== undefined ? item : template[0];
+            });
+        }
+
+        if (typeof template === 'object' && template !== null) {
+            const sanitized = {};
+            for (const key in template) {
+                sanitized[key] = sanitize(template[key], target[key]);
+            }
+            return sanitized;
+        }
+
+        // Handle number types explicitly (e.g. scores)
+        if (typeof template === 'number') {
+            const num = Number(target);
+            return isNaN(num) ? template : num;
+        }
+
+        return target !== undefined ? target : template;
+    };
+
+    return sanitize(schema.jsonStructure, result);
+};
+
+/**
  * Maps general offline analysis to specific tool requirements
  */
 const mapOfflineResultToTool = (toolId, offline) => {
+    // Inject defaults into the offline result first
+    const sanitizedOffline = sanitizeAnalysisResult(toolId, offline);
+
     // Ensure offline scores exists to prevent crashes
-    const scores = offline.scores || { clarity: 60, precision: 60, differentiation: 60 };
+    const scores = sanitizedOffline.scores || { clarity: 60, precision: 60, differentiation: 60 };
 
     switch (toolId) {
         case 'brandEvaluator':
             return {
-                overallScore: (scores.clarity + (scores.precision || 60) + (scores.differentiation || 60)) / 60, // Normalize 0-5
-                analysis: offline.rationale || "Heuristic analysis complete.",
-                recommendations: (offline.optimizationTips || []).map(tip => ({
-                    title: "Strategic Clip",
-                    description: tip
+                overallScore: (Number(scores.clarity || 60) + Number(scores.precision || 60) + Number(scores.differentiation || 60)) / 60,
+                analysis: sanitizedOffline.analysis || sanitizedOffline.rationale || "Heuristic analysis complete.",
+                recommendations: (sanitizedOffline.recommendations || sanitizedOffline.optimizationTips || []).map(tip => ({
+                    title: typeof tip === 'string' ? "Strategic Clip" : (tip.title || "Strategic Clip"),
+                    description: typeof tip === 'string' ? tip : (tip.description || "Actionable advice.")
                 })),
                 scores: {
-                    clarity: (scores.clarity || 60) / 20,
+                    clarity: Number(scores.clarity || 60) / 20,
                     relevance: 4,
-                    emotionalResonance: offline.profiles?.identity?.archetype === 'The Magician' ? 5 : 3,
-                    originality: (scores.differentiation || 60) / 20,
+                    emotionalResonance: sanitizedOffline.profiles?.identity?.archetype === 'The Magician' ? 5 : 3,
+                    originality: Number(scores.differentiation || 60) / 20,
                     storytelling: 3,
                     scalability: 4,
                     commercialAppeal: 4,
@@ -357,27 +403,43 @@ const mapOfflineResultToTool = (toolId, offline) => {
             };
         case 'productProfiler':
             return {
-                uvp: offline.profiles?.offer?.uvp || "Direct value proposition.",
-                targetNiches: [offline.industry || "General Market"],
-                avatars: [
+                uvp: sanitizedOffline.uvp || sanitizedOffline.profiles?.offer?.uvp || "Direct value proposition for your market.",
+                targetNiches: sanitizedOffline.targetNiches || [sanitizedOffline.industry || "General Market"],
+                avatars: sanitizedOffline.avatars || [
                     {
-                        role: offline.profiles?.audience?.avatarName || "Target Customer",
-                        pain: offline.profiles?.audience?.primaryPain || "Needs optimization",
-                        hook: "How we solve your core challenge."
+                        role: sanitizedOffline.profiles?.audience?.avatarName || "Ideal Customer",
+                        pain: sanitizedOffline.profiles?.audience?.primaryPain || "Identifying core challenges",
+                        hook: "Strategic resolution for your primary needs."
                     }
                 ]
             };
         case 'prospectProfiler':
             return {
-                prospectType: offline._meta?.prospectType || "B2B",
-                painPoints: offline.profiles?.audience?.primaryPain || "General efficiency",
-                strategicAngle: "Benefit-driven outreach"
+                personalityType: sanitizedOffline.personalityType || "Analytical Decision Maker",
+                strategicAngle: sanitizedOffline.strategicAngle || "Benefit-driven outreach",
+                messages: sanitizedOffline.messages || [
+                    {
+                        title: "Authority Approach",
+                        content: "I noticed your work in the field and wanted to share a specific insight...",
+                        ratings: { clarity: 8, relevance: 8, distinctiveness: 8, memorability: 8, scalability: 8 }
+                    }
+                ]
+            };
+        case 'strategicRoadmap':
+            return {
+                executiveSummary: "Strategic alignment established between brand and product.",
+                primaryCompetitiveAdvantage: "Framework-grounded professional positioning.",
+                strategicPillars: [
+                    { title: "Core Pillar", description: "Consolidate brand identity around primary UVP." }
+                ],
+                immediateActionPlan: ["Review alignment", "Define core target"],
+                longTermVision: "Establish market leadership in your niche."
             };
         case 'compass_profiler':
         case 'coreProfiler':
-            return offline;
+            return sanitizedOffline;
         default:
-            return offline;
+            return sanitizedOffline;
     }
 };
 

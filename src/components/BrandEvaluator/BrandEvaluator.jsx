@@ -13,7 +13,13 @@ const BrandEvaluator = ({ profileIndex }) => {
     const [currentStep, setCurrentStep] = useState(1);
     const [brandData, setBrandData] = useState(() => {
         const saved = localStorage.getItem(getProfileKey('imi-brand-data'));
-        if (saved) return JSON.parse(saved);
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            return {
+                ...parsed,
+                scores: parsed.scores || { clarity: 0, relevance: 0, emotionalResonance: 0, originality: 0, storytelling: 0, scalability: 0, commercialAppeal: 0, consistency: 0 }
+            };
+        }
 
         // Fallback to compass data for pre-filling
         const compass = JSON.parse(localStorage.getItem(getProfileKey('imi-compass-data')) || '{}');
@@ -574,7 +580,7 @@ margin: 10px;
 
 <div class="overall-score-section">
 <div style="font-size: 1.5rem; margin-bottom: 10px;">Overall Brand Strength</div>
-<div class="overall-score-value">${brandData.overallScore.toFixed(1)}/5.0</div>
+<div class="overall-score-value">${(brandData.overallScore || 0).toFixed(1)}/5.0</div>
 <div class="rating-badge">${ratingInfo.label}</div>
 </div>
 
@@ -582,11 +588,11 @@ margin: 10px;
 <h2>📊 Detailed Score Breakdown</h2>
 <div class="score-grid">
 ${scoreMetrics.map(metric => {
-            const score = brandData.scores[metric.key];
+            const score = brandData.scores?.[metric.key] || 0;
             const stars = getStarRating(score);
             return `
 <div class="score-card">
-<div class="score-value">${score.toFixed(1)}/5</div>
+<div class="score-value">${(score || 0).toFixed(1)}/5</div>
 <div class="score-label">${metric.label}</div>
 <div class="stars">${stars}</div>
 </div>
