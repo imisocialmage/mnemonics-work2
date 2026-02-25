@@ -300,29 +300,78 @@ const runAIAnalysis = async (toolId, data, language) => {
         schema.systemPrompt
     );
 
-    return JSON.parse(responseText.replace(/```json/g, '').replace(/```/g, '').trim());
+    try {
+        // Advanced cleaning: remove markdown code blocks and any leading/trailing whitespace
+        const cleanJSON = responseText
+            .replace(/```json/g, '')
+            .replace(/```/g, '')
+            .trim();
+
+        return JSON.parse(cleanJSON);
+    } catch (parseError) {
+        console.error(`[analysisService] JSON Parse Error for ${toolId}:`, parseError);
+        console.debug("Raw Response:", responseText);
+
+        // Final attempt: try to find the first '{' and last '}'
+        try {
+            const firstBrace = responseText.indexOf('{');
+            const lastBrace = responseText.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace !== -1) {
+                const innerJSON = responseText.substring(firstBrace, lastBrace + 1);
+                return JSON.parse(innerJSON);
+            }
+        } catch (innerError) {
+            console.error("[analysisService] Secondary parsing attempt failed.");
+        }
+
+        throw new Error(`Failed to parse AI response for ${toolId}`);
+    }
 };
 
 /**
  * Maps general offline analysis to specific tool requirements
  */
 const mapOfflineResultToTool = (toolId, offline) => {
+    // Ensure offline scores exists to prevent crashes
+    const scores = offline.scores || { clarity: 60, precision: 60, differentiation: 60 };
+
     switch (toolId) {
         case 'brandEvaluator':
             return {
-                overallScore: (offline.scores.clarity + offline.scores.precision + offline.scores.differentiation) / 60,
-                analysis: offline.rationale,
-                recommendations: offline.optimizationTips.map(tip => ({ title: "Strategic Clip", description: tip })),
+                overallScore: (scores.clarity + (scores.precision || 60) + (scores.differentiation || 60)) / 60, // Normalize 0-5
+                analysis: offline.rationale || "Heuristic analysis complete.",
+                recommendations: (offline.optimizationTips || []).map(tip => ({
+                    title: "Strategic Clip",
+                    description: tip
+                })),
                 scores: {
-                    clarity: offline.scores.clarity / 20,
+                    clarity: (scores.clarity || 60) / 20,
                     relevance: 4,
-                    emotionalResonance: offline.profiles.identity.archetype === 'The Magician' ? 5 : 3,
-                    originality: offline.scores.differentiation / 20,
+                    emotionalResonance: offline.profiles?.identity?.archetype === 'The Magician' ? 5 : 3,
+                    originality: (scores.differentiation || 60) / 20,
                     storytelling: 3,
                     scalability: 4,
                     commercialAppeal: 4,
                     consistency: 5
                 }
+            };
+        case 'productProfiler':
+            return {
+                uvp: offline.profiles?.offer?.uvp || "Direct value proposition.",
+                targetNiches: [offline.industry || "General Market"],
+                avatars: [
+                    {
+                        role: offline.profiles?.audience?.avatarName || "Target Customer",
+                        pain: offline.profiles?.audience?.primaryPain || "Needs optimization",
+                        hook: "How we solve your core challenge."
+                    }
+                ]
+            };
+        case 'prospectProfiler':
+            return {
+                prospectType: offline._meta?.prospectType || "B2B",
+                painPoints: offline.profiles?.audience?.primaryPain || "General efficiency",
+                strategicAngle: "Benefit-driven outreach"
             };
         case 'compass_profiler':
         case 'coreProfiler':

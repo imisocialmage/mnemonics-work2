@@ -481,9 +481,12 @@ button {
   .tool-navigation {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 6px !important;
-    padding: 5px 0 !important;
+    gap: 8px !important;
+    padding: 10px 0 !important;
     width: 100%;
+    max-width: 400px;
+    /* Prevent it from being too wide on landscape mobile */
+    margin: 0 auto;
     overflow-x: visible !important;
   }
 
@@ -500,11 +503,13 @@ button {
 
   .nav-btn span {
     display: inline;
-    white-space: normal;
+    white-space: nowrap;
+    /* Force single line for critical nav links */
     text-align: left;
     line-height: 1.1;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   .btn-inner {

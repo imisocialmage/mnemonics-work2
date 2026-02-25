@@ -318,16 +318,20 @@
 /* System Column */
 .system-tabs {
     display: flex;
-    gap: 5px;
+    flex-wrap: wrap;
+    /* Fix for overlapping buttons on small screens */
+    gap: 8px;
     margin-top: 1rem;
     background: rgba(255, 255, 255, 0.03);
-    padding: 4px;
+    padding: 6px;
     border-radius: 12px;
 }
 
 .tab-btn {
     flex: 1;
-    padding: 8px;
+    min-width: 80px;
+    /* Ensure buttons have minimum clickable area */
+    padding: 10px 8px;
     border-radius: 8px;
     border: none;
     background: transparent;

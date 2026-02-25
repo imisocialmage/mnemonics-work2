@@ -302,11 +302,19 @@ const BrandEvaluator = ({ profileIndex }) => {
 
     // Helper Functions
     const getStarRating = (score) => {
-        const fullStars = Math.floor(score);
-        const hasHalfStar = score % 1 >= 0.5;
+        // Defensive check: handle NaN, null, undefined, or invalid scores
+        const safeScore = (typeof score === 'number' && !isNaN(score)) ? Math.max(0, Math.min(5, score)) : 0;
+
+        const fullStars = Math.floor(safeScore);
+        const hasHalfStar = (safeScore % 1) >= 0.5;
+
         let stars = '★'.repeat(fullStars);
         if (hasHalfStar) stars += '⯨';
-        stars += '☆'.repeat(5 - Math.ceil(score));
+
+        // Ensure repeat count is never negative
+        const emptyStarsCount = Math.max(0, 5 - Math.ceil(safeScore));
+        stars += '☆'.repeat(emptyStarsCount);
+
         return stars;
     };
 
