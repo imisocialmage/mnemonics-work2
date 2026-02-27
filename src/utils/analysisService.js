@@ -287,7 +287,7 @@ const runAIAnalysis = async (toolId, data, language) => {
 
     const prompt = `
     ${schema.systemPrompt}
-    Language: ${language === 'fr' ? 'French' : 'English'}
+    LANGUAGE REQUIREMENT: You MUST provide all text and values within the JSON in ${language === 'fr' ? 'FRENCH' : 'ENGLISH'}.
     CONTEXT: Industry: ${industryContext}, Product: ${productType}, Audience: ${targetAudience}
     ${images.length > 0 ? `Visuals: ${images.length} images provided.` : ''}
     Data: ${JSON.stringify(data)}

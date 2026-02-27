@@ -64,7 +64,8 @@
             "send": "Envoyer",
             "clear": "Effacer l'historique",
             "book_call_instruction": "Je vous recommande de réserver une réunion de cadrage individuelle avec un coach si vous avez besoin d'aide supplémentaire.",
-            "book_calibration": "Réserver une Réunion de Cadrage"
+            "book_calibration": "Réserver une Réunion de Cadrage",
+            "blueprint_download": "Télécharger le Plan"
         },
         "ai_responses": {
             "missing_data": "J'analyse votre profil, mais certaines données logiques manquent. Pour vous donner une stratégie précise, j'ai besoin que votre {{missing}} soit complété. Allons-nous vers ces onglets d'abord ?",
@@ -477,7 +478,14 @@
         "operational_challenges": "défis opérationnels",
         "common_challenges": "défis courants",
         "this_solution": "cette solution",
-        "lang_code": "fr"
+        "lang_code": "fr",
+        "elite_member": "Membre Élite",
+        "strategic_alignment": "Alignement Stratégique",
+        "your_brand": "votre marque",
+        "target_audience": "audience cible",
+        "your_market": "votre marché",
+        "strategic_gaps": "lacunes stratégiques",
+        "growth": "Croissance"
     },
     "member": {
         "title": "Accès Élite Requis",
@@ -642,16 +650,41 @@
         "conversion": "Conversion"
     },
     "core_profiler": {
-        "title": "Profil de Base",
+        "title": "Profilage Central",
         "subtitle": "Synthétisez votre identité de marque complète et votre système de vente à partir d'une seule description.",
         "ai_badge": "Architecte de Marque IA",
+        "strategic_rationale": "Raison Stratégique",
+        "optimization_tips": "Conseils d'Optimisation",
+        "roadmap_title": "Votre Feuille de Route Stratégique",
+        "roadmap": {
+            "refine_identity": "Affiner l'Identité",
+            "deep_dive_offer": "Approfondir l'Offre",
+            "analyze_audience": "Analyser l'Audience",
+            "generate_visuals": "Générer des Visuels",
+            "craft_messaging": "Créer le Messagerie",
+            "locked": "Verrouillé"
+        },
+        "labels": {
+            "archetype": "Archétype",
+            "voice": "Voix",
+            "shadow": "Ombre",
+            "offer": "Offre",
+            "uvp": "U.V.P",
+            "avatar": "Avatar",
+            "desire": "Désir",
+            "channel": "Canal",
+            "next_action": "Action Suivante"
+        },
         "actions": {
             "new_analysis": "Nouvelle Analyse",
             "regenerate_top": "Régénérer l'Analyse",
             "build_website": "Créer Site Web",
             "build_email": "Créer E-mail",
             "save": "Enregistrer",
-            "regenerate": "Régénérer"
+            "regenerate": "Régénérer",
+            "apply_to_tools": "Appliquer à tous les outils",
+            "data_applied": "Données appliquées !",
+            "reset_tool": "Réinitialiser"
         },
         "modal": {
             "title": "Profil de Base",
@@ -659,7 +692,8 @@
             "name": "Nom de la marque *",
             "description": "Description de l'U.V.P *",
             "placeholder": "Décrivez ce que vous faites, qui vous servez et la valeur que vous apportez...",
-            "submit": "Analyser & Synthétiser"
+            "submit": "Analyser & Synthétiser",
+            "demo": "Essayer le Mode Démo"
         },
         "brand": {
             "title": "Identité de Marque",
@@ -695,7 +729,56 @@
         "upload_desc": "Téléchargez jusqu'à 3 images (logos, site actuel ou inspiration) pour aligner la direction artistique de l'IA.",
         "generate": "Générer la maquette",
         "results_title": "Votre stratégie visuelle",
-        "mockup_preview": "Mise en page et filaire des composants"
+        "controls": {
+            "colors": "Couleurs",
+            "image": "Image",
+            "links": "Liens",
+            "format": "Format",
+            "view": "Vue",
+            "desktop": "Bureau",
+            "mobile": "Mobile"
+        },
+        "help": {
+            "title": "Comment utiliser l'IA d'Asset",
+            "subtitle": "Transformez votre stratégie en maquettes visuelles époustouflantes",
+            "step1_title": "Complétez vos fondations",
+            "step1_desc": "Avant de générer des maquettes, assurez-vous d'avoir complété :",
+            "step2_title": "Ajouter un contexte visuel (Optionnel)",
+            "step2_desc": "Téléchargez jusqu'à 3 images pour guider la direction artistique de l'IA :",
+            "step2_list": [
+                "Votre logo ou actifs de marque",
+                "Site web ou page de destination actuelle",
+                "Inspiration design ou exemples concurrents"
+            ],
+            "step3_title": "Générer votre maquette",
+            "step3_desc": "Cliquez sur le bouton \"Générer la maquette\". L'IA va :",
+            "step3_list": [
+                "Analyser vos données stratégiques de tous les outils complétés",
+                "Créer un concept de page de destination sur mesure",
+                "Concevoir des mises en page et des filaires de composants",
+                "Générer des palettes de couleurs et des suggestions de typographie",
+                "Rédiger des titres et des textes à haute conversion"
+            ],
+            "step4_title": "Réviser & Itérer",
+            "step4_desc": "Votre maquette est automatiquement enregistrée. Vous pouvez :",
+            "step4_list": [
+                "Régénérer pour de nouvelles variations",
+                "Voir l'historique pour voir toutes les maquettes passées",
+                "Restaurer n'importe quelle version précédente"
+            ],
+            "pro_tip_label": "Conseil Pro :",
+            "pro_tip": "Le plus complet sera votre profil, le plus adapté et efficace sera votre maquette visuelle !",
+            "got_it": "Compris, créons !"
+        },
+        "history": {
+            "title": "Historique des Maquettes",
+            "empty": "Aucune maquette générée pour le moment.",
+            "restore": "Restaurer",
+            "delete": "Supprimer",
+            "current": "Actuel",
+            "view_history": "Voir l'Historique",
+            "back": "Retour à la Conception"
+        }
     },
     "objectives": {
         "acquisition": "Acquisition - Attirer de nouveaux clients",
@@ -703,11 +786,11 @@
         "retention": "Rétention - Fidéliser les clients existants"
     },
     "modal": {
-        "focus_areas": "Zones de focus :",
-        "key_actions": "Actions clés :",
-        "implementation_plan": "Plan d'implémentation de 7 jours :",
-        "strategic_focus": "Focus stratégique de 30 jours :",
-        "remember": "Rappelez-vous :"
+        "focus_areas": "AXES STRATÉGIQUES PRIORITAIRES",
+        "key_actions": "ACTIONS STRATÉGIQUES CLÉS",
+        "implementation_plan": "PLAN D'IMPLÉMENTATION SUR 7 JOURS",
+        "strategic_focus": "FOCUS STRATÉGIQUE SUR 30 JOURS",
+        "remember": "À RETENIR"
     },
     "report": {
         "title_suffix": "Stratégie",
@@ -1040,13 +1123,15 @@
             "reset_engine": "Réinitialiser le Moteur",
             "placeholder": "Consultez le Playbook...",
             "book_calibration": "Réserver une Réunion de Cadrage",
-            "thinking": "Synthèse de la stratégie..."
+            "thinking": "Synthèse de la stratégie...",
+            "support_guide": "Guide de Support du Playbook"
         },
         "protocol": {
             "progress": "Progrès du Protocole",
             "day_stats": "Jour {{day}} / 30",
             "locked_state": "Verrouillé jusqu'à demain",
-            "journey_complete": "Parcours Terminé"
+            "journey_complete": "Parcours Terminé",
+            "subtitle": "Le Protocole de Transition de 30 Jours"
         },
         "logs": {
             "mission_logs": "Journaux de Mission",

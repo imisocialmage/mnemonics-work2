@@ -771,11 +771,11 @@
         "retention": "Retention - Keep Existing Customers"
     },
     "modal": {
-        "focus_areas": "Focus Areas:",
-        "key_actions": "Key Actions:",
-        "implementation_plan": "7-Day Implementation Plan:",
-        "strategic_focus": "30-Day Strategic Focus:",
-        "remember": "Remember:"
+        "focus_areas": "STRATEGIC FOCUS AREAS",
+        "key_actions": "KEY STRATEGIC ACTIONS",
+        "implementation_plan": "7-DAY IMPLEMENTATION PLAN",
+        "strategic_focus": "30-DAY STRATEGIC FOCUS",
+        "remember": "REMEMBER"
     },
     "report": {
         "title_suffix": "Strategy",

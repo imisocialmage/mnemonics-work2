@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Sparkles, ArrowRight, Target, Users, Zap, Layout, Save, CheckCircle, Bot, RotateCcw } from 'lucide-react';
 import { analyzeToolData } from '../../utils/analysisService';
 import { analyzeOffline } from '../../utils/offlineAnalyzer';
-import { getLocalizedStrategicAdvice, CENTER_ADVICE } from '../../data/compassData';
+import { getLocalizedStrategicAdvice } from '../../data/compassData';
+import { CENTER_ADVICE } from '../../data/centerAdviceData';
 import NodeAdviceModal from '../Compass/NodeAdviceModal';
 import CenterAdviceModal from '../Compass/CenterAdviceModal';
 import './CoreProfiler.css';
@@ -283,15 +284,15 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
                                 <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="e.g. Acme Corp" className="modal-input" required />
                             </div>
                             <div className="form-group">
-                                <label>Detailed Business Description (Mega-Input)</label>
-                                <textarea name="description" value={formData.description} onChange={handleInputChange} placeholder="Describe your business in detail here. Who are you? What do you sell? Who is it for? What makes you different? (The more detail, the better the analysis)" className="modal-textarea" required rows={8} />
+                                <label>{t('core_profiler.modal.description') || "Detailed Business Description (Mega-Input)"}</label>
+                                <textarea name="description" value={formData.description} onChange={handleInputChange} placeholder={t('core_profiler.modal.placeholder') || "Describe your business in detail here..."} className="modal-textarea" required rows={8} />
                             </div>
                             {error && <div className="error-message-banner"><p>⚠️ {error}</p></div>}
                             <button type="submit" className={`submit-btn ${loading ? 'loading' : ''}`} disabled={loading}>
-                                {loading ? <span className="loader-container"><div className="loader"></div>{t('advisor.ai.thinking')}</span> : <><Sparkles size={20} /> Analyze & Generate Compass</>}
+                                {loading ? <span className="loader-container"><div className="loader"></div>{t('advisor.ai.thinking')}</span> : <><Sparkles size={20} /> {t('core_profiler.modal.submit') || "Analyze & Generate Compass"}</>}
                             </button>
                             <div className="demo-mode-container">
-                                <button type="button" onClick={handleDemoMode} className="demo-mode-btn">🧪 Try Demo Mode</button>
+                                <button type="button" onClick={handleDemoMode} className="demo-mode-btn">🧪 {t('core_profiler.modal.demo') || "Try Demo Mode"}</button>
                             </div>
                         </form>
                     </div>
@@ -305,7 +306,7 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
             <div className="core-profiler-container">
                 <header className="profiler-header">
                     <div className="header-content">
-                        <span className="ai-badge">{analysisSource === 'offline' ? '⚡ Intelligence Engine V2' : analysisSource === 'demo' ? '🧪 Demo Mode' : '✨ Compass AI'}</span>
+                        <span className="ai-badge">{analysisSource === 'offline' ? '⚡ ' + (t('core_profiler.ai_engine_v2') || 'Intelligence Engine V2') : analysisSource === 'demo' ? '🧪 ' + (t('core_profiler.modal.demo') || 'Demo Mode') : '✨ ' + (t('core_profiler.ai_badge') || 'Compass AI')}</span>
                         <h1>{profileData.brand?.name || "Untitled Brand"}</h1>
                         <p className="brand-desc">{profileData.brand?.description || "No description available."}</p>
                     </div>
@@ -313,10 +314,10 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
                         {profileData.toolData && (
                             <button className="action-btn success-btn" onClick={applyToTools}>
                                 {showSaveSuccess ? <CheckCircle size={18} /> : <Save size={18} />}
-                                {showSaveSuccess ? "Data Applied!" : "Apply to All Tools"}
+                                {showSaveSuccess ? (t('core_profiler.actions.data_applied') || "Data Applied!") : (t('core_profiler.actions.apply_to_tools') || "Apply to All Tools")}
                             </button>
                         )}
-                        <button onClick={handleDirectReset} className="action-btn"><RotateCcw size={16} /> Reset Tool</button>
+                        <button onClick={handleDirectReset} className="action-btn"><RotateCcw size={16} /> {t('core_profiler.actions.reset_tool') || "Reset Tool"}</button>
                         <button onClick={handleReset} className="action-btn">{t('core_profiler.actions.new_analysis') || "New Analysis"}</button>
                     </div>
                 </header>
@@ -340,7 +341,7 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
                     {profileData.rationale && (
                         <div className="rationale-box card p-6 border-l-4 border-indigo-500 bg-indigo-500/5">
                             <h3 className="flex items-center gap-2 text-indigo-300 font-bold mb-2">
-                                <Bot size={20} /> Strategic Rationale
+                                <Bot size={20} /> {t('core_profiler.strategic_rationale') || "Strategic Rationale"}
                             </h3>
                             <p className="text-white/80 leading-relaxed italic">"{profileData.rationale}"</p>
                         </div>
@@ -351,7 +352,7 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
                 {profileData.optimizationTips && profileData.optimizationTips.length > 0 && (
                     <div className="optimization-section card mb-8">
                         <div className="card-header">
-                            <h3><Sparkles size={18} style={{ display: 'inline', marginRight: '8px', color: '#F59E0B' }} />Optimization Tips</h3>
+                            <h3><Sparkles size={18} style={{ display: 'inline', marginRight: '8px', color: '#F59E0B' }} />{t('core_profiler.optimization_tips') || "Optimization Tips"}</h3>
                         </div>
                         <div className="tips-content" style={{ padding: '1.5rem' }}>
                             <ul className="tips-list">
@@ -369,32 +370,32 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
                         <div className="profile-card clickable-card" onClick={() => handleCardClick('identity')}>
                             <div className="card-header color-1"><Zap size={20} /> <h3>{t('form.focus_brand') || "Identity"}</h3></div>
                             <div className="card-content">
-                                <p><strong>{t('product_profiler.analysis.niches.pro') || "Archetype"}:</strong> {profileData.profiles.identity.archetype}</p>
-                                <p><strong>{t('core_profiler.brand.voice') || "Voice"}:</strong> {profileData.profiles.identity.voice}</p>
+                                <p><strong>{t('core_profiler.labels.archetype') || "Archetype"}:</strong> {profileData.profiles.identity.archetype}</p>
+                                <p><strong>{t('core_profiler.labels.voice') || "Voice"}:</strong> {profileData.profiles.identity.voice}</p>
                                 {profileData.profiles.identity.shadow && (
-                                    <p className="mt-2 text-xs text-red-300/60"><strong>Shadow:</strong> {profileData.profiles.identity.shadow}</p>
+                                    <p className="mt-2 text-xs text-red-300/60"><strong>{t('core_profiler.labels.shadow') || "Shadow"}:</strong> {profileData.profiles.identity.shadow}</p>
                                 )}
                             </div>
                         </div>
                         <div className="profile-card clickable-card" onClick={() => handleCardClick('offer')}>
                             <div className="card-header color-2"><Target size={20} /> <h3>{t('form.focus_product') || "Offer"}</h3></div>
                             <div className="card-content">
-                                <p><strong>{t('nav.product') || "Offer"}:</strong> {profileData.profiles.offer.coreOffer}</p>
-                                <p><strong>UVP:</strong> {profileData.profiles.offer.uvp}</p>
+                                <p><strong>{t('core_profiler.labels.offer') || "Offer"}:</strong> {profileData.profiles.offer.coreOffer}</p>
+                                <p><strong>{t('core_profiler.labels.uvp') || "UVP"}:</strong> {profileData.profiles.offer.uvp}</p>
                             </div>
                         </div>
                         <div className="profile-card clickable-card" onClick={() => handleCardClick('audience')}>
                             <div className="card-header color-3"><Users size={20} /> <h3>{t('form.focus_who') || "Audience"}</h3></div>
                             <div className="card-content">
-                                <p><strong>{t('form.audience_label') || "Avatar"}:</strong> {profileData.profiles.audience.avatarName}</p>
-                                <p><strong>{t('product_profiler.analysis.psychographics.motivation') || "Desire"}:</strong> {profileData.profiles.audience.coreDesire}</p>
+                                <p><strong>{t('core_profiler.labels.avatar') || "Avatar"}:</strong> {profileData.profiles.audience.avatarName}</p>
+                                <p><strong>{t('core_profiler.labels.desire') || "Desire"}:</strong> {profileData.profiles.audience.coreDesire}</p>
                             </div>
                         </div>
                         <div className="profile-card clickable-card" onClick={() => handleCardClick('execution')}>
                             <div className="card-header color-4"><Layout size={20} /> <h3>{t('form.focus_service') || "Execution"}</h3></div>
                             <div className="card-content">
-                                <p><strong>{t('product_profiler.steps.delivery') || "Channel"}:</strong> {profileData.profiles.execution.channel}</p>
-                                <p><strong>{t('tracker.ui.log_activity') || "Next"}:</strong> {profileData.profiles.execution.immediateAction}</p>
+                                <p><strong>{t('core_profiler.labels.channel') || "Channel"}:</strong> {profileData.profiles.execution.channel}</p>
+                                <p><strong>{t('core_profiler.labels.next_action') || "Next"}:</strong> {profileData.profiles.execution.immediateAction}</p>
                             </div>
                         </div>
                     </div>
@@ -453,7 +454,7 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
 
                 {/* NEW: Strategic Roadmap Navigation */}
                 <div className="roadmap-section">
-                    <h2 className="text-2xl font-bold mb-6 text-white text-center">Your Strategic Roadmap</h2>
+                    <h2 className="text-2xl font-bold mb-6 text-white text-center">{t('core_profiler.roadmap_title') || "Your Strategic Roadmap"}</h2>
                     <div className="roadmap-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                         <button
                             className="roadmap-card card-purple"
@@ -463,8 +464,8 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
                                 <Zap size={20} />
                             </div>
                             <div className="text-wrapper">
-                                <h4 className="card-title">Refine Identity</h4>
-                                <p className="card-subtitle">Brand Evaluator</p>
+                                <h4 className="card-title">{t('core_profiler.roadmap.refine_identity') || "Refine Identity"}</h4>
+                                <p className="card-subtitle">{t('nav.brand')}</p>
                             </div>
                         </button>
 
@@ -476,8 +477,8 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
                                 <Target size={20} />
                             </div>
                             <div className="text-wrapper">
-                                <h4 className="card-title">Deep Dive Offer</h4>
-                                <p className="card-subtitle">Product Profiler</p>
+                                <h4 className="card-title">{t('core_profiler.roadmap.deep_dive_offer') || "Deep Dive Offer"}</h4>
+                                <p className="card-subtitle">{t('nav.product')}</p>
                             </div>
                         </button>
 
@@ -489,8 +490,8 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
                                 <Users size={20} />
                             </div>
                             <div className="text-wrapper">
-                                <h4 className="card-title">Analyze Audience</h4>
-                                <p className="card-subtitle">Prospect Profiler</p>
+                                <h4 className="card-title">{t('core_profiler.roadmap.analyze_audience') || "Analyze Audience"}</h4>
+                                <p className="card-subtitle">{t('nav.prospect')}</p>
                             </div>
                         </button>
 
@@ -502,8 +503,8 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
                                 <Layout size={20} />
                             </div>
                             <div className="text-wrapper">
-                                <h4 className="card-title">Generate Visuals</h4>
-                                <p className="card-subtitle">Asset AI</p>
+                                <h4 className="card-title">{t('core_profiler.roadmap.generate_visuals') || "Generate Visuals"}</h4>
+                                <p className="card-subtitle">{t('nav.asset')}</p>
                             </div>
                         </button>
 
@@ -515,8 +516,8 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
                                 <Bot size={20} />
                             </div>
                             <div className="text-wrapper">
-                                <h4 className="card-title">Craft Messaging</h4>
-                                <p className="card-subtitle">{allToolsCompleted ? 'Pitch Master' : 'Locked'}</p>
+                                <h4 className="card-title">{t('core_profiler.roadmap.craft_messaging') || "Craft Messaging"}</h4>
+                                <p className="card-subtitle">{allToolsCompleted ? t('nav.pitch') : t('core_profiler.roadmap.locked')}</p>
                             </div>
                         </button>
                     </div>

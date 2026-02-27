@@ -552,7 +552,7 @@ const SoloCorp101 = ({ profileIndex }) => {
                         <Flame className="icon-burn" />
                         <div>
                             <h1>Solo Corp 101</h1>
-                            <p className="subtitle">The 30-Day Transition Protocol</p>
+                            <p className="subtitle">{t('solocorp.protocol.subtitle')}</p>
                         </div>
                     </div>
                     <div className="progress-badge">
@@ -956,7 +956,7 @@ const SoloCorp101 = ({ profileIndex }) => {
                 <div className="solocorp-modal-overlay" onClick={() => setIsAIGuideOpen(false)}>
                     <div className="solocorp-modal" onClick={e => e.stopPropagation()}>
                         <div className="modal-top">
-                            <h2>Playbook Support Guide</h2>
+                            <h2>{t('solocorp.chat.support_guide')}</h2>
                             <button onClick={() => setIsAIGuideOpen(false)}><X /></button>
                         </div>
                         <div className="guide-content">

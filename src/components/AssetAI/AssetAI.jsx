@@ -562,7 +562,7 @@ const AssetAI = ({ profileIndex }) => {
                                 {isLoading ? (
                                     <><div className="spinner-inline"></div> {isSaving ? 'Uploading...' : 'Designing...'}</>
                                 ) : (
-                                    <><Zap size={18} /> Generate Design Mockup</>
+                                    <>{t('asset_ai.generate')}</>
                                 )}
                             </button>
                             {error && (
@@ -658,7 +658,7 @@ const AssetAI = ({ profileIndex }) => {
                         <div className="asset-controls-bar">
                             {/* Color Palette Picker */}
                             <div className="control-group">
-                                <label className="control-label"><Palette size={14} /> Colors</label>
+                                <label className="control-label"><Palette size={14} /> {t('asset_ai.controls.colors')}</label>
                                 <div className="color-swatch-row">
                                     {activeAsset?.colorPalette?.map((color, idx) => (
                                         <div
@@ -691,7 +691,7 @@ const AssetAI = ({ profileIndex }) => {
 
                             {/* Image Upload Control */}
                             <div className="control-group">
-                                <label className="control-label"><ImageIcon size={14} /> Image</label>
+                                <label className="control-label"><ImageIcon size={14} /> {t('asset_ai.controls.image')}</label>
                                 <div className="image-control-wrapper" style={{ display: 'flex', gap: '8px' }}>
                                     <button
                                         className="btn-outline-sm"
@@ -737,7 +737,7 @@ const AssetAI = ({ profileIndex }) => {
                             {/* Link Editor */}
                             {activeAsset?.ctaButtons?.length > 0 && (
                                 <div className="control-group link-control">
-                                    <label className="control-label"><LinkIcon size={14} /> Links</label>
+                                    <label className="control-label"><LinkIcon size={14} /> {t('asset_ai.controls.links')}</label>
                                     <div className="link-input-wrapper">
                                         <select
                                             className="link-btn-select"
@@ -764,7 +764,7 @@ const AssetAI = ({ profileIndex }) => {
                             {/* Format Selector */}
                             {activeTab === 'Social Post' && PLATFORM_FORMATS[activePlatform] && (
                                 <div className="control-group">
-                                    <label className="control-label"><Maximize2 size={14} /> Format</label>
+                                    <label className="control-label"><Maximize2 size={14} /> {t('asset_ai.controls.format')}</label>
                                     <div className="format-pills">
                                         {PLATFORM_FORMATS[activePlatform].map(fmt => {
                                             const IconComp = fmt.icon;
@@ -784,7 +784,7 @@ const AssetAI = ({ profileIndex }) => {
 
                             {activeTab === 'Landing Page' && (
                                 <div className="control-group">
-                                    <label className="control-label"><Maximize2 size={14} /> View</label>
+                                    <label className="control-label"><Maximize2 size={14} /> {t('asset_ai.controls.view')}</label>
                                     <div className="format-pills">
                                         <button className={`format-pill ${activeFormat !== 'mobile' ? 'active' : ''}`} onClick={() => setActiveFormat('desktop')}>
                                             <Monitor size={14} /> Desktop

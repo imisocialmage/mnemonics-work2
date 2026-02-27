@@ -219,15 +219,15 @@ const StrategicAdvisor = ({ profileIndex }) => {
             compassData: data?.lastAdvice?.nodeId ? true : false
         };
 
-        const brand = availableData.brandName || 'your brand';
-        const role = availableData.jobTitle || 'target audience';
-        const targetIndustry = availableData.industry || 'your market';
+        const brand = availableData.brandName || t('common.your_brand');
+        const role = availableData.jobTitle || t('common.target_audience');
+        const targetIndustry = availableData.industry || t('common.your_market');
         const prospectType = availableData.prospectType || 'B2B';
-        const painPoint = availableData.painPoint || 'strategic gaps';
-        const level = availableData.level || 'Elite Member';
-        const objective = availableData.objective || 'Growth';
+        const painPoint = availableData.painPoint || t('common.strategic_gaps');
+        const level = availableData.level || t('common.elite_member');
+        const objective = availableData.objective || t('common.growth');
         const lastHighlight = data.lastAdvice?.advice?.highlight || data.lastAdvice?.advice?.mission || '';
-        const nodeId = data.lastAdvice?.nodeId || 'Strategic Alignment';
+        const nodeId = data.lastAdvice?.nodeId || t('common.strategic_alignment');
 
         const context = {
             ...availableData,
@@ -680,7 +680,7 @@ const StrategicAdvisor = ({ profileIndex }) => {
                                             <span>{credits}</span>
                                         </div>
                                     )}
-                                    <button className="clear-btn" onClick={() => generateMasterReport(profileIndex)} title="Download Blueprint">
+                                    <button className="clear-btn" onClick={() => generateMasterReport(profileIndex)} title={t('advisor.chat.blueprint_download')}>
                                         <Copy size={16} /> <span className="mobile-label-hidden">Blueprint</span>
                                     </button>
                                     <button className="clear-btn" onClick={handleGeminiSync} title={t('advisor.ai_responses.gemini_sync')}>
