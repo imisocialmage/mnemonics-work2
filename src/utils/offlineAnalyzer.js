@@ -436,7 +436,7 @@ export function analyzeOffline({ name, description, language = 'en' }) {
     let industryName = industryKey.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     let archetype = { ...archetypeRaw };
 
-    if (language === 'fr' && LOCALES.fr) {
+    if (language?.startsWith('fr') && LOCALES.fr) {
         industryName = LOCALES.fr.industries[industryKey] || industryName;
         if (LOCALES.fr.archetypes[archetype.name]) {
             const locArch = LOCALES.fr.archetypes[archetype.name];
@@ -453,14 +453,14 @@ export function analyzeOffline({ name, description, language = 'en' }) {
     // 5. Strategic Rationale
     let rationale = `Based on the ${maxScore > 2 ? 'high' : 'moderate'} concentration of ${industryName} terminology and ${archetype.name} archetypal signals, this strategy prioritizes ${mode === 'B2B' ? 'Authority & Trust' : 'Emotion & Community'}. The ${archetype.voice} voice is used to minimize the risk of ${archetype.shadow.toLowerCase()} while maximizing ${mode === 'B2B' ? 'ROI' : 'Personal Value'}.`;
 
-    if (language === 'fr' && LOCALES.fr) {
+    if (language?.startsWith('fr') && LOCALES.fr) {
         rationale = LOCALES.fr.rationale(maxScore, industryName, archetype, mode);
     }
 
     const salesSystem = generateSalesSystem(industryKey, archetype, mode, name || 'The Brand', language, industryName);
 
     // 6. Assemble Full Response (Compass Schema)
-    const isFR = language === 'fr' && LOCALES.fr;
+    const isFR = language?.startsWith('fr') && LOCALES.fr;
     const loc = isFR ? LOCALES.fr.fallbacks : {};
 
     return {
@@ -519,7 +519,7 @@ export function analyzeOffline({ name, description, language = 'en' }) {
 }
 
 function generateTips(scores, description, mode, language) {
-    const isFR = language === 'fr' && LOCALES.fr;
+    const isFR = language?.startsWith('fr') && LOCALES.fr;
     const t = isFR ? LOCALES.fr.tips : {
         clarity: "⚠️ CLARITY: Your description is too vague. Explicitly state WHAT you offer to improve the strategy.",
         precision: "📊 PRECISION: Add specific numbers (ROI, years, team size, % results) to build immediate trust.",
@@ -539,7 +539,7 @@ function generateTips(scores, description, mode, language) {
 
 function generateSalesSystem(industryKey, archetype, mode, brandName, language, industryName) {
     const isB2B = mode === 'B2B';
-    const isFR = language === 'fr' && LOCALES.fr;
+    const isFR = language?.startsWith('fr') && LOCALES.fr;
 
     if (isFR) {
         const s = LOCALES.fr.salesSystem;

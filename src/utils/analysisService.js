@@ -287,7 +287,7 @@ const runAIAnalysis = async (toolId, data, language) => {
 
     const prompt = `
     ${schema.systemPrompt}
-    LANGUAGE REQUIREMENT: You MUST provide all text and values within the JSON in ${language === 'fr' ? 'FRENCH' : 'ENGLISH'}.
+    LANGUAGE REQUIREMENT: You MUST provide all text and values within the JSON in ${language?.startsWith('fr') ? 'FRENCH' : 'ENGLISH'}.
     CONTEXT: Industry: ${industryContext}, Product: ${productType}, Audience: ${targetAudience}
     ${images.length > 0 ? `Visuals: ${images.length} images provided.` : ''}
     Data: ${JSON.stringify(data)}
@@ -380,7 +380,7 @@ const mapOfflineResultToTool = (toolId, offline, language = 'en') => {
 
     // Ensure offline scores exists to prevent crashes
     const scores = sanitizedOffline.scores || { clarity: 60, precision: 60, differentiation: 60 };
-    const isFR = language === 'fr';
+    const isFR = language?.startsWith('fr');
 
     const loc = {
         brandEvaluator: {

@@ -63,7 +63,7 @@ export const getGeminiResponse = async (history, context, persona = 'strategic')
 };
 
 const buildSystemPrompt = (context, persona) => {
-    const isFR = context.language === 'fr';
+    const isFR = context.language?.startsWith('fr');
     let profilesContext = '';
 
     if (context.allProfiles && Array.isArray(context.allProfiles) && context.allProfiles.length > 0) {
