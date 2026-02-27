@@ -3,6 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Sparkles, ArrowRight, Target, Users, Zap, Layout, Save, CheckCircle, Bot, RotateCcw } from 'lucide-react';
 import { analyzeToolData } from '../../utils/analysisService';
 import { analyzeOffline } from '../../utils/offlineAnalyzer';
+import { getLocalizedStrategicAdvice, CENTER_ADVICE } from '../../data/compassData';
+import NodeAdviceModal from '../Compass/NodeAdviceModal';
+import CenterAdviceModal from '../Compass/CenterAdviceModal';
 import './CoreProfiler.css';
 
 const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
@@ -25,6 +28,13 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
     const [profileData, setProfileData] = useState(null);
     const [error, setError] = useState(null);
     const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+
+    // Modal State for Interactivity
+    const [isNodeModalOpen, setIsNodeModalOpen] = useState(false);
+    const [showCenterModal, setShowCenterModal] = useState(false);
+    const [currentAdvice, setCurrentAdvice] = useState(null);
+    const [currentNodeNames, setCurrentNodeNames] = useState([]);
+    const [currentCenterAdvice, setCurrentCenterAdvice] = useState(null);
 
     useEffect(() => {
         const saved = localStorage.getItem(getProfileKey('imi-compass-data'));
@@ -224,6 +234,33 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
         window.dispatchEvent(new CustomEvent('navigate-to-tool', { detail: toolId }));
     };
 
+    const handleCardClick = (type) => {
+        const lang = i18n.language || 'en';
+        const localizedAdvice = getLocalizedStrategicAdvice(lang);
+        const centerAdvice = CENTER_ADVICE;
+
+        if (type === 'identity') {
+            // Identity maps to "Retention" and "Brand"
+            setCurrentAdvice(localizedAdvice.retention);
+            setCurrentNodeNames(['retention', 'intentions', 'what']);
+            setIsNodeModalOpen(true);
+        } else if (type === 'offer') {
+            // Offer maps to "Conversion" and "Product"
+            setCurrentAdvice(localizedAdvice.conversion);
+            setCurrentNodeNames(['conversion', 'calltoact', 'interest']);
+            setIsNodeModalOpen(true);
+        } else if (type === 'audience') {
+            // Audience maps to "Acquisition" and "Who"
+            setCurrentAdvice(localizedAdvice.acquisition);
+            setCurrentNodeNames(['acquisition', 'how', 'intentions']);
+            setIsNodeModalOpen(true);
+        } else if (type === 'execution') {
+            // Execution maps to Service/Action
+            setCurrentCenterAdvice(centerAdvice.service);
+            setShowCenterModal(true);
+        }
+    };
+
     const renderContent = () => {
         if (showModal) {
             return (
@@ -329,35 +366,35 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
                 {/* NEW: 4-Profile Compass Display */}
                 {profileData.profiles && (
                     <div className="compass-grid-section">
-                        <div className="profile-card">
-                            <div className="card-header color-1"><Zap size={20} /> <h3>Identity</h3></div>
+                        <div className="profile-card clickable-card" onClick={() => handleCardClick('identity')}>
+                            <div className="card-header color-1"><Zap size={20} /> <h3>{t('form.focus_brand') || "Identity"}</h3></div>
                             <div className="card-content">
-                                <p><strong>Archetype:</strong> {profileData.profiles.identity.archetype}</p>
-                                <p><strong>Voice:</strong> {profileData.profiles.identity.voice}</p>
+                                <p><strong>{t('product_profiler.analysis.niches.pro') || "Archetype"}:</strong> {profileData.profiles.identity.archetype}</p>
+                                <p><strong>{t('core_profiler.brand.voice') || "Voice"}:</strong> {profileData.profiles.identity.voice}</p>
                                 {profileData.profiles.identity.shadow && (
                                     <p className="mt-2 text-xs text-red-300/60"><strong>Shadow:</strong> {profileData.profiles.identity.shadow}</p>
                                 )}
                             </div>
                         </div>
-                        <div className="profile-card">
-                            <div className="card-header color-2"><Target size={20} /> <h3>Offer</h3></div>
+                        <div className="profile-card clickable-card" onClick={() => handleCardClick('offer')}>
+                            <div className="card-header color-2"><Target size={20} /> <h3>{t('form.focus_product') || "Offer"}</h3></div>
                             <div className="card-content">
-                                <p><strong>Offer:</strong> {profileData.profiles.offer.coreOffer}</p>
+                                <p><strong>{t('nav.product') || "Offer"}:</strong> {profileData.profiles.offer.coreOffer}</p>
                                 <p><strong>UVP:</strong> {profileData.profiles.offer.uvp}</p>
                             </div>
                         </div>
-                        <div className="profile-card">
-                            <div className="card-header color-3"><Users size={20} /> <h3>Audience</h3></div>
+                        <div className="profile-card clickable-card" onClick={() => handleCardClick('audience')}>
+                            <div className="card-header color-3"><Users size={20} /> <h3>{t('form.focus_who') || "Audience"}</h3></div>
                             <div className="card-content">
-                                <p><strong>Avatar:</strong> {profileData.profiles.audience.avatarName}</p>
-                                <p><strong>Desire:</strong> {profileData.profiles.audience.coreDesire}</p>
+                                <p><strong>{t('form.audience_label') || "Avatar"}:</strong> {profileData.profiles.audience.avatarName}</p>
+                                <p><strong>{t('product_profiler.analysis.psychographics.motivation') || "Desire"}:</strong> {profileData.profiles.audience.coreDesire}</p>
                             </div>
                         </div>
-                        <div className="profile-card">
-                            <div className="card-header color-4"><Layout size={20} /> <h3>Execution</h3></div>
+                        <div className="profile-card clickable-card" onClick={() => handleCardClick('execution')}>
+                            <div className="card-header color-4"><Layout size={20} /> <h3>{t('form.focus_service') || "Execution"}</h3></div>
                             <div className="card-content">
-                                <p><strong>Channel:</strong> {profileData.profiles.execution.channel}</p>
-                                <p><strong>Next:</strong> {profileData.profiles.execution.immediateAction}</p>
+                                <p><strong>{t('product_profiler.steps.delivery') || "Channel"}:</strong> {profileData.profiles.execution.channel}</p>
+                                <p><strong>{t('tracker.ui.log_activity') || "Next"}:</strong> {profileData.profiles.execution.immediateAction}</p>
                             </div>
                         </div>
                     </div>
@@ -484,6 +521,21 @@ const CoreProfiler = ({ profileIndex, allToolsCompleted }) => {
                         </button>
                     </div>
                 </div>
+
+                {/* Modals */}
+                <NodeAdviceModal
+                    isOpen={isNodeModalOpen}
+                    onClose={() => setIsNodeModalOpen(false)}
+                    advice={currentAdvice}
+                    nodeNames={currentNodeNames}
+                />
+
+                <CenterAdviceModal
+                    isOpen={showCenterModal}
+                    onClose={() => setShowCenterModal(false)}
+                    advice={currentCenterAdvice}
+                    type={currentCenterAdvice?.title?.toLowerCase() || 'who'}
+                />
             </div>
         );
     };

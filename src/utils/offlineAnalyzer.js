@@ -259,6 +259,112 @@ const ARCHETYPES = [
 
 // ─── STAGE 3: CORE UTILITIES ────────────────────────────────────────────────
 
+// ─── STAGE 3: CORE UTILITIES ────────────────────────────────────────────────
+
+const LOCALES = {
+    fr: {
+        industries: {
+            enterprise_software: 'Logiciel Entreprise',
+            consumer_app: 'Application Grand Public',
+            ai_fintech: 'IA & Fintech',
+            strategic_consulting: 'Conseil Stratégique',
+            creative_agency: 'Agence Créative',
+            coaching_education: 'Coaching & Éducation',
+            street_apparel: 'Streetwear & Mode',
+            luxury_fashion: 'Mode de Luxe',
+            sustainable_retail: 'Commerce Durable',
+            direct_to_consumer: 'Vente Directe (DTC)',
+            medical_practice: 'Cabinet Médical',
+            mental_wellness: 'Bien-être Mental',
+            professional_fitness: 'Fitness Professionnel',
+            real_estate_luxury: 'Immobilier de Luxe',
+            logistics_manufacturing: 'Logistique & Fabrication',
+            legal_services: 'Services Juridiques',
+            photography_video: 'Photographie & Vidéo',
+            publishing_media: 'Édition & Médias',
+            luxury_hotel: 'Hôtellerie de Luxe',
+            restaurant_gastronomy: 'Restaurant & Gastronomie',
+            pet_care: 'Soins aux Animaux',
+            renewable_energy: 'Énergie Renouvelable',
+            event_planning: 'Événementiel'
+        },
+        archetypes: {
+            'The Creator': {
+                name: 'Le Créateur',
+                voice: 'Innovant, Expressif, Original',
+                shadow: 'Perfectionnisme, Sur-complexité',
+                strategy: 'Concentrez-vous sur la "Fabrication" et la vision derrière le produit.'
+            },
+            'The Ruler': {
+                name: 'Le Souverain',
+                voice: 'Commandant, Sophistiqué, Raffiné',
+                shadow: 'Arrogance, Rigidité',
+                strategy: 'Mettez en avant l\'exclusivité et le sentiment d\'être au sommet.'
+            },
+            'The Explorer': {
+                name: 'L\'Explorateur',
+                voice: 'Audacieux, Esprit Libre, Robuste',
+                shadow: 'Errance sans but, Isolement social',
+                strategy: 'Concentrez-vous sur la transformation et l\'expérience de la "Nouvelle Frontière".'
+            },
+            'The Sage': {
+                name: 'Le Sage',
+                voice: 'Sage, Objectif, Intellectuel',
+                shadow: 'Sur-intellectualisation, Inaction',
+                strategy: 'Menez avec des données, des preuves et des cadres d\'enseignement clairs.'
+            },
+            'The Hero': {
+                name: 'Le Héros',
+                voice: 'Déterminé, Courageux, Fort',
+                shadow: 'Impitoyable, Bourreau de travail',
+                strategy: 'Mettez en avant la transformation de la "Lutte" au "Triomphe".'
+            },
+            'The Magician': {
+                name: 'Le Magicien',
+                voice: 'Inspirant, Mystique, Charismatique',
+                shadow: 'Manipulation, Déception',
+                strategy: 'Concentrez-vous sur le moment "Aha!" et les résultats sans effort.'
+            }
+        },
+        rationale: (maxScore, industryName, archetype, mode) =>
+            `Basée sur une concentration ${maxScore > 2 ? 'élevée' : 'modérée'} de terminologie ${industryName} et des signaux archétypaux ${archetype.name}, cette stratégie donne la priorité à ${mode === 'B2B' ? "l'Autorité et la Confiance" : "l'Émotion et la Communauté"}. La voix ${archetype.voice} est utilisée pour minimiser le risque de ${archetype.shadow.toLowerCase()} tout en maximisant ${mode === 'B2B' ? 'le ROI' : 'la Valeur Personnelle'}.`,
+        tips: {
+            clarity: "⚠️ CLARTÉ : Votre description est trop vague. Indiquez explicitement CE QUE vous offrez pour améliorer la stratégie.",
+            precision: "📊 PRÉCISION : Ajoutez des chiffres spécifiques (ROI, années, taille d'équipe, % de résultats) pour instaurer une confiance immédiate.",
+            differentiation: "💎 DIFFÉRENCIATION : Vous semblez généraliste. Ajoutez une phrase 'Pourquoi nous' utilisant votre méthodologie unique.",
+            b2b: "🏢 B2B : Concentrez-vous sur les études de cas et les livres blancs. Vos acheteurs doivent minimiser les risques personnels.",
+            b2c: "✨ B2C : Réduisez la distance entre 'Voir' et 'Acheter' avec une preuve sociale et des appels à l'action clairs."
+        },
+        salesSystem: {
+            product: (brandName, industryName, isB2B) => isB2B
+                ? `${brandName} acquiert de nouveaux clients grâce à un entonnoir de contenu stratégique : leadership éclairé sur LinkedIn, aimants à prospects ciblés (références ${industryName}, check-lists d'audit) et séquences d'e-mails automatisées qui éduquent et renforcent l'autorité avant la vente.`
+                : `${brandName} attire de nouveaux clients grâce à un contenu visuellement attrayant et des campagnes sociales ciblées. Les premiers acheteurs bénéficient d'une expérience d'accueil personnalisée qui maximise immédiatement la valeur perçue grâce à des livrables ${industryName} de haute qualité.`,
+            reorder: (brandName, industryName, isB2B) => isB2B
+                ? `La rétention des clients est portée par des revues trimestrielles montrant des résultats mesurables, un accès exclusif aux nouvelles fonctionnalités et un processus de succès dédié qui identifie proactivement les opportunités d'expansion.`
+                : `Les achats répétés sont encouragés par un programme de fidélité, des recommandations personnalisées et un accès anticipé exclusif aux nouveautés. Des modèles d'abonnement sont utilisés le cas échéant pour réduire la friction.`,
+            opportunity: (brandName, industryName, isB2B) => isB2B
+                ? `Opportunités d'expansion du marché : (1) Verticaux industriels adjacents, (2) Marchés internationaux avec offres localisées, (3) Écosystème de partenariat, (4) Niveau entreprise pour les grands comptes.`
+                : `Opportunités de croissance : (1) Extensions de gamme basées sur les données clients, (2) Collections saisonnières ou limitées, (3) Expansion géographique locale, (4) Programme d'ambassadeurs communautaires.`,
+            upsell: (brandName, industryName, isB2B) => isB2B
+                ? `La stratégie de vente incitative se concentre sur : niveaux de support premium, analyses avancées, intégrations personnalisées et accès API, forfaits de formation et incitations contractuelles annuelles.`
+                : `Le panier moyen augmente via : groupement intelligent de produits, recommandations basées sur l'historique, versions premium d'articles populaires et offres complémentaires au paiement.`,
+            team: (brandName, industryName, isB2B) => isB2B
+                ? `Structure d'équipe légère : 1 Responsable Stratégique, 1 Success Manager, 1 Stratège Contenu. Évoluez en ajoutant des chefs de projet spécialisés par vertical industriel.`
+                : `Équipe centrale : 1 Directeur Créatif/Marque, 1 Community Manager, 1 Marketeur Croissance. Évoluez avec des créateurs de contenu indépendants et un support saisonnier.`
+        },
+        fallbacks: {
+            avatarNameB2B: 'Le Décideur Stratégique',
+            avatarNameB2C: 'L\'Individu en Quête de Valeur',
+            primaryPain: 'Inefficacité et manque de direction stratégique claire',
+            coreDesireB2B: 'ROI Prévisible & Expansion',
+            coreDesireB2C: 'Transformation Personnelle & Facilité',
+            uvpB2B: (industryName, archetype) => `Le partenaire ${industryName} premium utilisant un cadre ${archetype} pour générer des résultats probants.`,
+            uvpB2C: (industryName, archetype) => `La seule marque ${industryName} utilisant une approche ${archetype} pour redéfinir le style de vie.`,
+            action: (channel, voice) => `Auditer votre présence sur ${channel} pour assurer la cohérence de la voix ${voice}.`
+        }
+    }
+};
+
 function analyzeSentiment(text) {
     const positive = ['easy', 'fast', 'premium', 'best', 'growth', 'simple', 'innovative', 'effective', 'reliable'];
     const negative = ['struggle', 'expensive', 'slow', 'hard', 'frustrating', 'lack', 'broken', 'inefficient'];
@@ -313,7 +419,7 @@ export function analyzeOffline({ name, description, language = 'en' }) {
     const mode = b2bWeight >= b2cWeight ? 'B2B' : 'B2C';
 
     // 3. Archetype Detection
-    let archetype = ARCHETYPES[0];
+    let archetypeRaw = ARCHETYPES[0];
     let maxArchScore = -1;
     ARCHETYPES.forEach(a => {
         let sc = 0;
@@ -322,23 +428,44 @@ export function analyzeOffline({ name, description, language = 'en' }) {
         }
         if (sc > maxArchScore) {
             maxArchScore = sc;
-            archetype = a;
+            archetypeRaw = a;
         }
     });
+
+    // Localize Industry and Archetype data if French
+    let industryName = industryKey.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    let archetype = { ...archetypeRaw };
+
+    if (language === 'fr' && LOCALES.fr) {
+        industryName = LOCALES.fr.industries[industryKey] || industryName;
+        if (LOCALES.fr.archetypes[archetype.name]) {
+            const locArch = LOCALES.fr.archetypes[archetype.name];
+            archetype.name = locArch.name;
+            archetype.voice = locArch.voice;
+            archetype.shadow = locArch.shadow;
+            archetype.strategy = locArch.strategy;
+        }
+    }
 
     // 4. Score Calculation
     const scores = evaluateScores(name, description);
 
     // 5. Strategic Rationale
-    const industryName = industryKey.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-    const rationale = `Based on the ${maxScore > 2 ? 'high' : 'moderate'} concentration of ${industryName} terminology and ${archetype.name} archetypal signals, this strategy prioritizes ${mode === 'B2B' ? 'Authority & Trust' : 'Emotion & Community'}. The ${archetype.voice} voice is used to minimize the risk of ${archetype.shadow.toLowerCase()} while maximizing ${mode === 'B2B' ? 'ROI' : 'Personal Value'}.`;
+    let rationale = `Based on the ${maxScore > 2 ? 'high' : 'moderate'} concentration of ${industryName} terminology and ${archetype.name} archetypal signals, this strategy prioritizes ${mode === 'B2B' ? 'Authority & Trust' : 'Emotion & Community'}. The ${archetype.voice} voice is used to minimize the risk of ${archetype.shadow.toLowerCase()} while maximizing ${mode === 'B2B' ? 'ROI' : 'Personal Value'}.`;
 
-    const salesSystem = generateSalesSystem(industryKey, archetype, mode, name || 'The Brand', description);
+    if (language === 'fr' && LOCALES.fr) {
+        rationale = LOCALES.fr.rationale(maxScore, industryName, archetype, mode);
+    }
+
+    const salesSystem = generateSalesSystem(industryKey, archetype, mode, name || 'The Brand', language, industryName);
 
     // 6. Assemble Full Response (Compass Schema)
+    const isFR = language === 'fr' && LOCALES.fr;
+    const loc = isFR ? LOCALES.fr.fallbacks : {};
+
     return {
         brand: {
-            name: name || 'The Brand',
+            name: name || (isFR ? 'La Marque' : 'The Brand'),
             description: description.slice(0, 150) + (description.length > 150 ? '...' : ''),
             fonts: industry.fonts,
             colors: industry.colors,
@@ -356,24 +483,30 @@ export function analyzeOffline({ name, description, language = 'en' }) {
             offer: {
                 coreOffer: description.slice(0, 80) + (description.length > 80 ? '...' : ''),
                 uvp: mode === 'B2B'
-                    ? `The premium ${industryName} partner using a ${archetype.name} framework to drive ${industry.scale} results.`
-                    : `The only ${industryName} brand using a ${archetype.name} approach to redefine ${industry.scale} lifestyle.`
+                    ? (isFR ? loc.uvpB2B(industryName, archetype.name) : `The premium ${industryName} partner using a ${archetype.name} framework to drive ${industry.scale} results.`)
+                    : (isFR ? loc.uvpB2C(industryName, archetype.name) : `The only ${industryName} brand using a ${archetype.name} approach to redefine ${industry.scale} lifestyle.`)
             },
             audience: {
-                avatarName: mode === 'B2B' ? 'The Strategic Decision Maker' : 'The Value-Seeking Individual',
-                primaryPain: 'Inefficiency and lack of clear strategic direction',
-                coreDesire: mode === 'B2B' ? 'Predictable ROI & Expansion' : 'Personal Transformation & Ease'
+                avatarName: mode === 'B2B'
+                    ? (isFR ? loc.avatarNameB2B : 'The Strategic Decision Maker')
+                    : (isFR ? loc.avatarNameB2C : 'The Value-Seeking Individual'),
+                primaryPain: isFR ? loc.primaryPain : 'Inefficiency and lack of clear strategic direction',
+                coreDesire: mode === 'B2B'
+                    ? (isFR ? loc.coreDesireB2B : 'Predictable ROI & Expansion')
+                    : (isFR ? loc.coreDesireB2C : 'Personal Transformation & Ease')
             },
             execution: {
                 channel: industry.channels.join(' & '),
                 contentPillar: industry.contentPillar,
-                immediateAction: `Audit current ${industry.channels[0]} presence for ${archetype.voice} consistency.`
+                immediateAction: isFR
+                    ? loc.action(industry.channels[0], archetype.voice)
+                    : `Audit current ${industry.channels[0]} presence for ${archetype.voice} consistency.`
             }
         },
-        optimizationTips: generateTips(scores, description, mode),
+        optimizationTips: generateTips(scores, description, mode, language),
         toolData: {
             brand: { brandName: name, industry: industryName, personality: archetype.name },
-            product: { productName: name, problemSolved: mode === 'B2B' ? 'Inefficiency in ' + industryName : 'Lack of ' + industryName + ' identity' },
+            product: { productName: name, problemSolved: mode === 'B2B' ? (isFR ? 'Inefficacité dans ' + industryName : 'Inefficiency in ' + industryName) : (isFR ? 'Manque d\'identité ' + industryName : 'Lack of ' + industryName + ' identity') },
             prospect: { prospectType: mode.toLowerCase() }
         },
         _meta: {
@@ -385,20 +518,39 @@ export function analyzeOffline({ name, description, language = 'en' }) {
     };
 }
 
-function generateTips(scores, description, mode) {
+function generateTips(scores, description, mode, language) {
+    const isFR = language === 'fr' && LOCALES.fr;
+    const t = isFR ? LOCALES.fr.tips : {
+        clarity: "⚠️ CLARITY: Your description is too vague. Explicitly state WHAT you offer to improve the strategy.",
+        precision: "📊 PRECISION: Add specific numbers (ROI, years, team size, % results) to build immediate trust.",
+        differentiation: "💎 DIFFERENTIATION: You sound like a generalist. Add a 'Why Us' sentence using your unique methodology.",
+        b2b: "🏢 B2B: Focus on Case Studies and Whitepapers. Your buyers need to minimize personal risk.",
+        b2c: "✨ B2C: Shorten the distance between 'Seeing' and 'Buying' with social proof and clear CTAs."
+    };
+
     const tips = [];
-    if (scores.clarity < 60) tips.push("⚠️ CLARITY: Your description is too vague. Explicitly state WHAT you offer to improve the strategy.");
-    if (scores.precision < 50) tips.push("📊 PRECISION: Add specific numbers (ROI, years, team size, % results) to build immediate trust.");
-    if (scores.differentiation < 50) tips.push("💎 DIFFERENTIATION: You sound like a generalist. Add a 'Why Us' sentence using your unique methodology.");
-    if (mode === 'B2B') tips.push("🏢 B2B: Focus on Case Studies and Whitepapers. Your buyers need to minimize personal risk.");
-    else tips.push("✨ B2C: Shorten the distance between 'Seeing' and 'Buying' with social proof and clear CTAs.");
+    if (scores.clarity < 60) tips.push(t.clarity);
+    if (scores.precision < 50) tips.push(t.precision);
+    if (scores.differentiation < 50) tips.push(t.differentiation);
+    if (mode === 'B2B') tips.push(t.b2b);
+    else tips.push(t.b2c);
     return tips.slice(0, 4);
 }
 
-function generateSalesSystem(industryKey, archetype, mode, brandName, description) {
+function generateSalesSystem(industryKey, archetype, mode, brandName, language, industryName) {
     const isB2B = mode === 'B2B';
-    const industryData = INDUSTRY_MAP[industryKey] || { name: 'Business' };
-    const industryName = industryData.name;
+    const isFR = language === 'fr' && LOCALES.fr;
+
+    if (isFR) {
+        const s = LOCALES.fr.salesSystem;
+        return {
+            product: s.product(brandName, industryName, isB2B),
+            reorder: s.reorder(brandName, industryName, isB2B),
+            opportunity: s.opportunity(brandName, industryName, isB2B),
+            upsell: s.upsell(brandName, industryName, isB2B),
+            team: s.team(brandName, industryName, isB2B)
+        };
+    }
 
     return {
         product: isB2B

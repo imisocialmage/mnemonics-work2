@@ -265,7 +265,7 @@ export const analyzeToolData = async (toolId, data, language = 'en') => {
             }
 
             // Map offline result to tool-specific structure
-            return mapOfflineResultToTool(toolId, offlineResult);
+            return mapOfflineResultToTool(toolId, offlineResult, language);
         } catch (fallbackError) {
             console.error(`[${toolId}] Critical Fallback Failure:`, fallbackError);
             throw error; // Throw original AI error if fallback also fails
@@ -374,26 +374,57 @@ const sanitizeAnalysisResult = (toolId, result) => {
 /**
  * Maps general offline analysis to specific tool requirements
  */
-const mapOfflineResultToTool = (toolId, offline) => {
+const mapOfflineResultToTool = (toolId, offline, language = 'en') => {
     // Inject defaults into the offline result first
     const sanitizedOffline = sanitizeAnalysisResult(toolId, offline);
 
     // Ensure offline scores exists to prevent crashes
     const scores = sanitizedOffline.scores || { clarity: 60, precision: 60, differentiation: 60 };
+    const isFR = language === 'fr';
+
+    const loc = {
+        brandEvaluator: {
+            analysis: isFR ? "Analyse heuristique terminée." : "Heuristic analysis complete.",
+            recommendationTitle: isFR ? "Conseil Stratégique" : "Strategic Clip",
+            recommendationDesc: isFR ? "Conseil exploitable." : "Actionable advice."
+        },
+        productProfiler: {
+            uvp: isFR ? "Proposition de valeur directe pour votre marché." : "Direct value proposition for your market.",
+            niche: isFR ? "Marché Général" : "General Market",
+            avatarRole: isFR ? "Client Idéal" : "Ideal Customer",
+            avatarPain: isFR ? "Identification des défis principaux" : "Identifying core challenges",
+            avatarHook: isFR ? "Résolution stratégique pour vos besoins primaires." : "Strategic resolution for your primary needs."
+        },
+        prospectProfiler: {
+            personality: isFR ? "Décideur Analytique" : "Analytical Decision Maker",
+            angle: isFR ? "Approche basée sur les bénéfices" : "Benefit-driven outreach",
+            msgTitle: isFR ? "Approche d'Autorité" : "Authority Approach",
+            msgContent: isFR ? "J'ai remarqué votre travail dans le domaine et je voulais partager une perspective spécifique..." : "I noticed your work in the field and wanted to share a specific insight..."
+        },
+        strategicRoadmap: {
+            summary: isFR ? "Alignement stratégique établi entre la marque et le produit." : "Strategic alignment established between brand and product.",
+            advantage: isFR ? "Positionnement professionnel basé sur un cadre structuré." : "Framework-grounded professional positioning.",
+            pillarTitle: isFR ? "Pilier Central" : "Core Pillar",
+            pillarDesc: isFR ? "Consolider l'identité de marque autour de la proposition de valeur principale." : "Consolidate brand identity around primary UVP.",
+            action1: isFR ? "Réviser l'alignement" : "Review alignment",
+            action2: isFR ? "Définir la cible principale" : "Define core target",
+            vision: isFR ? "Établir le leadership sur votre niche de marché." : "Establish market leadership in your niche."
+        }
+    };
 
     switch (toolId) {
         case 'brandEvaluator':
             return {
                 overallScore: (Number(scores.clarity || 60) + Number(scores.precision || 60) + Number(scores.differentiation || 60)) / 60,
-                analysis: sanitizedOffline.analysis || sanitizedOffline.rationale || "Heuristic analysis complete.",
+                analysis: sanitizedOffline.analysis || sanitizedOffline.rationale || loc.brandEvaluator.analysis,
                 recommendations: (sanitizedOffline.recommendations || sanitizedOffline.optimizationTips || []).map(tip => ({
-                    title: typeof tip === 'string' ? "Strategic Clip" : (tip.title || "Strategic Clip"),
-                    description: typeof tip === 'string' ? tip : (tip.description || "Actionable advice.")
+                    title: typeof tip === 'string' ? loc.brandEvaluator.recommendationTitle : (tip.title || loc.brandEvaluator.recommendationTitle),
+                    description: typeof tip === 'string' ? tip : (tip.description || loc.brandEvaluator.recommendationDesc)
                 })),
                 scores: {
                     clarity: Number(scores.clarity || 60) / 20,
                     relevance: 4,
-                    emotionalResonance: sanitizedOffline.profiles?.identity?.archetype === 'The Magician' ? 5 : 3,
+                    emotionalResonance: sanitizedOffline.profiles?.identity?.archetype === (isFR ? 'Le Magicien' : 'The Magician') ? 5 : 3,
                     originality: Number(scores.differentiation || 60) / 20,
                     storytelling: 3,
                     scalability: 4,
@@ -403,37 +434,37 @@ const mapOfflineResultToTool = (toolId, offline) => {
             };
         case 'productProfiler':
             return {
-                uvp: sanitizedOffline.uvp || sanitizedOffline.profiles?.offer?.uvp || "Direct value proposition for your market.",
-                targetNiches: sanitizedOffline.targetNiches || [sanitizedOffline.industry || "General Market"],
+                uvp: sanitizedOffline.uvp || sanitizedOffline.profiles?.offer?.uvp || loc.productProfiler.uvp,
+                targetNiches: sanitizedOffline.targetNiches || [sanitizedOffline.industry || loc.productProfiler.niche],
                 avatars: sanitizedOffline.avatars || [
                     {
-                        role: sanitizedOffline.profiles?.audience?.avatarName || "Ideal Customer",
-                        pain: sanitizedOffline.profiles?.audience?.primaryPain || "Identifying core challenges",
-                        hook: "Strategic resolution for your primary needs."
+                        role: sanitizedOffline.profiles?.audience?.avatarName || loc.productProfiler.avatarRole,
+                        pain: sanitizedOffline.profiles?.audience?.primaryPain || loc.productProfiler.avatarPain,
+                        hook: loc.productProfiler.avatarHook
                     }
                 ]
             };
         case 'prospectProfiler':
             return {
-                personalityType: sanitizedOffline.personalityType || "Analytical Decision Maker",
-                strategicAngle: sanitizedOffline.strategicAngle || "Benefit-driven outreach",
+                personalityType: sanitizedOffline.personalityType || loc.prospectProfiler.personality,
+                strategicAngle: sanitizedOffline.strategicAngle || loc.prospectProfiler.angle,
                 messages: sanitizedOffline.messages || [
                     {
-                        title: "Authority Approach",
-                        content: "I noticed your work in the field and wanted to share a specific insight...",
+                        title: loc.prospectProfiler.msgTitle,
+                        content: loc.prospectProfiler.msgContent,
                         ratings: { clarity: 8, relevance: 8, distinctiveness: 8, memorability: 8, scalability: 8 }
                     }
                 ]
             };
         case 'strategicRoadmap':
             return {
-                executiveSummary: "Strategic alignment established between brand and product.",
-                primaryCompetitiveAdvantage: "Framework-grounded professional positioning.",
+                executiveSummary: loc.strategicRoadmap.summary,
+                primaryCompetitiveAdvantage: loc.strategicRoadmap.advantage,
                 strategicPillars: [
-                    { title: "Core Pillar", description: "Consolidate brand identity around primary UVP." }
+                    { title: loc.strategicRoadmap.pillarTitle, description: loc.strategicRoadmap.pillarDesc }
                 ],
-                immediateActionPlan: ["Review alignment", "Define core target"],
-                longTermVision: "Establish market leadership in your niche."
+                immediateActionPlan: [loc.strategicRoadmap.action1, loc.strategicRoadmap.action2],
+                longTermVision: loc.strategicRoadmap.vision
             };
         case 'compass_profiler':
         case 'coreProfiler':

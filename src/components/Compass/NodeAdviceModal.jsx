@@ -38,12 +38,29 @@ const NodeAdviceModal = ({ isOpen, onClose, advice, nodeNames }) => {
                             <div className="advice-section">
                                 <h3 className="section-subtitle">{t('modal.focus_areas')}</h3>
                                 <div className="focus-areas">
-                                    {advice.focusAreas.map((area, index) => (
-                                        <div key={index} className="focus-area-item">
-                                            <span className="area-name">{t(`nodes.${area.name.toLowerCase().replace(/[^a-z]/g, '')}`)} -</span>
-                                            <span className="area-desc">{area.desc}</span>
-                                        </div>
-                                    ))}
+                                    {advice.focusAreas.map((area, index) => {
+                                        const nodeKeyMap = {
+                                            'ACQUISITION': 'acquisition',
+                                            'RETENTION': 'retention',
+                                            'HOW?': 'how',
+                                            'COMMENT ?': 'how',
+                                            'WHAT?': 'what',
+                                            'QUOI ?': 'what',
+                                            'CONVERSION': 'conversion',
+                                            'CALL TO ACT': 'calltoact',
+                                            'APPEL À L\'ACTION': 'calltoact',
+                                            'INTENTIONS': 'intentions',
+                                            'INTEREST': 'interest',
+                                            'INTÉRÊT': 'interest'
+                                        };
+                                        const nodeKey = nodeKeyMap[area.name.toUpperCase()] || area.name.toLowerCase().replace(/[^a-z]/g, '');
+                                        return (
+                                            <div key={index} className="focus-area-item">
+                                                <span className="area-name">{t(`nodes.${nodeKey}`)} -</span>
+                                                <span className="area-desc">{area.desc}</span>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
