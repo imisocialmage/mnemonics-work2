@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
-:root {
-  --midnight-black: #1A1A1A;
-  --digital-white: #FAFAFA;
-  --electric-blue: #2979FF;
-  --coral-red: #FF5C57;
-  --slate-gray: #B0B0B0;
-  --green-indicator: #00C853;
-  --yellow-accent: #FFD700;
-  --navy-blue: #1e3a8a;
+@theme {
+  --font-heading: "Space Grotesk", sans-serif;
+  --font-body: "Poppins", sans-serif;
 
-  --font-heading: 'Space Grotesk', sans-serif;
-  --font-body: 'Poppins', sans-serif;
+  --color-midnight-black: #1A1A1A;
+  --color-digital-white: #FAFAFA;
+  --color-electric-blue: #2979FF;
+  --color-coral-red: #FF5C57;
+  --color-slate-gray: #B0B0B0;
+  --color-green-indicator: #00C853;
+  --color-yellow-accent: #FFD700;
+  --color-navy-blue: #1e3a8a;
 }
 
 * {

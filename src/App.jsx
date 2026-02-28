@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { OBJECTIVES } from './data/compassData';
+import { OBJECTIVES, STRATEGIC_ADVICE, COMPASS_NODES, getHighlightedPositions, getLocalizedStrategicAdvice } from './data/compassData';
 import CompassWheel from './components/Compass/CompassWheel';
 import MarketingForm from './components/Form/MarketingForm';
 import ReportGenerator from './components/Report/ReportGenerator';
@@ -17,7 +17,7 @@ import ProgressTracker from './components/ProgressTracker/ProgressTracker';
 import CoreProfiler from './components/CoreProfiler/CoreProfiler'; // Added CoreProfiler import
 import AuthModal from './components/Auth/AuthModal'; // Added AuthModal import
 import UnlockGuideModal from './components/shared/UnlockGuideModal'; // Added UnlockGuideModal import
-import { STRATEGIC_ADVICE, COMPASS_NODES, getHighlightedPositions, getLocalizedStrategicAdvice } from './data/compassData';
+
 import NodeAdviceModal from './components/Compass/NodeAdviceModal';
 import { Compass, Award, Package, Users, MessageCircle, Sparkles, Lock, ClipboardList, Crown, X, Flame, Download, Upload, HelpCircle, CheckCircle, Layout, Target, Trash2 } from 'lucide-react';
 import { generateMasterReport } from './components/Report/MasterReportGenerator';

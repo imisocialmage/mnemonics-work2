@@ -1,5 +1,5 @@
 import { getGeminiResponse } from './geminiClient';
-import { getTemplate, getAssetBatch } from './AssetTemplates';
+import { getAssetBatch } from './AssetTemplates';
 import { analyzeOffline } from './offlineAnalyzer';
 
 /**

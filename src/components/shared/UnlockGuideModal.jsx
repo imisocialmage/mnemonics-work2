@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, CheckCircle2, Circle, ArrowRight, Sparkles, Lock } from 'lucide-react';
+import { X, CheckCircle, Circle, ArrowRight, Sparkles, Lock } from 'lucide-react';
 import './UnlockGuideModal.css';
 
 const UnlockGuideModal = ({ isOpen, onClose, completions, onNavigate }) => {
@@ -41,7 +41,7 @@ const UnlockGuideModal = ({ isOpen, onClose, completions, onNavigate }) => {
                             >
                                 <div className="step-status">
                                     {step.isDone ? (
-                                        <CheckCircle2 size={24} className="text-green-500" />
+                                        <CheckCircle size={24} className="text-green-500" />
                                     ) : (
                                         <Circle size={24} className="text-gray-600" />
                                     )}

@@ -16,14 +16,6 @@ export const getGeminiResponse = async (history, context, persona = 'strategic')
         ? persona
         : buildSystemPrompt(context, persona);
 
-    // Format history for Gemini API
-    const contents = history.map(msg => {
-        const parts = [{ text: msg.content || '' }];
-        return {
-            role: msg.role === 'user' ? 'user' : 'model',
-            parts: parts
-        };
-    });
 
     try {
         // 1. Check for valid session first to provide helpful error
