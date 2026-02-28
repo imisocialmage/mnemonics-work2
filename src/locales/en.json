@@ -29,13 +29,39 @@
         "title": "Core Profiler",
         "subtitle": "Synthesize your complete brand identity and sales system from a single description.",
         "ai_badge": "AI Brand Architect",
+        "ai_engine_v2": "Intelligence Engine V2",
+        "strategic_rationale": "Strategic Rationale",
+        "optimization_tips": "Optimization Tips",
+        "roadmap_title": "Your Strategic Roadmap",
         "actions": {
             "new_analysis": "New Analysis",
             "regenerate_top": "Regenerate Analysis",
             "build_website": "Build Website",
             "build_email": "Build Email",
             "save": "Save",
-            "regenerate": "Regenerate"
+            "regenerate": "Regenerate",
+            "apply_to_tools": "Apply to All Tools",
+            "data_applied": "Data Applied!",
+            "reset_tool": "Reset Tool"
+        },
+        "roadmap": {
+            "refine_identity": "Refine Identity",
+            "deep_dive_offer": "Deep Dive Offer",
+            "analyze_audience": "Analyze Audience",
+            "generate_visuals": "Generate Visuals",
+            "craft_messaging": "Craft Messaging",
+            "locked": "Locked"
+        },
+        "labels": {
+            "archetype": "Archetype",
+            "voice": "Voice",
+            "shadow": "Shadow",
+            "offer": "Offer",
+            "uvp": "UVP",
+            "avatar": "Avatar",
+            "desire": "Desire",
+            "channel": "Channel",
+            "next_action": "Next Action"
         },
         "modal": {
             "title": "Core Profiler",
@@ -43,7 +69,8 @@
             "name": "Brand name *",
             "description": "U.V.P description *",
             "placeholder": "Describe what you do, who you serve, and the value you provide...",
-            "submit": "Analyze & Synthesize"
+            "submit": "Analyze & Synthesize",
+            "demo": "Try Demo Mode"
         },
         "brand": {
             "title": "Brand Identity",

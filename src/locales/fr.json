@@ -23,7 +23,139 @@
         "description": "Le Pitch Master IA nécessite votre plan d'affaires complet. Complétez ces bases pour activer vos pitchs personnalisés.",
         "go_to_tool": "Aller à l'outil",
         "launch_now": "Lancer le Pitch Master",
-        "remaining_msg": "Encore {{count}} étapes pour débloquer"
+        "remaining_msg": "{{count}} étapes restantes pour débloquer"
+    },
+    "core_profiler": {
+        "title": "Profilage Central",
+        "subtitle": "Synthétisez votre identité de marque complète et votre système de vente à partir d'une seule description.",
+        "ai_badge": "Architecte de Marque IA",
+        "ai_engine_v2": "Moteur d'Intelligence V2",
+        "strategic_rationale": "Raison Stratégique",
+        "optimization_tips": "Conseils d'Optimisation",
+        "roadmap_title": "Votre Feuille de Route Stratégique",
+        "actions": {
+            "new_analysis": "Nouvelle Analyse",
+            "regenerate_top": "Régénérer l'Analyse",
+            "build_website": "Créer Site Web",
+            "build_email": "Créer E-mail",
+            "save": "Enregistrer",
+            "regenerate": "Régénérer",
+            "apply_to_tools": "Appliquer à tous les outils",
+            "data_applied": "Données appliquées !",
+            "reset_tool": "Réinitialiser"
+        },
+        "roadmap": {
+            "refine_identity": "Affiner l'Identité",
+            "deep_dive_offer": "Approfondir l'Offre",
+            "analyze_audience": "Analyser l'Audience",
+            "generate_visuals": "Générer des Visuels",
+            "craft_messaging": "Créer la Messagerie",
+            "locked": "Verrouillé"
+        },
+        "labels": {
+            "archetype": "Archétype",
+            "voice": "Voix",
+            "shadow": "Ombre",
+            "offer": "Offre",
+            "uvp": "U.V.P",
+            "avatar": "Avatar",
+            "desire": "Désir",
+            "channel": "Canal",
+            "next_action": "Action Suivante"
+        },
+        "modal": {
+            "title": "Profil de Base",
+            "language": "Langue de l'IA *",
+            "name": "Nom de la marque *",
+            "description": "Description de l'U.V.P *",
+            "placeholder": "Décrivez ce que vous faites, qui vous servez et la valeur que vous apportez...",
+            "submit": "Analyser & Synthétiser",
+            "demo": "Essayer le Mode Démo"
+        },
+        "brand": {
+            "title": "Identité de Marque",
+            "description_label": "Votre description d'entreprise ou de produit IA *",
+            "keywords_label": "Mots-clés",
+            "fonts_label": "Polices de Marque",
+            "colors_label": "Couleurs de Marque",
+            "headers": "Titres",
+            "body": "Corps de texte"
+        },
+        "sales_system": {
+            "title": "Système de Vente",
+            "tabs": {
+                "product": "Produit",
+                "reorder": "Réassort",
+                "opportunity": "Opportunité",
+                "upsell": "Vente Incitative",
+                "team": "Équipe"
+            },
+            "regenerate": "Régénérer le Système"
+        }
+    },
+    "compass_profiler": {
+        "title": "Profil Compass",
+        "input_title": "Définissez Votre Direction",
+        "input_subtitle": "Parlez-nous de votre entreprise, et nous cartographierons toute votre stratégie.",
+        "error_short_description": "Veuillez fournir une description détaillée (au moins 50 caractères)."
+    },
+    "asset_ai": {
+        "title": "Maquette visuelle d'actif marketing",
+        "description": "Générez des concepts de pages de destination à haute conversion, des palettes de couleurs et des titres basés sur votre plan stratégique.",
+        "upload_title": "Contexte visuel de la marque",
+        "upload_desc": "Téléchargez jusqu'à 3 images (logos, site actuel ou inspiration) pour aligner la direction artistique de l'IA.",
+        "generate": "Générer la maquette",
+        "results_title": "Votre stratégie visuelle",
+        "controls": {
+            "colors": "Couleurs",
+            "image": "Image",
+            "links": "Liens",
+            "format": "Format",
+            "view": "Vue",
+            "desktop": "Bureau",
+            "mobile": "Mobile"
+        },
+        "help": {
+            "title": "Comment utiliser l'IA d'Asset",
+            "subtitle": "Transformez votre stratégie en maquettes visuelles époustouflantes",
+            "step1_title": "Complétez vos fondations",
+            "step1_desc": "Avant de générer des maquettes, assurez-vous d'avoir complété :",
+            "step2_title": "Ajouter un contexte visuel (Optionnel)",
+            "step2_desc": "Téléchargez jusqu'à 3 images pour guider la direction artistique de l'IA :",
+            "step2_list": [
+                "Votre logo ou actifs de marque",
+                "Site web ou page de destination actuelle",
+                "Inspiration design ou exemples concurrents"
+            ],
+            "step3_title": "Générer votre maquette",
+            "step3_desc": "Cliquez sur le bouton \"Générer la maquette\". L'IA va :",
+            "step3_list": [
+                "Analyser vos données stratégiques de tous les outils complétés",
+                "Créer un concept de page de destination sur mesure",
+                "Concevoir des mises en page et des filaires de composants",
+                "Générer des palettes de couleurs et des suggestions de typographie",
+                "Rédiger des titres et des textes à haute conversion"
+            ],
+            "step4_title": "Réviser & Itérer",
+            "step4_desc": "Votre maquette est automatiquement enregistrée. Vous pouvez :",
+            "step4_list": [
+                "Régénérer pour de nouvelles variations",
+                "Voir l'historique pour voir toutes les maquettes passées",
+                "Restaurer n'importe quelle version précédente"
+            ],
+            "pro_tip_label": "Conseil Pro :",
+            "pro_tip": "Le plus complet sera votre profil, le plus adapté et efficace sera votre maquette visuelle !",
+            "got_it": "Compris, créons !"
+        },
+        "history": {
+            "title": "Historique des Maquettes",
+            "empty": "Aucune maquette générée pour le moment.",
+            "restore": "Restaurer",
+            "delete": "Supprimer",
+            "current": "Actuel",
+            "view_history": "Voir l'Historique",
+            "back": "Retour à la Conception"
+        }
     },
     "profiles": {
         "title": "Profils Stratégiques",
@@ -394,70 +526,95 @@
         "soft_skills": "Acquérir des compétences humaines",
         "distribution": "Posséder la distribution",
         "protect_real": "Protéger la vie réelle",
-        "run_business": "Gérer comme une entreprise"
+        "run_business": "Gérer comme une entreprise",
+        "attributes": {
+            "clarity": "Clarté",
+            "relevance": "Pertinence",
+            "distinctiveness": "Caractère distinctif",
+            "memorability": "Mémorabilité",
+            "scalability": "Évolutivité"
+        }
     },
-    "paths": {
-        "college": "Université/Faculté",
-        "trade": "École de métier",
-        "military": "Militaire",
-        "entrepreneur": "Entrepreneuriat direct",
-        "unsure": "Exploration des options"
+    "unlock": {
+        "title": "Débloquer le Suivi de Progrès",
+        "description": "Entrez le code administrateur pour obtenir un accès anticipé au Suivi de Progrès High-Trust Doer.",
+        "placeholder": "Entrez le code...",
+        "submit": "Débloquer",
+        "error": "Code invalide. Veuillez réessayer."
     },
-    "ui": {
-        "log_activity": "Enregistrer une activité",
-        "settings": "Paramètres",
-        "total_xp": "XP Total",
-        "week_streak": "Série Hebdomadaire",
-        "portfolio_pieces": "Pièces du Portfolio",
-        "activities_logged": "Activités Enregistrées",
-        "active_days": "Jours Actifs",
-        "dashboard": "Tableau de bord",
-        "principles": "Principes",
-        "portfolio": "Portfolio",
-        "activities": "Activités",
-        "export": "Exporter les données",
-        "reset": "Réinitialiser toutes les données",
-        "goal_12_month": "Obectif 12 Mois",
-        "recent_activities": "Activités Récentes",
-        "add_piece": "Ajouter une pièce",
-        "save_profile": "Enregistrer le profil",
-        "delete_confirm": "Supprimer cette pièce ?",
-        "delete_confirm_all": "⚠️ Cela supprimera TOUTES les données. Êtes-vous sûr ?",
-        "no_goal_set": "Aucun objectif défini.",
-        "no_activities_yet": "Aucune activité pour le moment.",
-        "portfolio_highlights": "Points forts du portfolio",
-        "view_project": "Voir le projet",
-        "full_activity_log": "Journal complet des activités",
-        "export_data": "Exporter les données",
-        "reset_data": "Réinitialiser les données",
-        "edit_profile": "Modifier le profil",
-        "set_up_profile": "Configurez votre profil",
-        "full_name": "Nom Complet",
-        "your_name_placeholder": "Votre Nom",
-        "current_path": "Parcours Actuel",
-        "focus_interest": "Focus/Intérêt",
-        "focus_placeholder": "ex: Python, Menuiserie",
-        "goal_placeholder": "Où voulez-vous être dans un an ?",
-        "principle": "Principe",
-        "activity_title": "Titre de l'activité",
-        "activity_title_placeholder": "Qu'avez-vous fait ?",
-        "description": "Description",
-        "description_placeholder": "Décrivez brièvement le résultat...",
-        "date": "Date",
-        "xp_value": "Valeur XP",
-        "add_portfolio_piece": "Ajouter une pièce au portfolio",
-        "project_title": "Titre du projet",
-        "project_title_placeholder": "Nom de votre travail",
-        "type": "Type",
-        "type_case_study": "Étude de cas",
-        "type_automation": "Automatisation",
-        "type_app": "App/Tableau de bord",
-        "type_repair": "Réparation de projet",
-        "full_description": "Description complète",
-        "full_description_placeholder": "Problème, Solution, Résultats...",
-        "skills_tools": "Compétences & Outils",
-        "skills_placeholder": "ex: React, SQL, Menuiserie",
-        "project_link": "Lien du projet"
+    "tracker": {
+        "principles": {
+            "real_work": "Construire quelque chose de réel",
+            "ai_driver": "Piloter les outils IA",
+            "portfolio": "Bâtir son Portfolio",
+            "soft_skills": "Accumuler des compétences humaines",
+            "distribution": "Posséder sa distribution",
+            "protect_real": "Protéger la vie réelle",
+            "run_business": "Gérer comme une entreprise"
+        },
+        "paths": {
+            "college": "Université/Faculté",
+            "trade": "École de métier",
+            "military": "Militaire",
+            "entrepreneur": "Entrepreneuriat direct",
+            "unsure": "Exploration des options"
+        },
+        "ui": {
+            "log_activity": "Enregistrer une activité",
+            "settings": "Paramètres",
+            "total_xp": "XP Total",
+            "week_streak": "Série Hebdomadaire",
+            "portfolio_pieces": "Pièces du Portfolio",
+            "activities_logged": "Activités Enregistrées",
+            "active_days": "Jours Actifs",
+            "dashboard": "Tableau de bord",
+            "principles": "Principes",
+            "portfolio": "Portfolio",
+            "activities": "Activités",
+            "export": "Exporter les données",
+            "reset": "Réinitialiser toutes les données",
+            "goal_12_month": "Obectif 12 Mois",
+            "recent_activities": "Activités Récentes",
+            "add_piece": "Ajouter une pièce",
+            "save_profile": "Enregistrer le profil",
+            "delete_confirm": "Supprimer cette pièce ?",
+            "delete_confirm_all": "⚠️ Cela supprimera TOUTES les données. Êtes-vous sûr ?",
+            "no_goal_set": "Aucun objectif défini.",
+            "no_activities_yet": "Aucune activité pour le moment.",
+            "portfolio_highlights": "Points forts du portfolio",
+            "view_project": "Voir le projet",
+            "full_activity_log": "Journal complet des activités",
+            "export_data": "Exporter les données",
+            "reset_data": "Réinitialiser les données",
+            "edit_profile": "Modifier le profil",
+            "set_up_profile": "Configurez votre profil",
+            "full_name": "Nom Complet",
+            "your_name_placeholder": "Votre Nom",
+            "current_path": "Parcours Actuel",
+            "focus_interest": "Focus/Intérêt",
+            "focus_placeholder": "ex: Python, Menuiserie",
+            "goal_placeholder": "Où voulez-vous être dans un an ?",
+            "principle": "Principe",
+            "activity_title": "Titre de l'activité",
+            "activity_title_placeholder": "Qu'avez-vous fait ?",
+            "description": "Description",
+            "description_placeholder": "Décrivez brièvement le résultat...",
+            "date": "Date",
+            "xp_value": "Valeur XP",
+            "add_portfolio_piece": "Ajouter une pièce au portfolio",
+            "project_title": "Titre du projet",
+            "project_title_placeholder": "Nom de votre travail",
+            "type": "Type",
+            "type_case_study": "Étude de cas",
+            "type_automation": "Automatisation",
+            "type_app": "App/Tableau de bord",
+            "type_repair": "Réparation de projet",
+            "full_description": "Description complète",
+            "full_description_placeholder": "Problème, Solution, Résultats...",
+            "skills_tools": "Compétences & Outils",
+            "skills_placeholder": "ex: React, SQL, Menuiserie",
+            "project_link": "Lien du projet"
+        }
     },
     "common": {
         "search": "Rechercher",
@@ -637,148 +794,10 @@
         "retention": "Rétention",
         "how": "Comment ?",
         "calltoact": "Appel à l'action",
-        "conversation": "Conversation Guide",
-        "strategic": "Master Roadmap",
-        "asset": "Asset AI",
-        "soloCorp": "SoloCorp 101",
-        "core_profiler": "Profil de Base",
-        "compass_profiler": "Profil Compass",
-        "locked": "🔒 Verrouillé",
         "intentions": "Intentions",
         "interest": "Intérêt",
         "what": "Quoi ?",
         "conversion": "Conversion"
-    },
-    "core_profiler": {
-        "title": "Profilage Central",
-        "subtitle": "Synthétisez votre identité de marque complète et votre système de vente à partir d'une seule description.",
-        "ai_badge": "Architecte de Marque IA",
-        "strategic_rationale": "Raison Stratégique",
-        "optimization_tips": "Conseils d'Optimisation",
-        "roadmap_title": "Votre Feuille de Route Stratégique",
-        "roadmap": {
-            "refine_identity": "Affiner l'Identité",
-            "deep_dive_offer": "Approfondir l'Offre",
-            "analyze_audience": "Analyser l'Audience",
-            "generate_visuals": "Générer des Visuels",
-            "craft_messaging": "Créer le Messagerie",
-            "locked": "Verrouillé"
-        },
-        "labels": {
-            "archetype": "Archétype",
-            "voice": "Voix",
-            "shadow": "Ombre",
-            "offer": "Offre",
-            "uvp": "U.V.P",
-            "avatar": "Avatar",
-            "desire": "Désir",
-            "channel": "Canal",
-            "next_action": "Action Suivante"
-        },
-        "actions": {
-            "new_analysis": "Nouvelle Analyse",
-            "regenerate_top": "Régénérer l'Analyse",
-            "build_website": "Créer Site Web",
-            "build_email": "Créer E-mail",
-            "save": "Enregistrer",
-            "regenerate": "Régénérer",
-            "apply_to_tools": "Appliquer à tous les outils",
-            "data_applied": "Données appliquées !",
-            "reset_tool": "Réinitialiser"
-        },
-        "modal": {
-            "title": "Profil de Base",
-            "language": "Langue de l'IA *",
-            "name": "Nom de la marque *",
-            "description": "Description de l'U.V.P *",
-            "placeholder": "Décrivez ce que vous faites, qui vous servez et la valeur que vous apportez...",
-            "submit": "Analyser & Synthétiser",
-            "demo": "Essayer le Mode Démo"
-        },
-        "brand": {
-            "title": "Identité de Marque",
-            "description_label": "Votre description d'entreprise ou de produit IA *",
-            "keywords_label": "Mots-clés",
-            "fonts_label": "Polices de Marque",
-            "colors_label": "Couleurs de Marque",
-            "headers": "Titres",
-            "body": "Corps de texte"
-        },
-        "sales_system": {
-            "title": "Système de Vente",
-            "tabs": {
-                "product": "Produit",
-                "reorder": "Réassort",
-                "opportunity": "Opportunité",
-                "upsell": "Vente Incitative",
-                "team": "Équipe"
-            },
-            "regenerate": "Régénérer le Système"
-        }
-    },
-    "compass_profiler": {
-        "title": "Profil Compass",
-        "input_title": "Définissez Votre Direction",
-        "input_subtitle": "Parlez-nous de votre entreprise, et nous cartographierons toute votre stratégie.",
-        "error_short_description": "Veuillez fournir une description détaillée (au moins 50 caractères)."
-    },
-    "asset_ai": {
-        "title": "Maquette visuelle d'actif marketing",
-        "description": "Générez des concepts de pages de destination à haute conversion, des palettes de couleurs et des titres basés sur votre plan stratégique.",
-        "upload_title": "Contexte visuel de la marque",
-        "upload_desc": "Téléchargez jusqu'à 3 images (logos, site actuel ou inspiration) pour aligner la direction artistique de l'IA.",
-        "generate": "Générer la maquette",
-        "results_title": "Votre stratégie visuelle",
-        "controls": {
-            "colors": "Couleurs",
-            "image": "Image",
-            "links": "Liens",
-            "format": "Format",
-            "view": "Vue",
-            "desktop": "Bureau",
-            "mobile": "Mobile"
-        },
-        "help": {
-            "title": "Comment utiliser l'IA d'Asset",
-            "subtitle": "Transformez votre stratégie en maquettes visuelles époustouflantes",
-            "step1_title": "Complétez vos fondations",
-            "step1_desc": "Avant de générer des maquettes, assurez-vous d'avoir complété :",
-            "step2_title": "Ajouter un contexte visuel (Optionnel)",
-            "step2_desc": "Téléchargez jusqu'à 3 images pour guider la direction artistique de l'IA :",
-            "step2_list": [
-                "Votre logo ou actifs de marque",
-                "Site web ou page de destination actuelle",
-                "Inspiration design ou exemples concurrents"
-            ],
-            "step3_title": "Générer votre maquette",
-            "step3_desc": "Cliquez sur le bouton \"Générer la maquette\". L'IA va :",
-            "step3_list": [
-                "Analyser vos données stratégiques de tous les outils complétés",
-                "Créer un concept de page de destination sur mesure",
-                "Concevoir des mises en page et des filaires de composants",
-                "Générer des palettes de couleurs et des suggestions de typographie",
-                "Rédiger des titres et des textes à haute conversion"
-            ],
-            "step4_title": "Réviser & Itérer",
-            "step4_desc": "Votre maquette est automatiquement enregistrée. Vous pouvez :",
-            "step4_list": [
-                "Régénérer pour de nouvelles variations",
-                "Voir l'historique pour voir toutes les maquettes passées",
-                "Restaurer n'importe quelle version précédente"
-            ],
-            "pro_tip_label": "Conseil Pro :",
-            "pro_tip": "Le plus complet sera votre profil, le plus adapté et efficace sera votre maquette visuelle !",
-            "got_it": "Compris, créons !"
-        },
-        "history": {
-            "title": "Historique des Maquettes",
-            "empty": "Aucune maquette générée pour le moment.",
-            "restore": "Restaurer",
-            "delete": "Supprimer",
-            "current": "Actuel",
-            "view_history": "Voir l'Historique",
-            "back": "Retour à la Conception"
-        }
     },
     "objectives": {
         "acquisition": "Acquisition - Attirer de nouveaux clients",

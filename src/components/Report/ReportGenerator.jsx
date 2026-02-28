@@ -28,10 +28,10 @@ const ReportGenerator = ({ formData, selectedObjective }) => {
         try {
             const profileIndex = formData.profileIndex || 0;
             const brandData = JSON.parse(localStorage.getItem(`imi-p${profileIndex}-imi-compass-data`) || '{}');
-            const bEvalData = JSON.parse(localStorage.getItem(`imi-p${profileIndex}-imi-brand-evaluator-data`) || '{}');
+            const bEvalData = JSON.parse(localStorage.getItem(`imi-p${profileIndex}-imi-brand-data`) || '{}');
             const pProfData = JSON.parse(localStorage.getItem(`imi-p${profileIndex}-imi-product-data`) || '{}');
             const prProfData = JSON.parse(localStorage.getItem(`imi-p${profileIndex}-imi-prospect-data`) || '{}');
-            const cGuideData = JSON.parse(localStorage.getItem(`imi-p${profileIndex}-imi-guide-data`) || '{}');
+            const cGuideData = JSON.parse(localStorage.getItem(`imi-p${profileIndex}-imi-conversation-data`) || '{}');
 
             const brandName = brandData?.brandName || 'Your Brand';
 

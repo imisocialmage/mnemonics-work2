@@ -17,7 +17,6 @@ export const generateMasterReport = (profileIndex = 0) => {
     const productData = getProfileData('imi-product-data');
     const prospectData = getProfileData('imi-prospect-data');
     const conversationData = getProfileData('imi-conversation-data');
-    const guideData = getProfileData('imi-guide-data');
     const strategicData = getProfileData('imi-strategic-roadmap');
 
     const brandName = compassData?.brandName || brandData?.brandName || 'Your Brand';
