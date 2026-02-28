@@ -28,7 +28,7 @@ export const getGeminiResponse = async (history, context, persona = 'strategic')
         const { data: supabaseResponse, error: supabaseError } = await supabase.functions.invoke('gemini', {
             body: {
                 systemInstruction: systemPrompt,
-                history: history.map(m => ({
+                contents: history.map(m => ({
                     role: m.role === 'user' ? 'user' : 'model',
                     parts: [{ text: m.content || '' }]
                 }))
